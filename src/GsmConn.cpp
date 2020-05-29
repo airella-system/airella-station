@@ -1,6 +1,6 @@
 #include "GsmConn.h"
 
-void GsmConn::start()
+int GsmConn::start()
 {
 }
 
@@ -8,14 +8,14 @@ void GsmConn::stop()
 {
 }
 
-void GsmConn::httpGet(String url)
+Http::Response GsmConn::httpGet(String url)
 {
 }
 
-void GsmConn::httpPost(String url, String json)
+Http::Response GsmConn::httpPost(String url, String json)
 {
 }
 
-void GsmConn::httpPut(String url, String json)
+Http::Response GsmConn::httpPut(String url, String json)
 {
 }

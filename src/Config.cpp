@@ -10,6 +10,7 @@ void Config::load()
     this->wifiSsid = preferences.getString("wifi-ssid", "");
     this->wifiPassword = preferences.getString("wifi-pass", "");
     this->registratonToken = preferences.getString("register-tok", "");
+    this->refreshToken = preferences.getString("refresh-tok", "");
     this->apiUrl = preferences.getString("api-url", "");
     preferences.end();
 }
@@ -18,6 +19,12 @@ void Config::save()
 {
     preferences.begin("prefs", false);
     preferences.putString("dev-pass", Config::getDevicePassword());
+    preferences.putString("wifi-ssid", Config::getWifiSsid());
+    preferences.putString("wifi-pass", Config::getWifiPassword());
+    preferences.putString("register-tok", Config::getRegistratonToken());
+    preferences.putString("refresh-tok", Config::getRefreshToken());
+    preferences.putString("api-url", Config::getApiUrl());
+
     preferences.end();
 }
 

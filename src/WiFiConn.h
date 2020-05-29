@@ -1,14 +1,14 @@
 #pragma once
-
+#include "Http.h"
 #include <Arduino.h>
 
 class WiFiConn
 {
 
 public:
-    static void start();
+    static int start();
     static void stop();
-    static void httpGet(String url);
-    static void httpPost(String url, String json);
-    static void httpPut(String url, String json);
+    static Http::Response httpGet(String url);
+    static Http::Response httpPost(String url, String json);
+    static Http::Response httpPut(String url, String json);
 };

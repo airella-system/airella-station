@@ -1,6 +1,7 @@
 #include "Bluetooth.h"
 #include "Config.h"
 
+BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 BLECharacteristic *Bluetooth::devPasswordCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::inetConnTypeCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::ssidCharacteristic = nullptr;
@@ -9,7 +10,7 @@ BLECharacteristic *Bluetooth::registerTokenCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::apiUrlCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::devStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::applyConfigCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 
 class MySecurity : public BLESecurityCallbacks
 {
@@ -38,49 +39,49 @@ class MySecurity : public BLESecurityCallbacks
     }
 };
 
-class MyCallbacks : public BLECharacteristicCallbacks
+class WifiSsidCallback : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
     {
         std::string value = pCharacteristic->getValue();
-        String val = String(value.c_str());
-        if (value.length() > 0)
-        {
-            for (int i = 0; i < value.length(); i++)
-                Serial.print(value[i]);
-        }
-        Config::instance().setDevicePassword(val);
+        String stringValue = String(value.c_str());
+        Config::instance().setWifiSsid(stringValue);
         Config::instance().save();
     }
 };
 
-class MyCallbackHandler : public BLECharacteristicCallbacks
+class WifiPasswordCallback : public BLECharacteristicCallbacks
 {
-    void onRead(BLECharacteristic *pCharacteristic)
-    {
-    }
     void onWrite(BLECharacteristic *pCharacteristic)
     {
+        std::string value = pCharacteristic->getValue();
+        String stringValue = String(value.c_str());
+        Config::instance().setWifiPassword(stringValue);
+        Config::instance().save();
     }
 };
 
-void Bluetooth::start()
+class RefreshDeviceCallback : public BLECharacteristicCallbacks
 {
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        Bluetooth::bluetoothHandler->deviceRefreshRequest();
+    }
+};
+
+void Bluetooth::start(BluetoothHandler *bluetoothHandler)
+{
+    Bluetooth::bluetoothHandler = bluetoothHandler;
     BLEDevice::init("Airella Station");
     BLEDevice::setEncryptionLevel(ESP_BLE_SEC_ENCRYPT);
     BLEDevice::setSecurityCallbacks(new MySecurity());
     BLEServer *pServer = BLEDevice::createServer();
-    BLEService *pService = pServer->createService(BLEUUID((const char*)SERVICE_UUID), 30);
+    BLEService *pService = pServer->createService(BLEUUID((const char *)SERVICE_UUID), 30);
 
     devPasswordCharacteristic = pService->createCharacteristic(
         DEVICE_PASSWORD_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
-    devPasswordCharacteristic->setCallbacks(new MyCallbacks());
-    String devPass = Config::instance().getDevicePassword();
-    std::string devPassStd(devPass.c_str());
-    Serial.print("Starting Bluetooth with password: ");
-    Serial.println(devPass);
-    devPasswordCharacteristic->setValue(devPassStd);
+    //devPasswordCharacteristic->setCallbacks(new WifiSsidCallback());
 
     inetConnTypeCharacteristic = pService->createCharacteristic(
         INTERNET_CONNECTION_TYPE_CHARACTERISTIC_UUID,
@@ -90,12 +91,14 @@ void Bluetooth::start()
     ssidCharacteristic = pService->createCharacteristic(
         SSID_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
-    //ssidCharacteristic->setCallbacks(new MyCallbacks());
+    ssidCharacteristic->setCallbacks(new WifiSsidCallback());
+    ssidCharacteristic->setValue(Config::instance().getWifiSsid().c_str());
 
     wifiPassCharacteristic = pService->createCharacteristic(
         WIFI_PASWORD_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
-    //wifiPassCharacteristic->setCallbacks(new MyCallbacks());
+    wifiPassCharacteristic->setCallbacks(new WifiPasswordCallback());
+    wifiPassCharacteristic->setValue(Config::instance().getWifiPassword().c_str());
 
     registerTokenCharacteristic = pService->createCharacteristic(
         REGISTRATION_TOKEN_CHARACTERISTIC_UUID,
@@ -117,10 +120,10 @@ void Bluetooth::start()
         BLECharacteristic::PROPERTY_READ);
     //connStateCharacteristic->setCallbacks(new MyCallbacks());
 
-    applyConfigCharacteristic = pService->createCharacteristic(
-        APPLY_CONFIG_CHARACTERISTIC_UUID,
+    refreshDeviceCharacteristic = pService->createCharacteristic(
+        REFRESH_DEVICE_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
-    //applyConfigCharacteristic->setCallbacks(new MyCallbacks());
+    refreshDeviceCharacteristic->setCallbacks(new RefreshDeviceCallback());
 
     pService->start();
     BLEAdvertising *pAdvertising = pServer->getAdvertising();

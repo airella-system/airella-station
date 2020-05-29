@@ -1,10 +1,9 @@
-
-
 #pragma once
 
 #include <Arduino.h>
 #include "WiFiConn.h"
 #include "GsmConn.h"
+#include "Http.h"
 
 class Internet
 {
@@ -17,11 +16,11 @@ public:
     };
 
     static void setType(Type type);
-    static void start();
+    static int start();
     static void stop();
-    static void httpGet(String url);
-    static void httpPost(String url, String json);
-    static void httpPut(String url, String json);
+    static Http::Response httpGet(String url);
+    static Http::Response httpPost(String url, String json);
+    static Http::Response httpPut(String url, String json);
 
 private:
     static Type type;

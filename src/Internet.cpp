@@ -2,9 +2,9 @@
 
 Internet::Type Internet::type = Internet::WIFI;
 
-void Internet::start()
+int Internet::start()
 {
-    Internet::type == Internet::WIFI ? WiFiConn::start() : GsmConn::start();
+    return Internet::type == Internet::WIFI ? WiFiConn::start() : GsmConn::start();
 }
 
 void Internet::stop()
@@ -12,19 +12,19 @@ void Internet::stop()
     Internet::type == Internet::WIFI ? WiFiConn::stop() : GsmConn::stop();
 }
 
-void Internet::httpGet(String url)
+Http::Response Internet::httpGet(String url)
 {
-    Internet::type == Internet::WIFI ? WiFiConn::httpGet(url) : GsmConn::httpGet(url);
+    return Internet::type == Internet::WIFI ? WiFiConn::httpGet(url) : GsmConn::httpGet(url);
 }
 
-void Internet::httpPost(String url, String body)
+Http::Response Internet::httpPost(String url, String body)
 {
-    Internet::type == Internet::WIFI ? WiFiConn::httpPost(url, body) : GsmConn::httpPost(url, body);
+    return Internet::type == Internet::WIFI ? WiFiConn::httpPost(url, body) : GsmConn::httpPost(url, body);
 }
 
-void Internet::httpPut(String url, String body)
+Http::Response Internet::httpPut(String url, String body)
 {
-    Internet::type == Internet::WIFI ? WiFiConn::httpPut(url, body) : GsmConn::httpPut(url, body);
+    return Internet::type == Internet::WIFI ? WiFiConn::httpPut(url, body) : GsmConn::httpPut(url, body);
 }
 
 void Internet::setType(Type type)
