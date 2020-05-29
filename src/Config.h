@@ -20,6 +20,7 @@ public:
     String getWifiSsid();
     String getWifiPassword();
     String getRegistratonToken();
+    String getRefreshToken();
     String getApiUrl();
 
     void setDevicePassword(String devicePassword);
@@ -27,6 +28,7 @@ public:
     void setWifiSsid(String wifiSsid);
     void setWifiPassword(String wifiPassword);
     void setRegistratonToken(String registratonToken);
+    void setRefreshToken(String refreshToken);
     void setApiUrl(String apiUrl);
 
     static Config &instance()
@@ -42,5 +44,6 @@ private:
     String wifiSsid;
     String wifiPassword;
     String registratonToken;
+    String refreshToken;
     String apiUrl;
 };

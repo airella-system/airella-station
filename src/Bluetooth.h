@@ -23,7 +23,6 @@ public:
     static void start();
 
 private:
-    int essa;
     static BLECharacteristic *devPasswordCharacteristic;
     static BLECharacteristic *inetConnTypeCharacteristic;
     static BLECharacteristic *ssidCharacteristic;

@@ -46,6 +46,11 @@ String Config::getRegistratonToken()
     return this->registratonToken;
 }
 
+String Config::getRefreshToken()
+{
+    return this->refreshToken;
+}
+
 String Config::getApiUrl()
 {
     return this->apiUrl;
@@ -74,6 +79,11 @@ void Config::setWifiPassword(String wifiPassword)
 void Config::setRegistratonToken(String registratonToken)
 {
     this->registratonToken = registratonToken;
+}
+
+void Config::setRefreshToken(String refreshToken)
+{
+    this->refreshToken = refreshToken;
 }
 
 void Config::setApiUrl(String apiUrl)
