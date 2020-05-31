@@ -1,4 +1,4 @@
-#include "GsmConn.h"
+#include "communication/gsm/GsmConn.h"
 
 int GsmConn::start()
 {

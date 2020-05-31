@@ -1,7 +1,7 @@
-#include "WiFiConn.h"
+#include "communication/wifi/WiFiConn.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include "Config.h"
+#include "config/Config.h"
 
 static HTTPClient http;
 int WiFiConn::start()
