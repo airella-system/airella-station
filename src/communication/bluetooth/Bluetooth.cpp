@@ -1,5 +1,5 @@
-#include "Bluetooth.h"
-#include "Config.h"
+#include "communication/bluetooth/Bluetooth.h"
+#include "config/Config.h"
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 BLECharacteristic *Bluetooth::devPasswordCharacteristic = nullptr;

@@ -1,4 +1,4 @@
-#include "Internet.h"
+#include "communication/common/Internet.h"
 
 Internet::Type Internet::type = Internet::WIFI;
 

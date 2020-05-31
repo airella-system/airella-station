@@ -1,9 +1,9 @@
 #include <Arduino.h>
-#include "Config.h"
-#include "Bluetooth.h"
-#include "BluetoothHandler.h"
+#include "config/Config.h"
+#include "communication/bluetooth/Bluetooth.h"
+#include "communication/bluetooth/BluetoothHandler.h"
 
-#include "Internet.h"
+#include "communication/common/Internet.h"
 
 class MyBluetoothHandler : public BluetoothHandler
 {

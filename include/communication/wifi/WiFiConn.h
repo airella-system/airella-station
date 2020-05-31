@@ -1,5 +1,5 @@
 #pragma once
-#include "Http.h"
+#include "communication/common/Http.h"
 #include <Arduino.h>
 
 class WiFiConn
