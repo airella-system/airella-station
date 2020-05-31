@@ -2,8 +2,8 @@
 #include "config/Config.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "communication/bluetooth/BluetoothHandler.h"
-
 #include "communication/common/Internet.h"
+#include "maintaince/Logger.h"
 
 class MyBluetoothHandler : public BluetoothHandler
 {
@@ -28,5 +28,6 @@ void setup()
 
 void loop()
 {
+  Logger::info("test");
   delay(2000);
 }
