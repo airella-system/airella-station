@@ -3,7 +3,7 @@
 #include "communication/bluetooth/Bluetooth.h"
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/common/Internet.h"
-#include "maintaince/Logger.h"
+#include "maintenance/Logger.h"
 
 class MyBluetoothHandler : public BluetoothHandler
 {
