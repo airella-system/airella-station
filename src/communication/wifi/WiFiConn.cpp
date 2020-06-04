@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "config/Config.h"
+#include "maintenance/Logger.h"
 
 static HTTPClient http;
 int WiFiConn::start()
@@ -30,6 +31,7 @@ int WiFiConn::start()
 
 void WiFiConn::stop()
 {
+    WiFi.disconnect();
 }
 
 Http::Response WiFiConn::httpGet(String url)
@@ -38,9 +40,18 @@ Http::Response WiFiConn::httpGet(String url)
 
 Http::Response WiFiConn::httpPost(String url, String json)
 {
+    Logger::debug(url.c_str());
+    Logger::debug(json.c_str());
+
     http.begin(url);
     http.addHeader("Content-Type", "application/json");
-    
+    if (!Config::instance().getAccessToken().equals(""))
+    {
+        Logger::debug("Setting authorization");
+        Logger::debug((String("Bearer ") + Config::instance().getAccessToken()).c_str());
+        http.addHeader("Authorization", String("Bearer ") + Config::instance().getAccessToken());
+    }
+
     Http::Response response;
     response.code = http.POST(json);
     response.payload = http.getString();
@@ -50,5 +61,9 @@ Http::Response WiFiConn::httpPost(String url, String json)
 }
 
 Http::Response WiFiConn::httpPut(String url, String json)
+{
+}
+
+void WiFiConn::setHeader(String key, String value)
 {
 }

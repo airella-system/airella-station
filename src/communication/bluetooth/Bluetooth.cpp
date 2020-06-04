@@ -61,6 +61,28 @@ class WifiPasswordCallback : public BLECharacteristicCallbacks
     }
 };
 
+class ApiUrlCallback : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        std::string value = pCharacteristic->getValue();
+        String stringValue = String(value.c_str());
+        Config::instance().setApiUrl(stringValue);
+        Config::instance().save();
+    }
+};
+
+class RegistrationTokenCallback : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        std::string value = pCharacteristic->getValue();
+        String stringValue = String(value.c_str());
+        Config::instance().setRegistratonToken(stringValue);
+        Config::instance().save();
+    }
+};
+
 class RefreshDeviceCallback : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
@@ -103,12 +125,14 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler)
     registerTokenCharacteristic = pService->createCharacteristic(
         REGISTRATION_TOKEN_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
-    //registerTokenCharacteristic->setCallbacks(new MyCallbacks());
+    registerTokenCharacteristic->setCallbacks(new RegistrationTokenCallback());
+    registerTokenCharacteristic->setValue(Config::instance().getRegistratonToken().c_str());
 
     apiUrlCharacteristic = pService->createCharacteristic(
         API_URL_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
-    //apiUrlCharacteristic->setCallbacks(new MyCallbacks());
+    apiUrlCharacteristic->setCallbacks(new ApiUrlCallback());
+    apiUrlCharacteristic->setValue(Config::instance().getApiUrl().c_str());
 
     devStateCharacteristic = pService->createCharacteristic(
         DEVICE_STATE_CHARACTERISTIC_UUID,

@@ -19,3 +19,8 @@ Http::Response GsmConn::httpPost(String url, String json)
 Http::Response GsmConn::httpPut(String url, String json)
 {
 }
+
+void GsmConn::setHeader(String key, String value)
+{
+}
+

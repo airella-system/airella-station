@@ -22,6 +22,8 @@ public:
     String getRegistratonToken();
     String getRefreshToken();
     String getApiUrl();
+    String getApiStationId();
+    String getAccessToken();
 
     void setDevicePassword(String devicePassword);
     void setInternetConnectionType(InternetConnectionType internetConnectionType);
@@ -30,6 +32,8 @@ public:
     void setRegistratonToken(String registratonToken);
     void setRefreshToken(String refreshToken);
     void setApiUrl(String apiUrl);
+    void setApiStationId(String apiStationId);
+    void setAccessToken(String accessToken);
 
     static Config &instance()
     {
@@ -46,4 +50,6 @@ private:
     String registratonToken;
     String refreshToken;
     String apiUrl;
+    String apiStationId;
+    String accessToken;
 };
