@@ -12,6 +12,9 @@ void Config::load()
     this->registratonToken = preferences.getString("register-tok", "");
     this->refreshToken = preferences.getString("refresh-tok", "");
     this->apiUrl = preferences.getString("api-url", "");
+    this->apiStationId = preferences.getString("api-station-id", "");
+    this->accessToken = String("");
+
     preferences.end();
 }
 
@@ -24,6 +27,7 @@ void Config::save()
     preferences.putString("register-tok", Config::getRegistratonToken());
     preferences.putString("refresh-tok", Config::getRefreshToken());
     preferences.putString("api-url", Config::getApiUrl());
+    preferences.putString("api-station-id", Config::getApiStationId());
 
     preferences.end();
 }
@@ -63,6 +67,16 @@ String Config::getApiUrl()
     return this->apiUrl;
 }
 
+String Config::getApiStationId()
+{
+    return this->apiStationId;
+}
+
+String Config::getAccessToken()
+{
+    return this->accessToken;
+}
+
 void Config::setDevicePassword(String devicePassword)
 {
     this->devicePassword = devicePassword;
@@ -96,4 +110,14 @@ void Config::setRefreshToken(String refreshToken)
 void Config::setApiUrl(String apiUrl)
 {
     this->apiUrl = apiUrl;
+}
+
+void Config::setApiStationId(String apiStationId)
+{
+    this->apiStationId = apiStationId;
+}
+
+void Config::setAccessToken(String accessToken)
+{
+    this->accessToken = accessToken;
 }
