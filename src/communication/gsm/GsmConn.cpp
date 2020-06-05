@@ -20,7 +20,7 @@ Http::Response GsmConn::httpPut(String url, String json)
 {
 }
 
-void GsmConn::setHeader(String key, String value)
+void GsmConn::setAuthorizationHeader(String value)
 {
 }
 
