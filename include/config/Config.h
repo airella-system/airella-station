@@ -23,7 +23,6 @@ public:
     String getRefreshToken();
     String getApiUrl();
     String getApiStationId();
-    String getAccessToken();
 
     void setDevicePassword(String devicePassword);
     void setInternetConnectionType(InternetConnectionType internetConnectionType);
@@ -33,7 +32,6 @@ public:
     void setRefreshToken(String refreshToken);
     void setApiUrl(String apiUrl);
     void setApiStationId(String apiStationId);
-    void setAccessToken(String accessToken);
 
     static Config &instance()
     {

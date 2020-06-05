@@ -5,6 +5,8 @@
 #include "maintenance/Logger.h"
 
 static HTTPClient http;
+String WiFiConn::authorizationHeader = String();
+
 int WiFiConn::start()
 {
     WiFi.begin(Config::instance().getWifiSsid().c_str(), Config::instance().getWifiPassword().c_str());
@@ -25,6 +27,8 @@ int WiFiConn::start()
         }
         delay(1000);
     }
+    delay(500);
+
     Serial.println("WiFi - connected!");
     return 0;
 }
@@ -32,6 +36,7 @@ int WiFiConn::start()
 void WiFiConn::stop()
 {
     WiFi.disconnect();
+    delay(500);
 }
 
 Http::Response WiFiConn::httpGet(String url)
@@ -40,23 +45,20 @@ Http::Response WiFiConn::httpGet(String url)
 
 Http::Response WiFiConn::httpPost(String url, String json)
 {
-    Logger::debug(url.c_str());
-    Logger::debug(json.c_str());
+    Logger::debug(("POST Request to url: " + url + " with body: " + json).c_str());
 
     http.begin(url);
     http.addHeader("Content-Type", "application/json");
-    if (!Config::instance().getAccessToken().equals(""))
+    if (!WiFiConn::authorizationHeader.equals(""))
     {
-        Logger::debug("Setting authorization");
-        Logger::debug((String("Bearer ") + Config::instance().getAccessToken()).c_str());
-        http.addHeader("Authorization", String("Bearer ") + Config::instance().getAccessToken());
+        http.addHeader("Authorization", WiFiConn::authorizationHeader);
     }
 
     Http::Response response;
     response.code = http.POST(json);
     response.payload = http.getString();
-
     http.end();
+    WiFiConn::authorizationHeader = String();
     return response;
 }
 
@@ -64,6 +66,7 @@ Http::Response WiFiConn::httpPut(String url, String json)
 {
 }
 
-void WiFiConn::setHeader(String key, String value)
+void WiFiConn::setAuthorizationHeader(String value)
 {
+    WiFiConn::authorizationHeader = value;
 }
