@@ -28,6 +28,7 @@
 class Bluetooth {
 public:
   static void start(BluetoothHandler *bluetoothHandler);
+  static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
 
 private:
