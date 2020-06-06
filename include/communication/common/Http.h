@@ -2,12 +2,10 @@
 
 #include <Arduino.h>
 
-class Http
-{
+class Http {
 public:
-    struct Response
-    {
-        int code;
-        String payload;
-    };
+  struct Response {
+    int code;
+    String payload;
+  };
 };
