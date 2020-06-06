@@ -70,8 +70,9 @@ bool ApiClass::registerStation() {
 
     registerSensor("temperature");
     registerSensor("humidity");
+    registerSensor("pm1");
+    registerSensor("pm2_5");
     registerSensor("pm10");
-    registerSensor("pm25");
     return true;
   } else {
     return false;
