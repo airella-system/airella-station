@@ -23,6 +23,7 @@
   "ba71dcda-609f-4b3e-8095-11662afa4c5f"
 #define REFRESH_DEVICE_CHARACTERISTIC_UUID                                     \
   "2ca7df70-42df-482e-81cf-468e0fcec5dc"
+#define CLEAR_DATA_CHARACTERISTIC_UUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d0"
 
 class Bluetooth {
 public:
@@ -39,4 +40,5 @@ private:
   static BLECharacteristic *devStateCharacteristic;
   static BLECharacteristic *connStateCharacteristic;
   static BLECharacteristic *refreshDeviceCharacteristic;
+  static BLECharacteristic *clearDataCharacteristic;
 };

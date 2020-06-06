@@ -11,6 +11,7 @@ BLECharacteristic *Bluetooth::apiUrlCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::devStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
 class MySecurity : public BLESecurityCallbacks {
   uint32_t onPassKeyRequest() { return 123456; }
@@ -66,6 +67,12 @@ class RegistrationTokenCallback : public BLECharacteristicCallbacks {
 class RefreshDeviceCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     Bluetooth::bluetoothHandler->deviceRefreshRequest();
+  }
+};
+
+class ClearDataCallback : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    Config::instance().reset();
   }
 };
 
@@ -141,6 +148,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   refreshDeviceCharacteristic->setAccessPermissions(
       ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   refreshDeviceCharacteristic->setCallbacks(new RefreshDeviceCallback());
+
+  clearDataCharacteristic = pService->createCharacteristic(
+      CLEAR_DATA_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  clearDataCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
+                                                ESP_GATT_PERM_WRITE_ENCRYPTED);
+  clearDataCharacteristic->setCallbacks(new ClearDataCallback());
 
   pService->start();
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
