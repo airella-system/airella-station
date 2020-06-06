@@ -4,6 +4,7 @@
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/common/Internet.h"
 #include "maintaince/Logger.h"
+#include "device/AirSensor.h"
 
 class MyBluetoothHandler : public BluetoothHandler
 {
@@ -24,6 +25,8 @@ void setup()
   Internet::setType(Internet::WIFI);
   Internet::start();
   // Internet::httpGet("...");
+  // AirSensor::init();
+  // AirSensor::powerOn();
 }
 
 void loop()
