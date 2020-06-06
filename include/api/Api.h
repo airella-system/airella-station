@@ -9,7 +9,10 @@ public:
 
   bool registerStation();
   bool publishMeasurement(String sensor, double value);
+  bool publishName(const char *name);
   bool publishLocation(double longitude, double latitude);
+  bool publishAddress(const char *country, const char *city, const char *street,
+                      const char *number);
   bool isRegistered();
   void configUpdated();
 
