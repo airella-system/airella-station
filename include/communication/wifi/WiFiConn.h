@@ -11,4 +11,8 @@ public:
     static Http::Response httpGet(String url);
     static Http::Response httpPost(String url, String json);
     static Http::Response httpPut(String url, String json);
+    static void setAuthorizationHeader(String value);
+
+private:
+    static String authorizationHeader;
 };
