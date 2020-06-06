@@ -27,6 +27,11 @@ Http::Response Internet::httpPut(String url, String body)
     return Internet::type == Internet::WIFI ? WiFiConn::httpPut(url, body) : GsmConn::httpPut(url, body);
 }
 
+void Internet::setAuthorizationHeader(String value)
+{
+    Internet::type == Internet::WIFI ? WiFiConn::setAuthorizationHeader(value) : GsmConn::setAuthorizationHeader(value);
+}
+
 void Internet::setType(Type type)
 {
     Internet::type = type;
