@@ -2,37 +2,33 @@
 
 Internet::Type Internet::type = Internet::WIFI;
 
-int Internet::start()
-{
-    return Internet::type == Internet::WIFI ? WiFiConn::start() : GsmConn::start();
+int Internet::start() {
+  return Internet::type == Internet::WIFI ? WiFiConn::start()
+                                          : GsmConn::start();
 }
 
-void Internet::stop()
-{
-    Internet::type == Internet::WIFI ? WiFiConn::stop() : GsmConn::stop();
+void Internet::stop() {
+  Internet::type == Internet::WIFI ? WiFiConn::stop() : GsmConn::stop();
 }
 
-Http::Response Internet::httpGet(String url)
-{
-    return Internet::type == Internet::WIFI ? WiFiConn::httpGet(url) : GsmConn::httpGet(url);
+Http::Response Internet::httpGet(String url) {
+  return Internet::type == Internet::WIFI ? WiFiConn::httpGet(url)
+                                          : GsmConn::httpGet(url);
 }
 
-Http::Response Internet::httpPost(String url, String body)
-{
-    return Internet::type == Internet::WIFI ? WiFiConn::httpPost(url, body) : GsmConn::httpPost(url, body);
+Http::Response Internet::httpPost(String url, String body) {
+  return Internet::type == Internet::WIFI ? WiFiConn::httpPost(url, body)
+                                          : GsmConn::httpPost(url, body);
 }
 
-Http::Response Internet::httpPut(String url, String body)
-{
-    return Internet::type == Internet::WIFI ? WiFiConn::httpPut(url, body) : GsmConn::httpPut(url, body);
+Http::Response Internet::httpPut(String url, String body) {
+  return Internet::type == Internet::WIFI ? WiFiConn::httpPut(url, body)
+                                          : GsmConn::httpPut(url, body);
 }
 
-void Internet::setAuthorizationHeader(String value)
-{
-    Internet::type == Internet::WIFI ? WiFiConn::setAuthorizationHeader(value) : GsmConn::setAuthorizationHeader(value);
+void Internet::setAuthorizationHeader(String value) {
+  Internet::type == Internet::WIFI ? WiFiConn::setAuthorizationHeader(value)
+                                   : GsmConn::setAuthorizationHeader(value);
 }
 
-void Internet::setType(Type type)
-{
-    Internet::type = type;
-}
+void Internet::setType(Type type) { Internet::type = type; }

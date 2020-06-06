@@ -1,7 +1,6 @@
 #pragma once
 
-class BluetoothHandler
-{
+class BluetoothHandler {
 public:
-    virtual void deviceRefreshRequest();
+  virtual void deviceRefreshRequest();
 };
