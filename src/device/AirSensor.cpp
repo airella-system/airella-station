@@ -1,6 +1,6 @@
 #include "device/AirSensor.h"
 #include "config/PinManager.h"
-#include "maintaince/Logger.h"
+#include "maintenance/Logger.h"
 
 bool AirSensor::initialized = false;
 bool AirSensor::isPowerOn = false;
