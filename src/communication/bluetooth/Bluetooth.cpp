@@ -61,6 +61,28 @@ class WifiPasswordCallback : public BLECharacteristicCallbacks
     }
 };
 
+class ApiUrlCallback : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        std::string value = pCharacteristic->getValue();
+        String stringValue = String(value.c_str());
+        Config::instance().setApiUrl(stringValue);
+        Config::instance().save();
+    }
+};
+
+class RegistrationTokenCallback : public BLECharacteristicCallbacks
+{
+    void onWrite(BLECharacteristic *pCharacteristic)
+    {
+        std::string value = pCharacteristic->getValue();
+        String stringValue = String(value.c_str());
+        Config::instance().setRegistratonToken(stringValue);
+        Config::instance().save();
+    }
+};
+
 class RefreshDeviceCallback : public BLECharacteristicCallbacks
 {
     void onWrite(BLECharacteristic *pCharacteristic)
@@ -81,48 +103,59 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler)
     devPasswordCharacteristic = pService->createCharacteristic(
         DEVICE_PASSWORD_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
+    devPasswordCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     //devPasswordCharacteristic->setCallbacks(new WifiSsidCallback());
 
     inetConnTypeCharacteristic = pService->createCharacteristic(
         INTERNET_CONNECTION_TYPE_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+    inetConnTypeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     //inetConnTypeCharacteristic->setCallbacks(new MyCallbacks());
 
     ssidCharacteristic = pService->createCharacteristic(
         SSID_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+    ssidCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     ssidCharacteristic->setCallbacks(new WifiSsidCallback());
     ssidCharacteristic->setValue(Config::instance().getWifiSsid().c_str());
 
     wifiPassCharacteristic = pService->createCharacteristic(
         WIFI_PASWORD_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
+    wifiPassCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     wifiPassCharacteristic->setCallbacks(new WifiPasswordCallback());
     wifiPassCharacteristic->setValue(Config::instance().getWifiPassword().c_str());
 
     registerTokenCharacteristic = pService->createCharacteristic(
         REGISTRATION_TOKEN_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
-    //registerTokenCharacteristic->setCallbacks(new MyCallbacks());
+    registerTokenCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+    registerTokenCharacteristic->setCallbacks(new RegistrationTokenCallback());
+    registerTokenCharacteristic->setValue(Config::instance().getRegistratonToken().c_str());
 
     apiUrlCharacteristic = pService->createCharacteristic(
         API_URL_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
-    //apiUrlCharacteristic->setCallbacks(new MyCallbacks());
+    apiUrlCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+    apiUrlCharacteristic->setCallbacks(new ApiUrlCallback());
+    apiUrlCharacteristic->setValue(Config::instance().getApiUrl().c_str());
 
     devStateCharacteristic = pService->createCharacteristic(
         DEVICE_STATE_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ);
+    devStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     //devStateCharacteristic->setCallbacks(new MyCallbacks());
 
     connStateCharacteristic = pService->createCharacteristic(
         CONNECTION_STATE_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_READ);
+    connStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     //connStateCharacteristic->setCallbacks(new MyCallbacks());
 
     refreshDeviceCharacteristic = pService->createCharacteristic(
         REFRESH_DEVICE_CHARACTERISTIC_UUID,
         BLECharacteristic::PROPERTY_WRITE);
+    refreshDeviceCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
     refreshDeviceCharacteristic->setCallbacks(new RefreshDeviceCallback());
 
     pService->start();
