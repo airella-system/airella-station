@@ -9,7 +9,6 @@
 #include <ArduinoJson.h>
 
 bool refreshRequested = false;
-unsigned long lastPublishMillis = 0;
 
 class MyBluetoothHandler : public BluetoothHandler {
   void deviceRefreshRequest() {
@@ -36,18 +35,5 @@ void loop() {
     refreshRequested = false;
   }
 
-  if ((millis() - lastPublishMillis) > 10000) {
-    Logger::debug("Publishing data");
-    double temperature = random(15 * 100, 25 * 100) / 100;
-    double humidity = random(0 * 100, 100 * 100) / 100;
-    double pm10 = random(20 * 100, 40 * 100) / 100;
-    double pm25 = random(10 * 100, 20 * 100) / 100;
-
-    Api.publishMeasurement("temperature", temperature);
-    Api.publishMeasurement("humidity", humidity);
-    Api.publishMeasurement("pm10", pm10);
-    Api.publishMeasurement("pm25", pm25);
-    lastPublishMillis = millis();
-  }
-  delay(100);
+  delay(1000);
 }
