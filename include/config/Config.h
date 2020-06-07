@@ -12,6 +12,7 @@ public:
 
   void load();
   void save();
+  void reset();
 
   String getDevicePassword();
   InternetConnectionType getInternetConnectionType();
@@ -46,5 +47,4 @@ private:
   String refreshToken;
   String apiUrl;
   String apiStationId;
-  String accessToken;
 };

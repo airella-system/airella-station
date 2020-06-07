@@ -56,7 +56,22 @@ Http::Response WiFiConn::httpPost(String url, String json) {
   return response;
 }
 
-Http::Response WiFiConn::httpPut(String url, String json) {}
+Http::Response WiFiConn::httpPut(String url, String json) {
+  Logger::debug(("PUT Request to url: " + url + " with body: " + json).c_str());
+
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  if (!WiFiConn::authorizationHeader.equals("")) {
+    http.addHeader("Authorization", WiFiConn::authorizationHeader);
+  }
+
+  Http::Response response;
+  response.code = http.PUT(json);
+  response.payload = http.getString();
+  http.end();
+  WiFiConn::authorizationHeader = String();
+  return response;
+}
 
 void WiFiConn::setAuthorizationHeader(String value) {
   WiFiConn::authorizationHeader = value;

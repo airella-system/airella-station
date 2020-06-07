@@ -46,6 +46,49 @@ bool ApiClass::updateAccessToken() {
   }
 }
 
+bool ApiClass::publishName(const char *name) {
+  String apiUrlBase = Config::instance().getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" +
+               Config::instance().getApiStationId() + "/name";
+  String body = String("{ \"name\": \"") + name + "\" }";
+  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
+  Http::Response response = Internet::httpPut(url, body);
+
+  String debugText = String("Sensor set name response code: ") + response.code +
+                     " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+}
+
+bool ApiClass::publishLocation(double latitude, double longitude) {
+  String apiUrlBase = Config::instance().getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" +
+               Config::instance().getApiStationId() + "/location";
+  String body = String("{ \"latitude\": ") + String(latitude, 6) +
+                ", \"longitude\": " + String(longitude, 6) + " }";
+  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
+  Http::Response response = Internet::httpPut(url, body);
+
+  String debugText = String("Sensor set location response code: ") +
+                     response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+}
+
+bool ApiClass::publishAddress(const char *country, const char *city,
+                              const char *street, const char *number) {
+  String apiUrlBase = Config::instance().getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" +
+               Config::instance().getApiStationId() + "/address";
+  String body = String("{ \"country\": \"") + country + "\", \"city\": \"" +
+                city + "\", \"street\": \"" + street + "\", \"number\": \"" +
+                number + "\" }";
+  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
+  Http::Response response = Internet::httpPut(url, body);
+
+  String debugText = String("Sensor set location response code: ") +
+                     response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+}
+
 bool ApiClass::registerStation() {
   String registrationToken = Config::instance().getRegistratonToken();
   String apiUrlBase = Config::instance().getApiUrl();
@@ -68,10 +111,28 @@ bool ApiClass::registerStation() {
 
     updateAccessToken();
 
+    int randomNumber = random(1, 9999999);
+    publishName((String("Mock sensor ") + String(randomNumber)).c_str());
+    publishAddress("Poland", "Kraków", "Mockowa", String(randomNumber).c_str());
+
+    double latitudeMin = 49.972368;
+    double latitudeMax = 50.137422;
+    double longitudeMin = 20.435403;
+    double longitudeMax = 20.735403;
+
+    double latitude =
+        latitudeMin + random(1, (latitudeMax - latitudeMin) * 100000) / 100000;
+    double longitude =
+        longitudeMin +
+        random(1, (longitudeMax - longitudeMin) * 100000) / 100000;
+
+    publishLocation(latitude, longitude);
+
     registerSensor("temperature");
     registerSensor("humidity");
+    registerSensor("pm1");
+    registerSensor("pm2_5");
     registerSensor("pm10");
-    registerSensor("pm25");
     return true;
   } else {
     return false;
