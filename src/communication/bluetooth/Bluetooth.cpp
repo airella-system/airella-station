@@ -11,6 +11,7 @@ BLECharacteristic *Bluetooth::apiUrlCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::devStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
 class MySecurity : public BLESecurityCallbacks {
   uint32_t onPassKeyRequest() { return 123456; }
@@ -69,6 +70,22 @@ class RefreshDeviceCallback : public BLECharacteristicCallbacks {
   }
 };
 
+class ClearDataCallback : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    Config::instance().reset();
+    Bluetooth::reloadValues();
+  }
+};
+
+void Bluetooth::reloadValues() {
+  ssidCharacteristic->setValue(Config::instance().getWifiSsid().c_str());
+  wifiPassCharacteristic->setValue(
+      Config::instance().getWifiPassword().c_str());
+  registerTokenCharacteristic->setValue(
+      Config::instance().getRegistratonToken().c_str());
+  apiUrlCharacteristic->setValue(Config::instance().getApiUrl().c_str());
+}
+
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   Bluetooth::bluetoothHandler = bluetoothHandler;
   BLEDevice::init("Airella Station");
@@ -97,15 +114,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   ssidCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                            ESP_GATT_PERM_WRITE_ENCRYPTED);
   ssidCharacteristic->setCallbacks(new WifiSsidCallback());
-  ssidCharacteristic->setValue(Config::instance().getWifiSsid().c_str());
 
   wifiPassCharacteristic = pService->createCharacteristic(
       WIFI_PASWORD_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
   wifiPassCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                                ESP_GATT_PERM_WRITE_ENCRYPTED);
   wifiPassCharacteristic->setCallbacks(new WifiPasswordCallback());
-  wifiPassCharacteristic->setValue(
-      Config::instance().getWifiPassword().c_str());
 
   registerTokenCharacteristic =
       pService->createCharacteristic(REGISTRATION_TOKEN_CHARACTERISTIC_UUID,
@@ -113,8 +127,6 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   registerTokenCharacteristic->setAccessPermissions(
       ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   registerTokenCharacteristic->setCallbacks(new RegistrationTokenCallback());
-  registerTokenCharacteristic->setValue(
-      Config::instance().getRegistratonToken().c_str());
 
   apiUrlCharacteristic = pService->createCharacteristic(
       API_URL_CHARACTERISTIC_UUID,
@@ -122,7 +134,6 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   apiUrlCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                              ESP_GATT_PERM_WRITE_ENCRYPTED);
   apiUrlCharacteristic->setCallbacks(new ApiUrlCallback());
-  apiUrlCharacteristic->setValue(Config::instance().getApiUrl().c_str());
 
   devStateCharacteristic = pService->createCharacteristic(
       DEVICE_STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
@@ -141,6 +152,14 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   refreshDeviceCharacteristic->setAccessPermissions(
       ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   refreshDeviceCharacteristic->setCallbacks(new RefreshDeviceCallback());
+
+  clearDataCharacteristic = pService->createCharacteristic(
+      CLEAR_DATA_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  clearDataCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
+                                                ESP_GATT_PERM_WRITE_ENCRYPTED);
+  clearDataCharacteristic->setCallbacks(new ClearDataCallback());
+
+  reloadValues();
 
   pService->start();
   BLEAdvertising *pAdvertising = pServer->getAdvertising();

@@ -11,9 +11,9 @@ void Config::load() {
   this->wifiPassword = preferences.getString("wifi-pass", "");
   this->registratonToken = preferences.getString("register-tok", "");
   this->refreshToken = preferences.getString("refresh-tok", "");
-  this->apiUrl = preferences.getString("api-url", "");
+  this->apiUrl =
+      preferences.getString("api-url", "http://airella.cyfrogen.com/api");
   this->apiStationId = preferences.getString("api-station-id", "");
-  this->accessToken = String("");
   preferences.end();
 }
 
@@ -26,8 +26,14 @@ void Config::save() {
   preferences.putString("refresh-tok", Config::getRefreshToken());
   preferences.putString("api-url", Config::getApiUrl());
   preferences.putString("api-station-id", Config::getApiStationId());
-
   preferences.end();
+}
+
+void Config::reset() {
+  preferences.begin("prefs", false);
+  preferences.clear();
+  preferences.end();
+  Config::instance().load();
 }
 
 String Config::getDevicePassword() { return this->devicePassword; }
