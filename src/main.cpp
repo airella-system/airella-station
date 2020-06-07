@@ -41,7 +41,7 @@ void loop() {
   String tmp = String("Temperature ") + WeatherSensor::getTemperature();
   Logger::debug(&tmp);
 
-  tmp = String("Preassure ") + WeatherSensor::getPreassure();
+  tmp = String("Pressure ") + WeatherSensor::getPressure();
   Logger::debug(&tmp);
 
   tmp = String("Humidity ") + WeatherSensor::getHumidity();
