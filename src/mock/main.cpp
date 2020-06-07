@@ -1,26 +1,23 @@
-#include <Arduino.h>
-#include <ArduinoJson.h>
-#include "config/Config.h"
+#include "api/Api.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/common/Internet.h"
+#include "config/Config.h"
 #include "maintenance/Logger.h"
-#include "api/Api.h"
+#include <Arduino.h>
+#include <ArduinoJson.h>
 
 bool refreshRequested = false;
 unsigned long lastPublishMillis = 0;
 
-class MyBluetoothHandler : public BluetoothHandler
-{
-  void deviceRefreshRequest()
-  {
+class MyBluetoothHandler : public BluetoothHandler {
+  void deviceRefreshRequest() {
     Serial.println("Refresh request!");
     refreshRequested = true;
   }
 };
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
   Config::instance().load();
   Bluetooth::start(new MyBluetoothHandler());
@@ -28,17 +25,14 @@ void setup()
   Internet::start();
 }
 
-void loop()
-{
-  if (refreshRequested)
-  {
+void loop() {
+  if (refreshRequested) {
     Config::instance().save();
     Api.configUpdated();
     refreshRequested = false;
   }
-  
-  if ((millis() - lastPublishMillis) > 10000)
-  {
+
+  if ((millis() - lastPublishMillis) > 10000) {
     Logger::debug("Publishing data");
     double temperature = random(15 * 100, 25 * 100) / 100;
     double humidity = random(0 * 100, 100 * 100) / 100;

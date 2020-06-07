@@ -1,5 +1,5 @@
 #include "device/AirSensor.h"
-#include "config/PinManager.h"
+#include "config/HardwareManager.h"
 #include "maintenance/Logger.h"
 
 bool AirSensor::initialized = false;
@@ -9,18 +9,40 @@ HardwareSerial AirSensor::serial = HardwareSerial(1);
 bool AirSensor::dataReady = false;
 unsigned char AirSensor::lastByte = 0;
 unsigned char AirSensor::nextByte = 0;
+unsigned char AirSensor::powerPin = 0;
 int AirSensor::bufferIndex = 0;
 
 void AirSensor::init() {
   if (initialized) {
     Logger::warning("[AirSensor] Air sensor is already initialized.");
+    return;
   }
 
-  pinMode(PinManager::getAirSensorLed(), OUTPUT);
-  pinMode(PinManager::getAirSensorPowerPin(), OUTPUT);
-  digitalWrite(PinManager::getAirSensorPowerPin(), LOW);
+  UartConfig config = HardwareManager::getUartForAirSensor();
+  if (!config.isOk) {
+    Logger::warning("[AirSensor] Unable to initialize UART bus.");
+    return;
+  }
 
-  UartConfig config = PinManager::getUartForAirSensor();
+  OptionalConfig<unsigned char> powerPin =
+      HardwareManager::getAirSensorPowerPin();
+  if (!powerPin.isOk) {
+    Logger::warning("[AirSensor] Unable to initialize Power PIN.");
+    return;
+  }
+  AirSensor::powerPin = powerPin.value;
+
+  OptionalConfig<unsigned char> ledPin = HardwareManager::getAirSensorLed();
+  if (!ledPin.isOk) {
+    Logger::warning("[AirSensor] Unable to initialize LED PIN.");
+    return;
+  }
+  AirSensor::ledPin = ledPin.value;
+
+  pinMode(ledPin.value, OUTPUT);
+  pinMode(powerPin.value, OUTPUT);
+  digitalWrite(powerPin.value, LOW);
+
   serial.begin(9600, SERIAL_8N1, config.rx, config.tx, false, 1000);
   initialized = true;
   Logger::info("[AirSensor] Air sensor is initialized.");
@@ -28,12 +50,12 @@ void AirSensor::init() {
 
 void AirSensor::powerOn() {
   Logger::info("[AirSensor] Air sensor power ON.");
-  digitalWrite(PinManager::getAirSensorPowerPin(), HIGH);
+  digitalWrite(powerPin, HIGH);
 }
 
 void AirSensor::powerOff() {
   Logger::info("[AirSensor] Air sensor power OFF.");
-  digitalWrite(PinManager::getAirSensorPowerPin(), LOW);
+  digitalWrite(powerPin, LOW);
 }
 
 bool AirSensor::isInit() { return initialized; }

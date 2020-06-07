@@ -72,6 +72,8 @@ private:
   static unsigned char lastByte;
   static unsigned char nextByte;
   static int bufferIndex;
+  static unsigned char powerPin;
+  static unsigned char ledPin;
 
   static void updateBuffer();
   static void convertSensorData();
