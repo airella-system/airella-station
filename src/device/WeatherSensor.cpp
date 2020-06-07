@@ -45,9 +45,9 @@ float WeatherSensor::getTemperature() {
   return bmeDevice.readTemperature();
 }
 
-float WeatherSensor::getPreassure() {
+float WeatherSensor::getPressure() {
   if (!initialized) {
-    Logger::error("[WeatherSensor] Unable to get preassure value - sensor is "
+    Logger::error("[WeatherSensor] Unable to get pressure value - sensor is "
                   "uninitialized.");
   }
   return bmeDevice.readPressure();

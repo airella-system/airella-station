@@ -12,7 +12,7 @@ public:
   static void init();
   static bool isInit();
   static float getTemperature();
-  static float getPreassure();
+  static float getPressure();
   static float getHumidity();
 
 private:
