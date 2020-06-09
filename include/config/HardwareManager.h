@@ -9,7 +9,10 @@
 // weather sensor
 #define BME_SDA 21
 #define BME_SCL 22
-#define I2C_BUS_NO 1
+#define WEATHER_SENEOR_I2C_BUS_NO 1
+
+// power sesnor
+#define POWER_SENEOR_I2C_BUS_NO 0
 
 struct UartConfig {
   bool isOk = false;
@@ -45,11 +48,15 @@ public:
   static OptionalConfig<unsigned char> getBusNumForWeatherSensor();
   static void releaseBusNumForWeatherSensor();
 
+  static OptionalConfig<unsigned char> getBusNumForPowerSensor();
+  static void releaseBusNumForPowerSensor();
+
 private:
   static bool uartForAirSensor;
   static bool airSensorPowerPin;
   static bool uartForAirLed;
   static bool i2cForWeatherSensor;
+  static bool i2cForPowerSensor;
   static OptionalConfig<unsigned char>
   getPin(unsigned char pin, bool *pinStatePtr, const char *message);
   static void releasePin(bool *pinStatePtr, const char *message);

@@ -1,8 +1,5 @@
 #include "device/WeatherSensor.h"
-#include "config/HardwareManager.h"
-#include "maintenance/Logger.h"
 
-bool WeatherSensor::initialized = false;
 Adafruit_BME280 WeatherSensor::bmeDevice = Adafruit_BME280();
 TwoWire WeatherSensor::i2cBus = 0;
 
@@ -34,8 +31,6 @@ void WeatherSensor::init() {
   initialized = true;
   Logger::info("[WeatherSensor] Initalizing is OK.");
 }
-
-bool WeatherSensor::isInit() { return initialized; }
 
 float WeatherSensor::getTemperature() {
   if (!initialized) {
