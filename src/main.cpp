@@ -5,6 +5,7 @@
 #include "config/Config.h"
 #include "device/AirSensor.h"
 #include "device/WeatherSensor.h"
+#include "device/PowerSensor.h"
 #include "maintenance/Logger.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -20,14 +21,15 @@ class MyBluetoothHandler : public BluetoothHandler {
 
 void setup() {
   Serial.begin(115200);
-  // Config::instance().load();
-  // Bluetooth::start(new MyBluetoothHandler());
-  // Internet::setType(Internet::WIFI);
-  // Internet::start();
+  Config::instance().load();
+  Bluetooth::start(new MyBluetoothHandler());
+  Internet::setType(Internet::WIFI);
+  Internet::start();
   // Internet::httpGet("...");
   // AirSensor::init();
   // AirSensor::powerOn();
-  WeatherSensor::init();
+  // WeatherSensor::init();
+  PowerSensor::init();
 }
 
 void loop() {
@@ -36,15 +38,24 @@ void loop() {
   //   Api.configUpdated();
   //   refreshRequested = false;
   // }
-  Logger::debug("TEST");
+  // Logger::debug("TEST");
 
-  String tmp = String("Temperature ") + WeatherSensor::getTemperature();
+  // String tmp = String("Temperature ") + WeatherSensor::getTemperature();
+  // Logger::debug(&tmp);
+
+  // tmp = String("Pressure ") + WeatherSensor::getPressure();
+  // Logger::debug(&tmp);
+
+  // tmp = String("Humidity ") + WeatherSensor::getHumidity();
+  // Logger::debug(&tmp);
+
+  String tmp = String("Power: ") + PowerSensor::getPower();
+  Logger::debug(&tmp);
+  
+  tmp = String("Voltage: ") + PowerSensor::getBusVoltage();
   Logger::debug(&tmp);
 
-  tmp = String("Pressure ") + WeatherSensor::getPressure();
-  Logger::debug(&tmp);
-
-  tmp = String("Humidity ") + WeatherSensor::getHumidity();
+  tmp = String("Current: ") + PowerSensor::getCurrent();
   Logger::debug(&tmp);
 
   delay(5000);

@@ -1,6 +1,8 @@
 #include "config/HardwareManager.h"
 #include "maintenance/Logger.h"
 
+//TODO: zrobić refactor że podaje się enuma który ma wypełnione parametry, żeby to jakoś łądniej było
+
 UartConfig HardwareManager::getUartForAirSensor() {
   if (uartForAirSensor) {
     Logger::error("[HardwareManager::getUartForAirSensor] already taken.");
@@ -41,12 +43,22 @@ void HardwareManager::releaseAirSensorLed() {
 }
 
 OptionalConfig<unsigned char> HardwareManager::getBusNumForWeatherSensor() {
-  return getPin(I2C_BUS_NO, &i2cForWeatherSensor,
+  return getPin(WEATHER_SENEOR_I2C_BUS_NO, &i2cForWeatherSensor,
                 "[HardwareManager::getBusNumForWeatherSensor] already taken.");
 }
 
 void HardwareManager::releaseBusNumForWeatherSensor() {
   releasePin(&i2cForWeatherSensor,
+             "[HardwareManager::getBusNumForWeatherSensor] already released.");
+}
+
+OptionalConfig<unsigned char> HardwareManager::getBusNumForPowerSensor() {
+  return getPin(POWER_SENEOR_I2C_BUS_NO, &i2cForPowerSensor,
+                "[HardwareManager::getBusNumForWeatherSensor] already taken.");
+}
+
+void HardwareManager::releaseBusNumForPowerSensor() {
+  releasePin(&i2cForPowerSensor,
              "[HardwareManager::getBusNumForWeatherSensor] already released.");
 }
 
