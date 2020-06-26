@@ -13,6 +13,8 @@
 
 // power sesnor
 #define POWER_SENEOR_I2C_BUS_NO 0
+#define INA_SDA 4
+#define INA_SCL 27
 
 struct UartConfig {
   bool isOk = false;
@@ -25,6 +27,17 @@ struct UartConfig {
       : isOk(true), rx(_rx), tx(_tx){};
 };
 
+struct TwoWireConfig {
+  bool isOk = false;
+  unsigned char in = -1;
+  unsigned char out = -1;
+
+  TwoWireConfig(){};
+
+  TwoWireConfig(const unsigned char _in, const unsigned char _out)
+      : isOk(true), in(_in), out(_out){};
+};
+
 template <class T> struct OptionalConfig {
   bool isOk = false;
   T value = 0;
@@ -32,6 +45,16 @@ template <class T> struct OptionalConfig {
   OptionalConfig(){};
 
   OptionalConfig(const T _value) : isOk(true), value(_value){};
+};
+
+enum ComponentId {
+  uartForAirSensor = 0,
+  airSensorPowerPin = 1,
+  uartForAirLed = 2,
+  i2cForWeatherSensor = 3,
+  i2cConfigForWeatherSensor = 4,
+  i2cForPowerSensor = 5,
+  i2cConfigForPowerSensor = 6
 };
 
 class HardwareManager {
@@ -48,16 +71,20 @@ public:
   static OptionalConfig<unsigned char> getBusNumForWeatherSensor();
   static void releaseBusNumForWeatherSensor();
 
+  static TwoWireConfig getI2CConfigForWeatherSensor();
+  static void releaseI2CConfigForWeatherSensor();
+
   static OptionalConfig<unsigned char> getBusNumForPowerSensor();
   static void releaseBusNumForPowerSensor();
 
+  static TwoWireConfig getI2CConfigForPowerSensor();
+  static void releaseI2CConfigForPowerSensor();
+
 private:
-  static bool uartForAirSensor;
-  static bool airSensorPowerPin;
-  static bool uartForAirLed;
-  static bool i2cForWeatherSensor;
-  static bool i2cForPowerSensor;
-  static OptionalConfig<unsigned char>
-  getPin(unsigned char pin, bool *pinStatePtr, const char *message);
+  static bool componentState[7];
+  static OptionalConfig<unsigned char> getPin(unsigned char pin, bool *pinStatePtr, const char *message);
   static void releasePin(bool *pinStatePtr, const char *message);
+  static void setComponentState(ComponentId componentId, bool value);
+  static bool getComponentState(ComponentId componentId);
+  static bool *getComponentStatePtr(ComponentId componentId);
 };

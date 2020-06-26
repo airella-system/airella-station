@@ -13,12 +13,19 @@ void PowerSensor::init() {
     OptionalConfig<unsigned char> pinConfig = HardwareManager::getBusNumForWeatherSensor();
     if (!pinConfig.isOk) {
         Logger::error("[PowerSensor] Unable to get pin configuration.");
+        return;
     }
     i2cBus = TwoWire(pinConfig.value);
 
     Logger::info("[PowerSensor] Initalizing sensors.");
 
-    if (!i2cBus.begin(INA_SDA, INA_SCL, 100000)) {
+    TwoWireConfig busConfig = HardwareManager::getI2CConfigForPowerSensor();
+    if (!busConfig.isOk) {
+        Logger::error("[PowerSensor] Unable to get bus configuration.");
+        return;
+    }
+
+    if (!i2cBus.begin(busConfig.in, busConfig.out, 100000)) {
         Logger::error("[PowerSensor] Unable to initialize sensor bus communication.");
         return;
     }
@@ -29,7 +36,7 @@ void PowerSensor::init() {
     }
 
     initialized = true;
-    Logger::info("[PowerSensor] Initalizing is OK.");
+    Logger::info("[PowerSensor] Initalized is OK.");
 }
 
 float PowerSensor::getShounVoltage() {

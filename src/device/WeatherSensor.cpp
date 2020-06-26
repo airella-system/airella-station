@@ -12,12 +12,19 @@ void WeatherSensor::init() {
       HardwareManager::getBusNumForWeatherSensor();
   if (!pinConfig.isOk) {
     Logger::error("[WeatherSensor] Unable to get pin configuration.");
+    return;
   }
   i2cBus = TwoWire(pinConfig.value);
 
   Logger::info("[WeatherSensor] Initalizing sensors.");
 
-  if (!i2cBus.begin(BME_SDA, BME_SCL, 100000)) {
+  TwoWireConfig busConfig = HardwareManager::getI2CConfigForWeatherSensor();
+  if (!busConfig.isOk) {
+    Logger::error("[WeatherSensor] Unable to get bus configuration.");
+    return;
+  }
+
+  if (!i2cBus.begin(busConfig.in, busConfig.out, 100000)) {
     Logger::error(
         "[WeatherSensor] Unable to initialize sensor bus communication.");
     return;
@@ -29,7 +36,7 @@ void WeatherSensor::init() {
   }
 
   initialized = true;
-  Logger::info("[WeatherSensor] Initalizing is OK.");
+  Logger::info("[WeatherSensor] Initalized is OK.");
 }
 
 float WeatherSensor::getTemperature() {

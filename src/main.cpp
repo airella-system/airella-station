@@ -21,10 +21,10 @@ class MyBluetoothHandler : public BluetoothHandler {
 
 void setup() {
   Serial.begin(115200);
-  Config::instance().load();
-  Bluetooth::start(new MyBluetoothHandler());
-  Internet::setType(Internet::WIFI);
-  Internet::start();
+  // Config::instance().load();
+  // Bluetooth::start(new MyBluetoothHandler());
+  // Internet::setType(Internet::WIFI);
+  // Internet::start();
   // Internet::httpGet("...");
   // AirSensor::init();
   // AirSensor::powerOn();
@@ -34,11 +34,12 @@ void setup() {
 
 void loop() {
   // if (refreshRequested) {
+  //   Logger::debug("conf");
   //   Config::instance().save();
   //   Api.configUpdated();
   //   refreshRequested = false;
   // }
-  // Logger::debug("TEST");
+  Logger::debug("work");
 
   // String tmp = String("Temperature ") + WeatherSensor::getTemperature();
   // Logger::debug(&tmp);
@@ -58,5 +59,5 @@ void loop() {
   tmp = String("Current: ") + PowerSensor::getCurrent();
   Logger::debug(&tmp);
 
-  delay(5000);
+  delay(1000);
 }
