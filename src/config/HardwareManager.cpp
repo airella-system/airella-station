@@ -1,8 +1,6 @@
 #include "config/HardwareManager.h"
 #include "maintenance/Logger.h"
 
-//TODO: zrobić refactor że podaje się enuma który ma wypełnione parametry, żeby to jakoś łądniej było
-
 void HardwareManager::setComponentState(const ComponentId componentId, const bool value) {
   componentState[componentId] = value;
 }
