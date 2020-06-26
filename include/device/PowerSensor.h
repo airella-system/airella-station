@@ -4,10 +4,6 @@
 #include <Adafruit_INA219.h>
 #include <Wire.h>
 
-//TODO: move to save place in hardware manager
-#define INA_SDA 4
-#define INA_SCL 27
-
 struct PowerInfo {
     float shounVoltage;
     float busVoltage;
