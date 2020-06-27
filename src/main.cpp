@@ -5,6 +5,7 @@
 #include "config/Config.h"
 #include "device/AirSensor.h"
 #include "device/WeatherSensor.h"
+#include "device/PowerSensor.h"
 #include "maintenance/Logger.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -27,25 +28,36 @@ void setup() {
   // Internet::httpGet("...");
   // AirSensor::init();
   // AirSensor::powerOn();
-  WeatherSensor::init();
+  // WeatherSensor::init();
+  PowerSensor::init();
 }
 
 void loop() {
   // if (refreshRequested) {
+  //   Logger::debug("conf");
   //   Config::instance().save();
   //   Api.configUpdated();
   //   refreshRequested = false;
   // }
-  Logger::debug("TEST");
+  Logger::debug("work");
 
-  String tmp = String("Temperature ") + WeatherSensor::getTemperature();
+  // String tmp = String("Temperature ") + WeatherSensor::getTemperature();
+  // Logger::debug(&tmp);
+
+  // tmp = String("Pressure ") + WeatherSensor::getPressure();
+  // Logger::debug(&tmp);
+
+  // tmp = String("Humidity ") + WeatherSensor::getHumidity();
+  // Logger::debug(&tmp);
+
+  String tmp = String("Power: ") + PowerSensor::getPower();
+  Logger::debug(&tmp);
+  
+  tmp = String("Voltage: ") + PowerSensor::getBusVoltage();
   Logger::debug(&tmp);
 
-  tmp = String("Pressure ") + WeatherSensor::getPressure();
+  tmp = String("Current: ") + PowerSensor::getCurrent();
   Logger::debug(&tmp);
 
-  tmp = String("Humidity ") + WeatherSensor::getHumidity();
-  Logger::debug(&tmp);
-
-  delay(5000);
+  delay(1000);
 }
