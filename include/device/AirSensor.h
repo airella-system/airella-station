@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include "device/Sensor.h"
 
 #define AIR_SENSOR_DATA_SIZE                                                   \
   32 // 0x42 + 0x4d  + 28 bytes data + 2 bytes checksum = 32 bytes
@@ -39,13 +39,12 @@ union AirSensorBuffer {
   AirSensorMeasurement values;
 };
 
-class AirSensor {
+class AirSensor : public Sensor {
 
 public:
   static void init();
   static void powerOn();
   static void powerOff();
-  static boolean isInit();
   static AirSensorMeasurement getMeasurementData();
   static void measurement();
   static uint16_t getPM1();
@@ -64,7 +63,6 @@ public:
   static uint8_t getErrorCode();
 
 private:
-  static bool initialized;
   static bool isPowerOn;
   static HardwareSerial serial;
   static AirSensorBuffer sensorBuffer;

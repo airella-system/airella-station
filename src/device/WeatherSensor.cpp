@@ -1,8 +1,5 @@
 #include "device/WeatherSensor.h"
-#include "config/HardwareManager.h"
-#include "maintenance/Logger.h"
 
-bool WeatherSensor::initialized = false;
 Adafruit_BME280 WeatherSensor::bmeDevice = Adafruit_BME280();
 TwoWire WeatherSensor::i2cBus = 0;
 
@@ -15,12 +12,19 @@ void WeatherSensor::init() {
       HardwareManager::getBusNumForWeatherSensor();
   if (!pinConfig.isOk) {
     Logger::error("[WeatherSensor] Unable to get pin configuration.");
+    return;
   }
   i2cBus = TwoWire(pinConfig.value);
 
   Logger::info("[WeatherSensor] Initalizing sensors.");
 
-  if (!i2cBus.begin(BME_SDA, BME_SCL, 100000)) {
+  TwoWireConfig busConfig = HardwareManager::getI2CConfigForWeatherSensor();
+  if (!busConfig.isOk) {
+    Logger::error("[WeatherSensor] Unable to get bus configuration.");
+    return;
+  }
+
+  if (!i2cBus.begin(busConfig.in, busConfig.out, 100000)) {
     Logger::error(
         "[WeatherSensor] Unable to initialize sensor bus communication.");
     return;
@@ -32,10 +36,8 @@ void WeatherSensor::init() {
   }
 
   initialized = true;
-  Logger::info("[WeatherSensor] Initalizing is OK.");
+  Logger::info("[WeatherSensor] Initalized is OK.");
 }
-
-bool WeatherSensor::isInit() { return initialized; }
 
 float WeatherSensor::getTemperature() {
   if (!initialized) {
