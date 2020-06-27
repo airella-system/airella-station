@@ -1,8 +1,5 @@
 #include "device/AirSensor.h"
-#include "config/HardwareManager.h"
-#include "maintenance/Logger.h"
 
-bool AirSensor::initialized = false;
 bool AirSensor::isPowerOn = false;
 AirSensorBuffer AirSensor::sensorBuffer;
 HardwareSerial AirSensor::serial = HardwareSerial(1);
@@ -57,8 +54,6 @@ void AirSensor::powerOff() {
   Logger::info("[AirSensor] Air sensor power OFF.");
   digitalWrite(powerPin, LOW);
 }
-
-bool AirSensor::isInit() { return initialized; }
 
 AirSensorMeasurement AirSensor::getMeasurementData() {
   return sensorBuffer.values;
