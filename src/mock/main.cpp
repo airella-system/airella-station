@@ -28,7 +28,22 @@ void setup() {
 void loop() {
   if (refreshRequested) {
     Config::instance().save();
+    bool wasRegistered = Api.isRegistered();
     Api.configUpdated();
+    if (!wasRegistered) {
+        double latitudeMin = 49.972368;
+        double latitudeMax = 50.137422;
+        double longitudeMin = 20.435403;
+        double longitudeMax = 20.735403;
+
+        double latitude =
+            latitudeMin + random(1, (latitudeMax - latitudeMin) * 100000) / 100000;
+        double longitude =
+            longitudeMin +
+            random(1, (longitudeMax - longitudeMin) * 100000) / 100000;
+
+        Api.publishLocation(latitude, longitude);
+    }
     refreshRequested = false;
   }
 

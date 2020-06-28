@@ -10,6 +10,13 @@ public:
     GSM = 1,
   };
 
+  enum RegistrationState {
+    NO_REGISTRATION = 0,
+    REGISTERING = 1,
+    REGISTRATION_ERROR = 2,
+    REGISTERED = 3
+  };
+
   void load();
   void save();
   void reset();
@@ -27,6 +34,7 @@ public:
   String getAddressCity();
   String getAddressStreet();
   String getAddressNumber();
+  RegistrationState getRegistrationState();
 
   void setDevicePassword(String devicePassword);
   void setInternetConnectionType(InternetConnectionType internetConnectionType);
@@ -41,6 +49,7 @@ public:
   void setAddressCity(String city);
   void setAddressStreet(String street);
   void setAddressNumber(String number);
+  void setRegistrationState(RegistrationState registrationState);
 
   static Config &instance() {
     static Config INSTANCE;
@@ -62,4 +71,5 @@ private:
   String addressCity;
   String addressStreet;
   String addressNumber;
+  RegistrationState registrationState;
 };

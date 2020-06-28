@@ -21,6 +21,12 @@ bool ApiClass::registerSensor(const char *type) {
   String debugText = String("Sensor add response code: ") + response.code +
                      " payload: " + response.payload;
   Logger::debug(debugText.c_str());
+
+  if (response.code == 201) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool ApiClass::updateAccessToken() {
@@ -72,6 +78,12 @@ bool ApiClass::publishName(const char *name) {
   String debugText = String("Sensor set name response code: ") + response.code +
                      " payload: " + response.payload;
   Logger::debug(debugText.c_str());
+
+  if (response.code == 200) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool ApiClass::publishLocation(double latitude, double longitude) {
@@ -91,6 +103,12 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
   String debugText = String("Sensor set location response code: ") +
                      response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
+
+  if (response.code == 200) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool ApiClass::publishAddress(const char *country, const char *city,
@@ -113,9 +131,17 @@ bool ApiClass::publishAddress(const char *country, const char *city,
   String debugText = String("Sensor set location response code: ") +
                      response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
+
+  if (response.code == 200) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool ApiClass::registerStation() {
+  Config::instance().setRegistrationState(Config::RegistrationState::REGISTERING);
+
   String registrationToken = Config::instance().getRegistratonToken();
   String apiUrlBase = Config::instance().getApiUrl();
   String url = apiUrlBase + "/auth/register-station";
@@ -132,54 +158,62 @@ bool ApiClass::registerStation() {
                      " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 201) {
-    DynamicJsonDocument doc(2*JSON_OBJECT_SIZE(2) + 120);
-    deserializeJson(doc, response.payload);
-    const char *id = doc["data"]["id"];
-    const char *refreshToken = doc["data"]["refreshToken"];
-    Config::instance().setApiStationId(String(id));
-    Config::instance().setRefreshToken(String(refreshToken));
-
-    updateAccessToken();
-
-    int randomNumber = random(1, 9999999);
-
-    String name = Config::instance().getStationName();
-    if (!name.equals("")) {
-    publishName(name.c_str());
-    }
-    publishAddress(Config::instance().getAddressCountry().c_str(),
-       Config::instance().getAddressCity().c_str(),
-       Config::instance().getAddressStreet().c_str(),
-       Config::instance().getAddressNumber().c_str());
-
-    double latitudeMin = 49.972368;
-    double latitudeMax = 50.137422;
-    double longitudeMin = 20.435403;
-    double longitudeMax = 20.735403;
-
-    double latitude =
-        latitudeMin + random(1, (latitudeMax - latitudeMin) * 100000) / 100000;
-    double longitude =
-        longitudeMin +
-        random(1, (longitudeMax - longitudeMin) * 100000) / 100000;
-
-    publishLocation(latitude, longitude);
-
-    registerSensor("temperature");
-    registerSensor("humidity");
-    registerSensor("pm1");
-    registerSensor("pm2_5");
-    registerSensor("pm10");
-    return true;
-  } else {
+  if (response.code != 201) {
+    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
+
+  DynamicJsonDocument doc(2*JSON_OBJECT_SIZE(2) + 120);
+  deserializeJson(doc, response.payload);
+  const char *id = doc["data"]["id"];
+  const char *refreshToken = doc["data"]["refreshToken"];
+  Config::instance().setApiStationId(String(id));
+  Config::instance().setRefreshToken(String(refreshToken));
+
+  if(!updateAccessToken()) {
+      Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+      return false;
+  }
+
+  String name = Config::instance().getStationName();
+  if (!name.equals("")) {
+    if(!publishName(name.c_str())) {
+      Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+      return false;
+    }
+  }
+  publishAddress(Config::instance().getAddressCountry().c_str(),
+      Config::instance().getAddressCity().c_str(),
+      Config::instance().getAddressStreet().c_str(),
+      Config::instance().getAddressNumber().c_str());
+
+  if (!registerSensor("temperature")) {
+    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  if (!registerSensor("humidity")) {
+    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  if (!registerSensor("pm1")) {
+    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  if (!registerSensor("pm2_5")) {
+    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  if (!registerSensor("pm10")) {
+    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+
+  Config::instance().setRegistrationState(Config::RegistrationState::REGISTERED);
+  return true;
 }
 
 bool ApiClass::isRegistered() {
-  return !Config::instance().getRefreshToken().equals("") &&
-         !Config::instance().getApiStationId().equals("");
+  return Config::instance().getRegistrationState() == Config::RegistrationState::REGISTERED;
 }
 
 bool ApiClass::publishMeasurement(String sensor, double value) {
@@ -201,7 +235,14 @@ bool ApiClass::publishMeasurement(String sensor, double value) {
     String debugText = String("Add measurement response code: ") +
                        response.code + " payload: " + response.payload;
     Logger::debug(debugText.c_str());
+
+    if (response.code == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
+  return false;
 }
 
 void ApiClass::configUpdated() {

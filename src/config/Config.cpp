@@ -19,6 +19,11 @@ void Config::load() {
   this->addressCity = preferences.getString("address-city", "");
   this->addressStreet = preferences.getString("address-street", "");
   this->addressNumber = preferences.getString("address-number", "");
+  this->registrationState = Config::RegistrationState::NO_REGISTRATION;
+  if (!Config::instance().getRefreshToken().equals("") &&
+         !Config::instance().getApiStationId().equals("")) {
+               this->registrationState = Config::RegistrationState::REGISTERED;
+  }
 
   preferences.end();
 }
@@ -65,6 +70,8 @@ String Config::getApiUrl() { return this->apiUrl; }
 
 String Config::getApiStationId() { return this->apiStationId; }
 
+Config::RegistrationState Config::getRegistrationState() { return this->registrationState; }
+
 void Config::setDevicePassword(String devicePassword) {
   this->devicePassword = devicePassword;
 }
@@ -93,3 +100,8 @@ void Config::setApiUrl(String apiUrl) { this->apiUrl = apiUrl; }
 void Config::setApiStationId(String apiStationId) {
   this->apiStationId = apiStationId;
 }
+
+void Config::setRegistrationState(Config::RegistrationState registrationState) { 
+    this->registrationState = registrationState;
+}
+
