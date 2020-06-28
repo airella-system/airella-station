@@ -22,6 +22,11 @@ public:
   String getRefreshToken();
   String getApiUrl();
   String getApiStationId();
+  String getStationName();
+  String getAddressCountry();
+  String getAddressCity();
+  String getAddressStreet();
+  String getAddressNumber();
 
   void setDevicePassword(String devicePassword);
   void setInternetConnectionType(InternetConnectionType internetConnectionType);
@@ -31,6 +36,11 @@ public:
   void setRefreshToken(String refreshToken);
   void setApiUrl(String apiUrl);
   void setApiStationId(String apiStationId);
+  void setStationName(String name);
+  void setAddressCountry(String country);
+  void setAddressCity(String city);
+  void setAddressStreet(String street);
+  void setAddressNumber(String number);
 
   static Config &instance() {
     static Config INSTANCE;
@@ -47,4 +57,9 @@ private:
   String refreshToken;
   String apiUrl;
   String apiStationId;
+  String stationName;
+  String addressCountry;
+  String addressCity;
+  String addressStreet;
+  String addressNumber;
 };

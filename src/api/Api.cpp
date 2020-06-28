@@ -8,8 +8,13 @@ bool ApiClass::registerSensor(const char *type) {
   String apiUrlBase = Config::instance().getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
                Config::instance().getApiStationId() + "/sensors";
-  String body =
-      String("{ \"type\": \"") + type + "\", \"id\": \"" + type + "\" }";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
+  doc["type"] = type;
+  doc["id"] = type;
+  String body = "";
+  serializeJson(doc, body);
+
   Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
   Http::Response response = Internet::httpPost(url, body);
 
@@ -25,7 +30,12 @@ bool ApiClass::updateAccessToken() {
     String apiUrlBase = Config::instance().getApiUrl();
     String url = apiUrlBase + "/auth/refresh-token";
     String refreshToken = Config::instance().getRefreshToken();
-    String body = "{ \"refreshToken\": \"" + refreshToken + "\" }";
+
+    DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
+    doc["refreshToken"] = refreshToken;
+    String body = "";
+    serializeJson(doc, body);
+
     Http::Response response = Internet::httpPost(url, body);
 
     String debugText = String("Get token response code: ") + response.code +
@@ -50,7 +60,12 @@ bool ApiClass::publishName(const char *name) {
   String apiUrlBase = Config::instance().getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
                Config::instance().getApiStationId() + "/name";
-  String body = String("{ \"name\": \"") + name + "\" }";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
+  doc["name"] = name;
+  String body = "";
+  serializeJson(doc, body);
+
   Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
   Http::Response response = Internet::httpPut(url, body);
 
@@ -63,8 +78,13 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
   String apiUrlBase = Config::instance().getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
                Config::instance().getApiStationId() + "/location";
-  String body = String("{ \"latitude\": ") + String(latitude, 6) +
-                ", \"longitude\": " + String(longitude, 6) + " }";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
+  doc["latitude"] = String(latitude, 6);
+  doc["longitude"] = String(longitude, 6);
+  String body = "";
+  serializeJson(doc, body);
+
   Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
   Http::Response response = Internet::httpPut(url, body);
 
@@ -78,9 +98,15 @@ bool ApiClass::publishAddress(const char *country, const char *city,
   String apiUrlBase = Config::instance().getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
                Config::instance().getApiStationId() + "/address";
-  String body = String("{ \"country\": \"") + country + "\", \"city\": \"" +
-                city + "\", \"street\": \"" + street + "\", \"number\": \"" +
-                number + "\" }";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
+  doc["country"] = country;
+  doc["city"] = city;
+  doc["street"] = street;
+  doc["number"] = number;
+  String body = "";
+  serializeJson(doc, body);
+
   Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
   Http::Response response = Internet::httpPut(url, body);
 
@@ -93,8 +119,13 @@ bool ApiClass::registerStation() {
   String registrationToken = Config::instance().getRegistratonToken();
   String apiUrlBase = Config::instance().getApiUrl();
   String url = apiUrlBase + "/auth/register-station";
-  String body =
-      "{ \"stationRegistrationToken\": \"" + registrationToken + "\" }";
+
+  const size_t capacity = JSON_OBJECT_SIZE(1);
+  DynamicJsonDocument doc(capacity);
+  doc["stationRegistrationToken"] = registrationToken;
+  String body = "";
+  serializeJson(doc, body);
+
   Http::Response response = Internet::httpPost(url, body);
 
   String debugText = String("Registraton response code: ") + response.code +
@@ -102,7 +133,7 @@ bool ApiClass::registerStation() {
   Logger::debug(debugText.c_str());
 
   if (response.code == 201) {
-    DynamicJsonDocument doc(512);
+    DynamicJsonDocument doc(2*JSON_OBJECT_SIZE(2) + 120);
     deserializeJson(doc, response.payload);
     const char *id = doc["data"]["id"];
     const char *refreshToken = doc["data"]["refreshToken"];
@@ -112,8 +143,15 @@ bool ApiClass::registerStation() {
     updateAccessToken();
 
     int randomNumber = random(1, 9999999);
-    publishName((String("Mock sensor ") + String(randomNumber)).c_str());
-    publishAddress("Poland", "Kraków", "Mockowa", String(randomNumber).c_str());
+
+    String name = Config::instance().getStationName();
+    if (!name.equals("")) {
+    publishName(name.c_str());
+    }
+    publishAddress(Config::instance().getAddressCountry().c_str(),
+       Config::instance().getAddressCity().c_str(),
+       Config::instance().getAddressStreet().c_str(),
+       Config::instance().getAddressNumber().c_str());
 
     double latitudeMin = 49.972368;
     double latitudeMax = 50.137422;
@@ -150,7 +188,13 @@ bool ApiClass::publishMeasurement(String sensor, double value) {
     String url = apiUrlBase + "/stations/" +
                  Config::instance().getApiStationId() + "/sensors/" + sensor +
                  "/measurements";
-    String body = String("{ \"value\": " + String(value) + " }");
+
+    const size_t capacity = JSON_OBJECT_SIZE(1);
+    DynamicJsonDocument doc(capacity);
+    doc["value"] = String(value);
+    String body = "";
+    serializeJson(doc, body);
+    
     Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
     Http::Response response = Internet::httpPost(url, body);
 

@@ -8,24 +8,35 @@ void Config::load() {
   this->internetConnectionType = static_cast<Config::InternetConnectionType>(
       preferences.getInt("inet-conn", 0));
   this->wifiSsid = preferences.getString("wifi-ssid", "");
-  this->wifiPassword = preferences.getString("wifi-pass", "");
-  this->registratonToken = preferences.getString("register-tok", "");
-  this->refreshToken = preferences.getString("refresh-tok", "");
+  this->wifiPassword = preferences.getString("wifi-password", "");
+  this->registratonToken = preferences.getString("registration-token", "");
+  this->refreshToken = preferences.getString("refresh-token", "");
   this->apiUrl =
       preferences.getString("api-url", "http://airella.cyfrogen.com/api");
   this->apiStationId = preferences.getString("api-station-id", "");
+  this->stationName = preferences.getString("station-name", "");
+  this->addressCountry = preferences.getString("address-country", "");
+  this->addressCity = preferences.getString("address-city", "");
+  this->addressStreet = preferences.getString("address-street", "");
+  this->addressNumber = preferences.getString("address-number", "");
+
   preferences.end();
 }
 
 void Config::save() {
   preferences.begin("prefs", false);
-  preferences.putString("dev-pass", Config::getDevicePassword());
+  preferences.putString("device-password", Config::getDevicePassword());
   preferences.putString("wifi-ssid", Config::getWifiSsid());
-  preferences.putString("wifi-pass", Config::getWifiPassword());
-  preferences.putString("register-tok", Config::getRegistratonToken());
-  preferences.putString("refresh-tok", Config::getRefreshToken());
+  preferences.putString("wifi-password", Config::getWifiPassword());
+  preferences.putString("registration-token", Config::getRegistratonToken());
+  preferences.putString("refresh-token", Config::getRefreshToken());
   preferences.putString("api-url", Config::getApiUrl());
   preferences.putString("api-station-id", Config::getApiStationId());
+  preferences.putString("station-name", Config::getStationName());
+  preferences.putString("address-country", Config::getAddressCountry());
+  preferences.putString("address-city", Config::getAddressCity());
+  preferences.putString("address-street", Config::getAddressStreet());
+  preferences.putString("address-number", Config::getAddressNumber());
   preferences.end();
 }
 
