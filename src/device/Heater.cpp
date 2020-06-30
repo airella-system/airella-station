@@ -1,89 +1,83 @@
 #include "device/Heater.h"
 
 void Heater::init() {
+    String message;
     analogWriteFrequency(HEATER_ON, 1000);
-    analogWrite(HEATER_ON,heater);
+    analogWrite(HEATER_ON, 0);
 
-    OneWire oneWire(OW1);
-    DallasTemperature DS18B20(&oneWire);
+    communicationBus = OneWire(OW1);
+    thermometer = DallasTemperature(&communicationBus);
 
-    DS18B20.begin();
+    thermometer.begin();
 
-    HWSerial0.print("Parasite power is: "); 
-    if( DS18B20.isParasitePowerMode() ){ 
-        HWSerial0.println("ON");
-    }else{
-        HWSerial0.println("OFF");
+    Logger::info("Parasite power is: "); 
+    if(thermometer.isParasitePowerMode()) { 
+        Logger::info("Parasite power is: ON");
+    }
+    else {
+        Logger::info("Parasite power is: OFF");
     }
     
-    numberOfDevices = DS18B20.getDeviceCount();
-    HWSerial0.print( "Device count: " );
-    HWSerial0.println( numberOfDevices );
+    numberOfDevices = thermometer.getDeviceCount();
+    Logger::info("Parasite power is: OFF" + numberOfDevices);
 
-    DS18B20.requestTemperatures();
+    thermometer.requestTemperatures();
 
-    // Loop through each device, print out address
-    for(int i=0;i<numberOfDevices; i++){
-        // Search the wire for address
-        if( DS18B20.getAddress(devAddr[i], i) ){
-        //devAddr[i] = tempDeviceAddress;
-        HWSerial0.print("Found device ");
-        HWSerial0.print(i, DEC);
-        HWSerial0.print(" with address: " + GetAddressToString(devAddr[i]));
-        HWSerial0.println();
-        }else{
-        HWSerial0.print("Found ghost device at ");
-        HWSerial0.print(i, DEC);
-        HWSerial0.print(" but could not detect address. Check power and cabling");
+    for(int i = 0; i < numberOfDevices; i++) {
+        if(thermometer.getAddress(deviceAddress[i], i)) {
+            message = "Found device " + i;
+            message += " with address: " + deviceAddressToString(deviceAddress[i]);
+            Logger::info(&message);
+        }
+        else {
+            message = "Found ghost device at " + i;
+            message += " but could not detect address. Check power and cabling";
+            Logger::warning(&message);
         }
 
-        //Get resolution of DS18b20
-        HWSerial0.print("Resolution: ");
-        HWSerial0.print(DS18B20.getResolution( devAddr[i] ));
-        HWSerial0.println();
-
-        //Read temperature from DS18b20
-        float tempC = DS18B20.getTempC( devAddr[i] );
-        HWSerial0.print("Temp C: ");
-        HWSerial0.println(tempC);
+        Logger::info("Resolution: " + thermometer.getResolution(deviceAddress[i]));
     }
-}
 
-//Loop measuring the temperature
-void TempLoop()
-{
-  for(int i=0; i<numberOfDevices; i++){
-    float tempC = DS18B20.getTempC( devAddr[i] ); //Measuring temperature in Celsius
-    tempDev[i] = tempC; //Save the measured value to the array
-  }
-  DS18B20.setWaitForConversion(false); //No waiting for measurement
-  DS18B20.requestTemperatures(); //Initiate the temperature measurement
+    Logger::info("[Heater] initialized.");
 }
 
 void Heater::on() {
     Logger::info("Heater is ON");
+    heaterStatus.heaterIsOn = true;
     analogWrite(HEATER_ON, 10);
 }
 
 void Heater::off() {
     Logger::info("Heater is OFF");
+    heaterStatus.heaterIsOn = false;
     analogWrite(HEATER_ON, 0);
 }
 
 void Heater::run() {
-    
+    heaterStatus.threadIsRunning = true;
+    xTaskCreatePinnedToCore(thread, "termoThread", 10000, NULL, 1, &termoThread, 1);
 }
 
 void Heater::stop() {
-    heater-=1;
-    HWSerial0.printf("heater set to: %d \n",heater);
-    analogWrite(HEATER_ON,heater);
+    heaterStatus.threadIsRunning = false;
+    vTaskDelete(&termoThread);
+}
+
+void Heater::thread(void * pvParameters) {
+    
 }
 
 float Heater::getTemperature() {
+    thermometer.setWaitForConversion(false);
+    thermometer.requestTemperatures();
 
+    for(int i=0; i<numberOfDevices; i++) {
+        temperatureDevice[i] = thermometer.getTempC(deviceAddress[i]);
+    }
+    
+    return temperatureDevice[0];
 }
 
-bool Heater::getHeaterState() {
-
+HeaterStatus Heater::getHeaterState() {
+    return heaterStatus;
 }
