@@ -14,7 +14,9 @@
 
 class Core {
 public:
+    Core();
     void setUp();
     void loop();
 private:
+    AirSensor *airSensor = NULL;
 };

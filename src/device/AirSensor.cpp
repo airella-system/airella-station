@@ -1,48 +1,25 @@
 #include "device/AirSensor.h"
 
-bool AirSensor::isPowerOn = false;
-AirSensorBuffer AirSensor::sensorBuffer;
-HardwareSerial AirSensor::serial = HardwareSerial(1);
-bool AirSensor::dataReady = false;
-unsigned char AirSensor::lastByte = 0;
-unsigned char AirSensor::nextByte = 0;
-unsigned char AirSensor::powerPin = 0;
-int AirSensor::bufferIndex = 0;
+AirSensor::AirSensor() {
+  config = HardwareManager::getAirSensorConfig();
+  serial = HardwareSerial(config.serialNumber);
+  isPowerOn = false;
+  dataReady = false;
+  lastByte = 0;
+  nextByte = 0;
+  powerPin = 0;
+  bufferIndex = 0;
 
-void AirSensor::init() {
-  if (initialized) {
-    Logger::warning("[AirSensor] Air sensor is already initialized.");
-    return;
-  }
+  pinMode(config.powerPin, OUTPUT);
+  digitalWrite(config.powerPin, LOW);
 
-  UartConfig config = HardwareManager::getUartForAirSensor();
-  if (!config.isOk) {
-    Logger::warning("[AirSensor] Unable to initialize UART bus.");
-    return;
-  }
+  serial.begin(9600, SERIAL_8N1, config.uartRx, config.uartTx, false, 1000);
+  Logger::info("[AirSensor] Air sensor is active.");
+}
 
-  OptionalConfig<unsigned char> powerPin =
-      HardwareManager::getAirSensorPowerPin();
-  if (!powerPin.isOk) {
-    Logger::warning("[AirSensor] Unable to initialize Power PIN.");
-    return;
-  }
-  AirSensor::powerPin = powerPin.value;
-
-  OptionalConfig<unsigned char> ledPin = HardwareManager::getAirSensorLed();
-  if (!ledPin.isOk) {
-    Logger::warning("[AirSensor] Unable to initialize LED PIN.");
-    return;
-  }
-  AirSensor::ledPin = ledPin.value;
-
-  pinMode(ledPin.value, OUTPUT);
-  pinMode(powerPin.value, OUTPUT);
-  digitalWrite(powerPin.value, LOW);
-
-  serial.begin(9600, SERIAL_8N1, config.rx, config.tx, false, 1000);
-  initialized = true;
-  Logger::info("[AirSensor] Air sensor is initialized.");
+AirSensor::~AirSensor() {
+  serial.end();
+  Logger::info("[AirSensor] Air sensor is close.");
 }
 
 void AirSensor::powerOn() {
@@ -67,11 +44,6 @@ void AirSensor::measurement() {
 }
 
 void AirSensor::updateBuffer() {
-  if (!AirSensor::initialized) {
-    Logger::warning("[AirSensor] Error: must call AirSensor::init()");
-    return;
-  }
-
   dataReady = false;
   if (serial.available()) {
     nextByte = serial.read();
