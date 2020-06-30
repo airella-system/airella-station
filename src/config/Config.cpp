@@ -4,12 +4,12 @@
 Preferences preferences;
 void Config::load() {
   preferences.begin("prefs", false);
-  this->devicePassword = preferences.getString("dev-pass", "");
+  this->devicePassword = preferences.getString("device-password", "");
   this->internetConnectionType = static_cast<Config::InternetConnectionType>(
       preferences.getInt("inet-conn", 0));
   this->wifiSsid = preferences.getString("wifi-ssid", "");
   this->wifiPassword = preferences.getString("wifi-password", "");
-  this->registratonToken = preferences.getString("registration-token", "");
+  this->registratonToken = preferences.getString("register-token", "");
   this->refreshToken = preferences.getString("refresh-token", "");
   this->apiUrl =
       preferences.getString("api-url", "http://airella.cyfrogen.com/api");
@@ -33,7 +33,7 @@ void Config::save() {
   preferences.putString("device-password", Config::getDevicePassword());
   preferences.putString("wifi-ssid", Config::getWifiSsid());
   preferences.putString("wifi-password", Config::getWifiPassword());
-  preferences.putString("registration-token", Config::getRegistratonToken());
+  preferences.putString("register-token", Config::getRegistratonToken());
   preferences.putString("refresh-token", Config::getRefreshToken());
   preferences.putString("api-url", Config::getApiUrl());
   preferences.putString("api-station-id", Config::getApiStationId());
@@ -72,6 +72,16 @@ String Config::getApiStationId() { return this->apiStationId; }
 
 Config::RegistrationState Config::getRegistrationState() { return this->registrationState; }
 
+String Config::getStationName() { return this->stationName; }
+
+String Config::getAddressCountry() { return this->addressCountry; }
+
+String Config::getAddressCity() { return this->addressCity; }
+
+String Config::getAddressStreet() { return this->addressStreet; }
+
+String Config::getAddressNumber() { return this->addressNumber; }
+
 void Config::setDevicePassword(String devicePassword) {
   this->devicePassword = devicePassword;
 }
@@ -105,3 +115,22 @@ void Config::setRegistrationState(Config::RegistrationState registrationState) {
     this->registrationState = registrationState;
 }
 
+void Config::setStationName(String stationName) {
+  this->stationName = stationName;
+}
+
+void Config::setAddressCountry(String addressCountry) {
+  this->addressCountry = addressCountry;
+}
+
+void Config::setAddressCity(String addressCity) {
+  this->addressCity = addressCity;
+}
+
+void Config::setAddressStreet(String addressStreet) {
+  this->addressStreet = addressStreet;
+}
+
+void Config::setAddressNumber(String addressNumber) {
+  this->addressNumber = addressNumber;
+}

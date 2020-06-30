@@ -9,6 +9,7 @@
 
 #define SERVICE_UUID "f1eb6601-af50-4cf3-9f6e-4e1c6fb8e88c"
 
+// Bluetooth password - something we must re-consider
 #define DEVICE_PASSWORD_CHARACTERISTIC_UUID "126b5b11-6590-4229-8026-ba30ad032133"
 
 // WIFI or GSM
@@ -41,6 +42,9 @@
 // Connection state - determines if connection to internet services is ok
 #define CONNECTION_STATE_CHARACTERISTIC_UUID "ba71dcda-609f-4b3e-8095-11662afa4c5f"
 
+// Registration state - determines if registration process has finished/failed
+#define REGISTRATION_STATE_CHARACTERISTIC_UUID "176959dd-c1f5-4dac-88b8-1f28977fa7ef"
+
 // Refreshs device when any message is received
 #define REFRESH_DEVICE_CHARACTERISTIC_UUID "2ca7df70-42df-482e-81cf-468e0fcec5dc"
 
@@ -62,6 +66,7 @@ private:
 
   static BLECharacteristic *devPasswordCharacteristic;
   static BLECharacteristic *inetConnTypeCharacteristic;
+  static BLECharacteristic *registrationStateCharacteristic;
   static BLECharacteristic *ssidCharacteristic;
   static BLECharacteristic *wifiPassCharacteristic;
   static BLECharacteristic *registerTokenCharacteristic;

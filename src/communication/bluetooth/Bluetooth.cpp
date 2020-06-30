@@ -2,8 +2,16 @@
 #include "config/Config.h"
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
+
+BLECharacteristic *Bluetooth::stationNameCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::stationCountryCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::stationCityCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::stationStreetCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::stationNumberCharacteristic = nullptr;
+
 BLECharacteristic *Bluetooth::devPasswordCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::inetConnTypeCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::registrationStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::ssidCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::wifiPassCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::registerTokenCharacteristic = nullptr;
@@ -34,6 +42,12 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
     String stringValue = String(value.c_str());
     Config::instance().setWifiSsid(stringValue);
     Config::instance().save();
+  }
+};
+
+class RegistrationStateCallback : public BLECharacteristicCallbacks {
+  void onRead(BLECharacteristic *pCharacteristic) {
+    pCharacteristic->setValue(String(Config::instance().getRegistrationState()).c_str());
   }
 };
 
@@ -143,7 +157,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   BLEDevice::setSecurityCallbacks(new MySecurity());
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService =
-      pServer->createService(BLEUUID((const char *)SERVICE_UUID), 30);
+      pServer->createService(BLEUUID((const char *)SERVICE_UUID), 60);
 
   devPasswordCharacteristic = pService->createCharacteristic(
       DEVICE_PASSWORD_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
@@ -155,6 +169,13 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   inetConnTypeCharacteristic->setAccessPermissions(
       ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+
+  registrationStateCharacteristic = pService->createCharacteristic(
+      REGISTRATION_STATE_CHARACTERISTIC_UUID,
+      BLECharacteristic::PROPERTY_READ);
+  registrationStateCharacteristic->setAccessPermissions(
+      ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+  registrationStateCharacteristic->setCallbacks(new RegistrationStateCallback());
 
   ssidCharacteristic = pService->createCharacteristic(
       SSID_CHARACTERISTIC_UUID,
@@ -184,35 +205,35 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   apiUrlCharacteristic->setCallbacks(new ApiUrlCallback());
 
   stationNameCharacteristic = pService->createCharacteristic(
-      API_URL_CHARACTERISTIC_UUID,
+      STATION_NAME_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationNameCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                              ESP_GATT_PERM_WRITE_ENCRYPTED);
   stationNameCharacteristic->setCallbacks(new StationNameCallback());
 
   stationCountryCharacteristic = pService->createCharacteristic(
-      API_URL_CHARACTERISTIC_UUID,
+      STATION_COUNTRY_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationCountryCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                              ESP_GATT_PERM_WRITE_ENCRYPTED);
   stationCountryCharacteristic->setCallbacks(new StationCountryCallback());
 
   stationCityCharacteristic = pService->createCharacteristic(
-      API_URL_CHARACTERISTIC_UUID,
+      STATION_CITY_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationCityCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                              ESP_GATT_PERM_WRITE_ENCRYPTED);
   stationCityCharacteristic->setCallbacks(new StationCityCallback());
 
   stationStreetCharacteristic = pService->createCharacteristic(
-      API_URL_CHARACTERISTIC_UUID,
+      STATION_STREET_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationStreetCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                              ESP_GATT_PERM_WRITE_ENCRYPTED);
   stationStreetCharacteristic->setCallbacks(new StationStreetCallback());
 
   stationNumberCharacteristic = pService->createCharacteristic(
-      API_URL_CHARACTERISTIC_UUID,
+      STATION_NUMBER_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationNumberCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED |
                                              ESP_GATT_PERM_WRITE_ENCRYPTED);

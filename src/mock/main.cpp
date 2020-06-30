@@ -36,11 +36,8 @@ void loop() {
         double longitudeMin = 20.435403;
         double longitudeMax = 20.735403;
 
-        double latitude =
-            latitudeMin + random(1, (latitudeMax - latitudeMin) * 100000) / 100000;
-        double longitude =
-            longitudeMin +
-            random(1, (longitudeMax - longitudeMin) * 100000) / 100000;
+        double latitude = random(latitudeMin * 1000000, latitudeMax * 1000000) / 1000000.0;
+        double longitude = random(longitudeMin * 1000000, longitudeMax * 1000000) / 1000000.0;
 
         Api.publishLocation(latitude, longitude);
     }
@@ -49,11 +46,11 @@ void loop() {
 
   if ((millis() - lastPublishMillis) > 10000) {
     Logger::debug("Publishing data");
-    double temperature = random(15 * 100, 25 * 100) / 100;
-    double humidity = random(0 * 100, 100 * 100) / 100;
-    double pm1 = random(20 * 100, 40 * 100) / 100;
-    double pm2_5 = random(10 * 100, 20 * 100) / 100;
-    double pm10 = random(20 * 100, 40 * 100) / 100;
+    double temperature = random(15 * 100, 25 * 100) / 100.0;
+    double humidity = random(0 * 100, 100 * 100) / 100.0;
+    double pm1 = random(20 * 100, 40 * 100) / 100.0;
+    double pm2_5 = random(10 * 100, 20 * 100) / 100.0;
+    double pm10 = random(20 * 100, 40 * 100) / 100.0;
 
     Api.publishMeasurement("temperature", temperature);
     Api.publishMeasurement("humidity", humidity);

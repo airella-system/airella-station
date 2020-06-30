@@ -11,7 +11,9 @@ public:
   static Http::Response httpPost(String url, String json);
   static Http::Response httpPut(String url, String json);
   static void setAuthorizationHeader(String value);
+  static bool isConnected();
 
 private:
+  static bool connected;
   static String authorizationHeader;
 };

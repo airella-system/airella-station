@@ -4,6 +4,10 @@ int GsmConn::start() {}
 
 void GsmConn::stop() {}
 
+bool GsmConn::isConnected() {
+  return false;
+}
+
 Http::Response GsmConn::httpGet(String url) {}
 
 Http::Response GsmConn::httpPost(String url, String json) {}

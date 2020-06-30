@@ -31,4 +31,9 @@ void Internet::setAuthorizationHeader(String value) {
                                    : GsmConn::setAuthorizationHeader(value);
 }
 
+bool Internet::isConnected() {
+  return Internet::type == Internet::WIFI ? WiFiConn::isConnected()
+                                          : GsmConn::isConnected();
+}
+
 void Internet::setType(Type type) { Internet::type = type; }
