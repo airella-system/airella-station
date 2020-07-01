@@ -1,7 +1,6 @@
 #include "device/AirSensor.h"
 
 AirSensor::AirSensor() {
-  config = HardwareManager::getAirSensorConfig();
   serial = HardwareSerial(config.serialNumber);
   isPowerOn = false;
   dataReady = false;
