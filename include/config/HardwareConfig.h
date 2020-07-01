@@ -14,6 +14,12 @@ struct AirSensorConfig {
 	unsigned char uartTx = 13;
 };
 
-struct PowerSensorConfig {};
+struct PowerSensorConfig {
+	unsigned char i2cBusNum = 0;
+	unsigned char sensorAddress = 0x40;
+	unsigned char dataLinePin = 27;
+	unsigned char clockLinePin = 4;
+};
+
 struct HeaterConfig {};
 struct StorageConfig {};
