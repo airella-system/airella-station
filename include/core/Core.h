@@ -19,4 +19,6 @@ public:
     void loop();
 private:
     AirSensor *airSensor = NULL;
+    WeatherSensor *weatherSensor = NULL;
+    PowerSensor *powerSensor = NULL;
 };
