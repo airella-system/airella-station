@@ -1,64 +1,38 @@
 #include "device/WeatherSensor.h"
 
-Adafruit_BME280 WeatherSensor::bmeDevice = Adafruit_BME280();
-TwoWire WeatherSensor::i2cBus = 0;
+WeatherSensor::WeatherSensor(): i2cBus(config.i2cBusNum) {
+	Logger::info("[WeatherSensor] Initalizing ...");
 
-void WeatherSensor::init() {
-  if (initialized) {
-    Logger::warning("[WeatherSensor] Sensor is already initialized.");
-  }
+	if(i2cBus.begin(config.dataLinePin, config.clockLinePin, 100000)) {
+		Logger::info("[WeatherSensor] Initialized I2C bus: OK.");
+	}
+	else {
+		Logger::error("[WeatherSensor] Unable to initialize I2C bus.");
+		return;
+	}
 
-  OptionalConfig<unsigned char> pinConfig =
-      HardwareManager::getBusNumForWeatherSensor();
-  if (!pinConfig.isOk) {
-    Logger::error("[WeatherSensor] Unable to get pin configuration.");
-    return;
-  }
-  i2cBus = TwoWire(pinConfig.value);
+	if(bmeDevice.begin(config.sensorAddress, &i2cBus)) {
+		Logger::info("[WeatherSensor] Initialized BME device: OK.");
+	}
+	else {
+		Logger::error("[WeatherSensor] Unable to find BME device.");
+		return;
+	}
 
-  Logger::info("[WeatherSensor] Initalizing sensors.");
-
-  TwoWireConfig busConfig = HardwareManager::getI2CConfigForWeatherSensor();
-  if (!busConfig.isOk) {
-    Logger::error("[WeatherSensor] Unable to get bus configuration.");
-    return;
-  }
-
-  if (!i2cBus.begin(busConfig.in, busConfig.out, 100000)) {
-    Logger::error(
-        "[WeatherSensor] Unable to initialize sensor bus communication.");
-    return;
-  }
-
-  if (!bmeDevice.begin(SENSOR_ADDR, &i2cBus)) {
-    Logger::error("[WeatherSensor] Unable to find sensor.");
-    return;
-  }
-
-  initialized = true;
-  Logger::info("[WeatherSensor] Initalized is OK.");
+	Logger::info("[WeatherSensor] Initalized is OK.");
 }
 
+WeatherSensor::~WeatherSensor() {}
+
+
 float WeatherSensor::getTemperature() {
-  if (!initialized) {
-    Logger::error("[WeatherSensor] Unable to get temperature value - sensor is "
-                  "uninitialized.");
-  }
-  return bmeDevice.readTemperature();
+  	return bmeDevice.readTemperature();
 }
 
 float WeatherSensor::getPressure() {
-  if (!initialized) {
-    Logger::error("[WeatherSensor] Unable to get pressure value - sensor is "
-                  "uninitialized.");
-  }
-  return bmeDevice.readPressure();
+  	return bmeDevice.readPressure();
 }
 
 float WeatherSensor::getHumidity() {
-  if (!initialized) {
-    Logger::error("[WeatherSensor] Unable to get humidity value - sensor is "
-                  "uninitialized.");
-  }
-  return bmeDevice.readHumidity();
+  	return bmeDevice.readHumidity();
 }

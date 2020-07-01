@@ -1,7 +1,9 @@
 #pragma once
 
+#include <Arduino.h>
 #include <HardwareSerial.h>
-#include "device/Sensor.h"
+#include "maintenance/Logger.h"
+#include "config/HardwareConfig.h"
 
 #define AIR_SENSOR_DATA_SIZE 32 // 0x42 + 0x4d  + 28 bytes data + 2 bytes checksum = 32 bytes
 
@@ -38,7 +40,7 @@ union AirSensorBuffer {
   AirSensorMeasurement values;
 };
 
-class AirSensor : public Sensor {
+class AirSensor {
 
 public:
   AirSensor();
