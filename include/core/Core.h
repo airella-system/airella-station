@@ -8,6 +8,7 @@
 #include "device/AirSensor.h"
 #include "device/WeatherSensor.h"
 #include "device/PowerSensor.h"
+#include "device/Heater.h"
 #include "maintenance/Logger.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -21,4 +22,5 @@ private:
     AirSensor *airSensor = NULL;
     WeatherSensor *weatherSensor = NULL;
     PowerSensor *powerSensor = NULL;
+    Heater *heater = NULL;
 };

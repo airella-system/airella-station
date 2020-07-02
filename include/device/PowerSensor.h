@@ -1,8 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
-#include "maintenance/Logger.h"
-#include "config/HardwareConfig.h"
+#include "device/Sensor.h"
 #include <Adafruit_INA219.h>
 #include <Wire.h>
 
@@ -14,7 +12,7 @@ struct PowerInfo {
     float loadVoltage;
 };
 
-class PowerSensor {
+class PowerSensor : public Sensor {
 
 public:
     PowerSensor();

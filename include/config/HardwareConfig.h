@@ -1,25 +1,29 @@
 #pragma once
 
 struct WeatherSensorConfig {
-	unsigned char i2cBusNum = 1;
-	unsigned char sensorAddress = 0x76;
-	unsigned char dataLinePin = 21;
-	unsigned char clockLinePin = 22;
+	const unsigned char i2cBusNum = 1;
+	const unsigned char sensorAddress = 0x76;
+	const unsigned char dataLinePin = 21;
+	const unsigned char clockLinePin = 22;
 };
 
 struct AirSensorConfig {
-	unsigned char serialNumber = 1;
-	unsigned char powerPin = 26;
-	unsigned char uartRx = 2;
-	unsigned char uartTx = 13;
+	const unsigned char serialNumber = 1;
+	const unsigned char powerPin = 26;
+	const unsigned char uartRx = 2;
+	const unsigned char uartTx = 13;
 };
 
 struct PowerSensorConfig {
-	unsigned char i2cBusNum = 0;
-	unsigned char sensorAddress = 0x40;
-	unsigned char dataLinePin = 27;
-	unsigned char clockLinePin = 4;
+	const unsigned char i2cBusNum = 0;
+	const unsigned char sensorAddress = 0x40;
+	const unsigned char dataLinePin = 27;
+	const unsigned char clockLinePin = 4;
 };
 
-struct HeaterConfig {};
+struct HeaterConfig {
+	const unsigned char oneWirePin = 15;
+	const unsigned char analogPin = 25;
+};
+
 struct StorageConfig {};
