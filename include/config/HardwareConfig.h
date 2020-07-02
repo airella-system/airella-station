@@ -26,4 +26,6 @@ struct HeaterConfig {
 	const unsigned char analogPin = 25;
 };
 
-struct StorageConfig {};
+struct StorageConfig {
+	const unsigned char sdPin = 5;
+};
