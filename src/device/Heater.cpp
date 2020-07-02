@@ -62,6 +62,7 @@ void Heater::off() {
 
 void Heater::run() {
     heaterStatus.threadIsRunning = true;
+    //xTaskCreatePinnedToCore(TaskFunction_t, Name, StackSize, void *pvParameters, Priority, TaskHandle_t, xCoreID)
     xTaskCreatePinnedToCore(threadFunction, "termoThread", 10000, this, 1, &termoThreadHandler, 1);
     Logger::info("[Heater] run heater thread");
 }

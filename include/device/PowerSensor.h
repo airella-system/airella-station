@@ -16,7 +16,6 @@ class PowerSensor : public Sensor {
 
 public:
     PowerSensor();
-    float getShounVoltage();
     float getBusVoltage();
     float getCurrent();
     float getPower();
