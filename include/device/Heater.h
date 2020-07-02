@@ -24,7 +24,7 @@ public:
     void run();
     void stop();
     float getTemperature();
-    HeaterStatus getHeaterState();
+    HeaterStatus getHeaterState() const;
     HeaterStatus heaterStatus;
 
 private:

@@ -9,18 +9,23 @@
 #include "device/WeatherSensor.h"
 #include "device/PowerSensor.h"
 #include "device/Heater.h"
+#include "device/Storage.h"
 #include "maintenance/Logger.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
 class Core {
+
 public:
     Core();
     void setUp();
     void loop();
+
 private:
     AirSensor *airSensor = NULL;
     WeatherSensor *weatherSensor = NULL;
     PowerSensor *powerSensor = NULL;
     Heater *heater = NULL;
+    Storage *storage = NULL;
+    
 };
