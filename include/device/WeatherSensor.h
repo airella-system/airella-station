@@ -1,12 +1,10 @@
 #pragma once
 
-#include <Arduino.h>
-#include "maintenance/Logger.h"
-#include "config/HardwareConfig.h"
+#include "device/Sensor.h"
 #include <Adafruit_BME280.h>
 #include <Wire.h>
 
-class WeatherSensor {
+class WeatherSensor : public Sensor {
 
 public:
 	WeatherSensor();

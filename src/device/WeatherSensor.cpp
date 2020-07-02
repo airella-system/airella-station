@@ -19,6 +19,7 @@ WeatherSensor::WeatherSensor(): i2cBus(config.i2cBusNum) {
 		return;
 	}
 
+	initialized = true;
 	Logger::info("[WeatherSensor] Initalized is OK.");
 }
 

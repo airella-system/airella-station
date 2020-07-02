@@ -1,7 +1,7 @@
 #include "device/AirSensor.h"
 
-AirSensor::AirSensor() {
-  serial = HardwareSerial(config.serialNumber);
+AirSensor::AirSensor() : serial(config.serialNumber) {
+  Logger::info("[AirSensor] Initalizing ...");
   isPowerOn = false;
   dataReady = false;
   lastByte = 0;
@@ -11,8 +11,9 @@ AirSensor::AirSensor() {
 
   pinMode(config.powerPin, OUTPUT);
   digitalWrite(config.powerPin, LOW);
-
   serial.begin(9600, SERIAL_8N1, config.uartRx, config.uartTx, false, 1000);
+  
+  initialized = true;
   Logger::info("[AirSensor] Air sensor is active.");
 }
 

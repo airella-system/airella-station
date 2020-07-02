@@ -18,7 +18,8 @@ PowerSensor::PowerSensor(): inaDevice(config.sensorAddress), i2cBus(config.i2cBu
 		Logger::error("[PowerSensor] Unable to find INA device.");
 		return;
 	}
-
+    
+    initialized = true;
     Logger::info("[PowerSensor] Initalized is OK.");
 }
 

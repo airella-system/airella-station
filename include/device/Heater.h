@@ -17,24 +17,24 @@ struct HeaterStatus {
 class Heater : public Sensor {
 
 public:
-    void init();
+    Heater();
+    ~Heater();
     void on();
     void off();
     void run();
     void stop();
     float getTemperature();
     HeaterStatus getHeaterState();
+    HeaterStatus heaterStatus;
 
 private:
-    static float temperatureDevice[ONE_WIRE_MAX_DEV];
-    static DeviceAddress deviceAddress[ONE_WIRE_MAX_DEV];
-    static int numberOfDevices;
-    static HeaterStatus heaterStatus;
-    static TaskHandle_t termoThread;
-    static OneWire communicationBus;
-    static DallasTemperature thermometer;
-
-    static String deviceAddressToString(DeviceAddress deviceAddress);
-    static void thread(void *pvParameters);
+    HeaterConfig config;
+    float temperatureDevice[ONE_WIRE_MAX_DEV];
+    DeviceAddress deviceAddress[ONE_WIRE_MAX_DEV];
+    int numberOfDevices;
+    OneWire communicationBus;
+    DallasTemperature thermometer;
+    String deviceAddressToString(DeviceAddress deviceAddress);
+    TaskHandle_t termoThreadHandler;
 
 };
