@@ -23,10 +23,6 @@ PowerSensor::PowerSensor(): inaDevice(config.sensorAddress), i2cBus(config.i2cBu
     Logger::info("[PowerSensor] Initalized is OK.");
 }
 
-float PowerSensor::getShounVoltage() {
-    return inaDevice.getShuntVoltage_mV();
-}
-
 float PowerSensor::getBusVoltage() {
     return inaDevice.getBusVoltage_V();
 }
