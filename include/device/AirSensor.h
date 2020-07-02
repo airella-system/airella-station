@@ -46,21 +46,21 @@ public:
   void powerOn();
   void powerOff();
   void measurement();
-  AirSensorMeasurement getMeasurementData();
-  uint16_t getPM1();
-  uint16_t getPM2_5();
-  uint16_t getPM10();
-  uint16_t getPM_1_0_atmos();
-  uint16_t getPM_2_5_atmos();
-  uint16_t getPM_10_0_atmos();
-  uint16_t getRawGreaterThan_0_3();
-  uint16_t getRawGreaterThan_0_5();
-  uint16_t getRawGreaterThan_1_0();
-  uint16_t getRawGreaterThan_2_5();
-  uint16_t getRawGreaterThan_5_0();
-  uint16_t getRawGreaterThan_10_0();
-  uint8_t getHWVersion();
-  uint8_t getErrorCode();
+  AirSensorMeasurement getMeasurementData() const;
+  uint16_t getPM1() const;
+  uint16_t getPM2_5() const;
+  uint16_t getPM10() const;
+  uint16_t getPM_1_0_atmos() const;
+  uint16_t getPM_2_5_atmos() const;
+  uint16_t getPM_10_0_atmos() const;
+  uint16_t getRawGreaterThan_0_3() const;
+  uint16_t getRawGreaterThan_0_5() const;
+  uint16_t getRawGreaterThan_1_0() const;
+  uint16_t getRawGreaterThan_2_5() const;
+  uint16_t getRawGreaterThan_5_0() const;
+  uint16_t getRawGreaterThan_10_0() const;
+  uint8_t getHWVersion() const;
+  uint8_t getErrorCode() const;
 
 private:
   bool isPowerOn;
@@ -78,5 +78,5 @@ private:
   void convertSensorData();
   bool isValidChecksum();
   uint16_t uint16FromBufferData(unsigned char *buff, int loc);
-  void dumpBytes();
+  void dumpBytes() const;
 };

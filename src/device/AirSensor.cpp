@@ -32,7 +32,7 @@ void AirSensor::powerOff() {
   digitalWrite(powerPin, LOW);
 }
 
-AirSensorMeasurement AirSensor::getMeasurementData() {
+AirSensorMeasurement AirSensor::getMeasurementData() const {
   return sensorBuffer.values;
 }
 
@@ -108,55 +108,55 @@ uint16_t AirSensor::uint16FromBufferData(unsigned char *buff, int loc) {
   return ((buff[loc] << 8) + buff[loc + 1]);
 }
 
-void AirSensor::dumpBytes() {
+void AirSensor::dumpBytes() const {
   for (int i = 0; i < AIR_SENSOR_DATA_SIZE; i++) {
     String out(sensorBuffer.bytes[i]);
     Logger::debug(&out);
   }
 }
 
-uint16_t AirSensor::getPM1() { return sensorBuffer.values.pm1; }
+uint16_t AirSensor::getPM1() const { return sensorBuffer.values.pm1; }
 
-uint16_t AirSensor::getPM2_5() { return sensorBuffer.values.pm2_5; }
+uint16_t AirSensor::getPM2_5() const { return sensorBuffer.values.pm2_5; }
 
-uint16_t AirSensor::getPM10() { return sensorBuffer.values.pm10; }
+uint16_t AirSensor::getPM10() const { return sensorBuffer.values.pm10; }
 
-uint16_t AirSensor::getPM_1_0_atmos() {
+uint16_t AirSensor::getPM_1_0_atmos() const {
   return sensorBuffer.values.pm_1_0_atmos;
 }
 
-uint16_t AirSensor::getPM_2_5_atmos() {
+uint16_t AirSensor::getPM_2_5_atmos() const {
   return sensorBuffer.values.pm_2_5_atmos;
 }
 
-uint16_t AirSensor::getPM_10_0_atmos() {
+uint16_t AirSensor::getPM_10_0_atmos() const {
   return sensorBuffer.values.pm_10_0_atmos;
 }
 
-uint16_t AirSensor::getRawGreaterThan_0_3() {
+uint16_t AirSensor::getRawGreaterThan_0_3() const {
   return sensorBuffer.values.raw_gt_0_3;
 }
 
-uint16_t AirSensor::getRawGreaterThan_0_5() {
+uint16_t AirSensor::getRawGreaterThan_0_5() const {
   return sensorBuffer.values.raw_gt_0_5;
 }
 
-uint16_t AirSensor::getRawGreaterThan_1_0() {
+uint16_t AirSensor::getRawGreaterThan_1_0() const {
   return sensorBuffer.values.raw_gt_1_0;
 }
 
-uint16_t AirSensor::getRawGreaterThan_2_5() {
+uint16_t AirSensor::getRawGreaterThan_2_5() const {
   return sensorBuffer.values.raw_gt_2_5;
 }
 
-uint16_t AirSensor::getRawGreaterThan_5_0() {
+uint16_t AirSensor::getRawGreaterThan_5_0() const {
   return sensorBuffer.values.raw_gt_5_0;
 }
 
-uint16_t AirSensor::getRawGreaterThan_10_0() {
+uint16_t AirSensor::getRawGreaterThan_10_0() const {
   return sensorBuffer.values.raw_gt_10_0;
 }
 
-uint8_t AirSensor::getHWVersion() { return sensorBuffer.values.version_number; }
+uint8_t AirSensor::getHWVersion() const { return sensorBuffer.values.version_number; }
 
-uint8_t AirSensor::getErrorCode() { return sensorBuffer.values.error_code; }
+uint8_t AirSensor::getErrorCode() const { return sensorBuffer.values.error_code; }

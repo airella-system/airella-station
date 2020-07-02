@@ -39,6 +39,7 @@ Heater::Heater() : communicationBus(config.oneWirePin) {
         Logger::info("[Heater] Resolution: " + thermometer.getResolution(deviceAddress[i]));
     }
 
+    initialized = true;
     Logger::info("[Heater] initialized: OK");
 }
 
@@ -127,6 +128,6 @@ float Heater::getTemperature() {
     return temperatureDevice[0];
 }
 
-HeaterStatus Heater::getHeaterState() {
+HeaterStatus Heater::getHeaterState() const {
     return heaterStatus;
 }

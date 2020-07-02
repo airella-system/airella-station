@@ -7,6 +7,7 @@ Core::Core() {
     weatherSensor = new WeatherSensor();
     powerSensor = new PowerSensor();
     heater = new Heater();
+    storage = new Storage();
 
     Logger::info("[Core]: Iniatlized OK");
 }
