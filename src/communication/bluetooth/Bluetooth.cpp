@@ -40,14 +40,14 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setWifiSsid(stringValue);
-    Config::instance().save();
+    Config::setWifiSsid(stringValue);
+    Config::save();
   }
 };
 
 class RegistrationStateCallback : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic *pCharacteristic) {
-    pCharacteristic->setValue(String(Config::instance().getRegistrationState()).c_str());
+    pCharacteristic->setValue(String(Config::getRegistrationState()).c_str());
   }
 };
 
@@ -55,8 +55,8 @@ class WifiPasswordCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setWifiPassword(stringValue);
-    Config::instance().save();
+    Config::setWifiPassword(stringValue);
+    Config::save();
   }
 };
 
@@ -64,8 +64,8 @@ class ApiUrlCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setApiUrl(stringValue);
-    Config::instance().save();
+    Config::setApiUrl(stringValue);
+    Config::save();
   }
 };
 
@@ -73,8 +73,8 @@ class StationNameCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setStationName(stringValue);
-    Config::instance().save();
+    Config::setStationName(stringValue);
+    Config::save();
   }
 };
 
@@ -82,8 +82,8 @@ class StationCountryCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setAddressCountry(stringValue);
-    Config::instance().save();
+    Config::setAddressCountry(stringValue);
+    Config::save();
   }
 };
 
@@ -91,8 +91,8 @@ class StationCityCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setAddressCity(stringValue);
-    Config::instance().save();
+    Config::setAddressCity(stringValue);
+    Config::save();
   }
 };
 
@@ -100,8 +100,8 @@ class StationStreetCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setAddressStreet(stringValue);
-    Config::instance().save();
+    Config::setAddressStreet(stringValue);
+    Config::save();
   }
 };
 
@@ -109,8 +109,8 @@ class StationNumberCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setAddressNumber(stringValue);
-    Config::instance().save();
+    Config::setAddressNumber(stringValue);
+    Config::save();
   }
 };
 
@@ -118,8 +118,8 @@ class RegistrationTokenCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
-    Config::instance().setRegistratonToken(stringValue);
-    Config::instance().save();
+    Config::setRegistratonToken(stringValue);
+    Config::save();
   }
 };
 
@@ -131,23 +131,23 @@ class RefreshDeviceCallback : public BLECharacteristicCallbacks {
 
 class ClearDataCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Config::instance().reset();
+    Config::reset();
     Bluetooth::reloadValues();
   }
 };
 
 void Bluetooth::reloadValues() {
-  ssidCharacteristic->setValue(Config::instance().getWifiSsid().c_str());
+  ssidCharacteristic->setValue(Config::getWifiSsid().c_str());
   wifiPassCharacteristic->setValue(
-      Config::instance().getWifiPassword().c_str());
+      Config::getWifiPassword().c_str());
   registerTokenCharacteristic->setValue(
-      Config::instance().getRegistratonToken().c_str());
-  apiUrlCharacteristic->setValue(Config::instance().getApiUrl().c_str());
-  stationNameCharacteristic->setValue(Config::instance().getStationName().c_str());
-  stationCountryCharacteristic->setValue(Config::instance().getAddressCountry().c_str());
-  stationCityCharacteristic->setValue(Config::instance().getAddressCity().c_str());
-  stationStreetCharacteristic->setValue(Config::instance().getAddressStreet().c_str());
-  stationNumberCharacteristic->setValue(Config::instance().getAddressNumber().c_str());
+      Config::getRegistratonToken().c_str());
+  apiUrlCharacteristic->setValue(Config::getApiUrl().c_str());
+  stationNameCharacteristic->setValue(Config::getStationName().c_str());
+  stationCountryCharacteristic->setValue(Config::getAddressCountry().c_str());
+  stationCityCharacteristic->setValue(Config::getAddressCity().c_str());
+  stationStreetCharacteristic->setValue(Config::getAddressStreet().c_str());
+  stationNumberCharacteristic->setValue(Config::getAddressNumber().c_str());
 }
 
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {

@@ -21,7 +21,7 @@ class MyBluetoothHandler : public BluetoothHandler {
 
 void setup() {
   Serial.begin(115200);
-  // Config::instance().load();
+  // Config::load();
   // Bluetooth::start(new MyBluetoothHandler());
   // Internet::setType(Internet::WIFI);
   // Internet::start();
@@ -35,7 +35,7 @@ void setup() {
 void loop() {
   // if (refreshRequested) {
   //   Logger::debug("conf");
-  //   Config::instance().save();
+  //   Config::save();
   //   Api.configUpdated();
   //   refreshRequested = false;
   // }

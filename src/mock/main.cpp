@@ -19,7 +19,8 @@ class MyBluetoothHandler : public BluetoothHandler {
 
 void setup() {
   Serial.begin(115200);
-  Config::instance().load();
+  Config::load();
+  Config::save();
   Bluetooth::start(new MyBluetoothHandler());
   Internet::setType(Internet::WIFI);
   Internet::start();
@@ -27,7 +28,7 @@ void setup() {
 
 void loop() {
   if (refreshRequested) {
-    Config::instance().save();
+    Config::save();
     bool wasRegistered = Api.isRegistered();
     Api.configUpdated();
     if (!wasRegistered) {

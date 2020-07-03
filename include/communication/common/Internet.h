@@ -14,10 +14,9 @@ public:
   static int start();
   static void stop();
   static bool isConnected();
-  static Http::Response httpGet(String url);
-  static Http::Response httpPost(String url, String json);
-  static Http::Response httpPut(String url, String json);
-  static void setAuthorizationHeader(String value);
+  static Http::Response httpGet(String url, String authorization = "");
+  static Http::Response httpPost(String url, String body, String authorization = "");
+  static Http::Response httpPut(String url, String body, String authorization = "");
 
 private:
   static Type type;

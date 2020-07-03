@@ -5,11 +5,10 @@
 #include <ArduinoJson.h>
 
 
-
 bool ApiClass::registerSensor(const char *type) {
-  String apiUrlBase = Config::instance().getApiUrl();
+  String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
-               Config::instance().getApiStationId() + "/sensors";
+               Config::getApiStationId() + "/sensors";
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
   doc["type"] = type;
@@ -17,8 +16,7 @@ bool ApiClass::registerSensor(const char *type) {
   String body = "";
   serializeJson(doc, body);
 
-  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
-  Http::Response response = Internet::httpPost(url, body);
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 
   String debugText = String("Sensor add response code: ") + response.code +
                      " payload: " + response.payload;
@@ -32,15 +30,12 @@ bool ApiClass::registerSensor(const char *type) {
 }
 
 bool ApiClass::updateAccessToken() {
-  Logger::debug(String(this->accessToken).c_str());
-  Logger::debug(String(millis()).c_str());
-  Logger::debug(String(this->accessTokenMillis).c_str());
   if (this->accessToken.equals("") ||
       (millis() - this->accessTokenMillis) > ACCESS_TOKEN_EXPIRATION_TIME) {
-    String registrationToken = Config::instance().getRegistratonToken();
-    String apiUrlBase = Config::instance().getApiUrl();
+    String registrationToken = Config::getRegistratonToken();
+    String apiUrlBase = Config::getApiUrl();
     String url = apiUrlBase + "/auth/refresh-token";
-    String refreshToken = Config::instance().getRefreshToken();
+    String refreshToken = Config::getRefreshToken();
 
     DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
     doc["refreshToken"] = refreshToken.c_str();
@@ -68,17 +63,16 @@ bool ApiClass::updateAccessToken() {
 }
 
 bool ApiClass::publishName(const char *name) {
-  String apiUrlBase = Config::instance().getApiUrl();
+  String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
-               Config::instance().getApiStationId() + "/name";
+               Config::getApiStationId() + "/name";
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
   doc["name"] = name;
   String body = "";
   serializeJson(doc, body);
 
-  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
-  Http::Response response = Internet::httpPut(url, body);
+  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
   String debugText = String("Sensor set name response code: ") + response.code +
                      " payload: " + response.payload;
@@ -92,9 +86,9 @@ bool ApiClass::publishName(const char *name) {
 }
 
 bool ApiClass::publishLocation(double latitude, double longitude) {
-  String apiUrlBase = Config::instance().getApiUrl();
+  String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
-               Config::instance().getApiStationId() + "/location";
+               Config::getApiStationId() + "/location";
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
   doc["latitude"] = latitude;
@@ -102,8 +96,7 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
   String body = "";
   serializeJson(doc, body);
 
-  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
-  Http::Response response = Internet::httpPut(url, body);
+  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
   String debugText = String("Sensor set location response code: ") +
                      response.code + " payload: " + response.payload;
@@ -118,9 +111,9 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
 
 bool ApiClass::publishAddress(const char *country, const char *city,
                               const char *street, const char *number) {
-  String apiUrlBase = Config::instance().getApiUrl();
+  String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" +
-               Config::instance().getApiStationId() + "/address";
+               Config::getApiStationId() + "/address";
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(4));
   doc["country"] = country;
@@ -130,8 +123,7 @@ bool ApiClass::publishAddress(const char *country, const char *city,
   String body = "";
   serializeJson(doc, body);
 
-  Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
-  Http::Response response = Internet::httpPut(url, body);
+  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
   String debugText = String("Sensor set location response code: ") +
                      response.code + " payload: " + response.payload;
@@ -147,21 +139,21 @@ bool ApiClass::publishAddress(const char *country, const char *city,
 bool ApiClass::registerStation() {
   this->accessToken = String("");
   this->accessTokenMillis = 0;
-  if (Config::instance().getRegistratonToken().equals("")) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+  if (Config::getRegistratonToken().equals("")) {
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     Logger::debug("Registration fail - no registration token");
     return false;
   }
 
   if (!Internet::isConnected()) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     Logger::debug("Registration fail - no internet connection");
     return false;
   }
-  Config::instance().setRegistrationState(Config::RegistrationState::REGISTERING);
+  Config::setRegistrationState(Config::RegistrationState::REGISTERING);
 
-  String registrationToken = Config::instance().getRegistratonToken();
-  String apiUrlBase = Config::instance().getApiUrl();
+  String registrationToken = Config::getRegistratonToken();
+  String apiUrlBase = Config::getApiUrl();
   String url = apiUrlBase + "/auth/register-station";
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
@@ -178,7 +170,7 @@ bool ApiClass::registerStation() {
   Logger::debug(debugText.c_str());
 
   if (response.code != 201) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
 
@@ -186,60 +178,61 @@ bool ApiClass::registerStation() {
   deserializeJson(doc2, response.payload);
   const char *id = doc2["data"]["id"];
   const char *refreshToken = doc2["data"]["refreshToken"];
-  Config::instance().setApiStationId(String(id));
-  Config::instance().setRefreshToken(String(refreshToken));
+  Config::setApiStationId(String(id));
+  Config::setRefreshToken(String(refreshToken));
 
   if (!updateAccessToken()) {
-      Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+      Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
       return false;
   }
 
-  String name = Config::instance().getStationName();
+  String name = Config::getStationName();
   if (!name.equals("")) {
     if(!publishName(name.c_str())) {
-      Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+      Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
       return false;
     }
   }
-  publishAddress(Config::instance().getAddressCountry().c_str(),
-      Config::instance().getAddressCity().c_str(),
-      Config::instance().getAddressStreet().c_str(),
-      Config::instance().getAddressNumber().c_str());
+  publishAddress(Config::getAddressCountry().c_str(),
+      Config::getAddressCity().c_str(),
+      Config::getAddressStreet().c_str(),
+      Config::getAddressNumber().c_str());
 
   if (!registerSensor("temperature")) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
   if (!registerSensor("humidity")) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
   if (!registerSensor("pm1")) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
   if (!registerSensor("pm2_5")) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
   if (!registerSensor("pm10")) {
-    Config::instance().setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
 
-  Config::instance().setRegistrationState(Config::RegistrationState::REGISTERED);
+  Config::setRegistrationState(Config::RegistrationState::REGISTERED);
+  Config::save();
   return true;
 }
 
 bool ApiClass::isRegistered() {
-  return Config::instance().getRegistrationState() == Config::RegistrationState::REGISTERED;
+  return Config::getRegistrationState() == Config::RegistrationState::REGISTERED;
 }
 
 bool ApiClass::publishMeasurement(String sensor, double value) {
   if (this->isRegistered() && this->updateAccessToken()) {
-    String apiUrlBase = Config::instance().getApiUrl();
+    String apiUrlBase = Config::getApiUrl();
     String url = apiUrlBase + "/stations/" +
-                 Config::instance().getApiStationId() + "/sensors/" + sensor +
+                 Config::getApiStationId() + "/sensors/" + sensor +
                  "/measurements";
 
     const size_t capacity = JSON_OBJECT_SIZE(1);
@@ -249,8 +242,7 @@ bool ApiClass::publishMeasurement(String sensor, double value) {
     String body = "";
     serializeJson(doc, body);
 
-    Internet::setAuthorizationHeader(String("Bearer ") + accessToken);
-    Http::Response response = Internet::httpPost(url, body);
+    Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 
     String debugText = String("Add measurement response code: ") +
                        response.code + " payload: " + response.payload;
@@ -271,7 +263,7 @@ void ApiClass::configUpdated() {
 
   if (!this->isRegistered()) {
     this->registerStation();
-    Config::instance().save();
+    Config::save();
   } else {
     Logger::debug("Already registered");
   }

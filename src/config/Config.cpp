@@ -1,136 +1,200 @@
 #include "config/Config.h"
+#include "maintenance/Logger.h"
 
-#include <Preferences.h>
-Preferences preferences;
-void Config::load() {
-  preferences.begin("prefs", false);
-  this->devicePassword = preferences.getString("device-password", "");
-  this->internetConnectionType = static_cast<Config::InternetConnectionType>(
-      preferences.getInt("inet-conn", 0));
-  this->wifiSsid = preferences.getString("wifi-ssid", "");
-  this->wifiPassword = preferences.getString("wifi-password", "");
-  this->registratonToken = preferences.getString("register-token", "");
-  this->refreshToken = preferences.getString("refresh-token", "");
-  this->apiUrl =
-      preferences.getString("api-url", "http://airella.cyfrogen.com/api");
-  this->apiStationId = preferences.getString("api-station-id", "");
-  this->stationName = preferences.getString("station-name", "");
-  this->addressCountry = preferences.getString("address-country", "");
-  this->addressCity = preferences.getString("address-city", "");
-  this->addressStreet = preferences.getString("address-street", "");
-  this->addressNumber = preferences.getString("address-number", "");
-  this->registrationState = Config::RegistrationState::NO_REGISTRATION;
-  if (!Config::instance().getRefreshToken().equals("") &&
-         !Config::instance().getApiStationId().equals("")) {
-               this->registrationState = Config::RegistrationState::REGISTERED;
+Preferences Config::preferences = Preferences();
+SemaphoreHandle_t Config::mux = xSemaphoreCreateMutex();
+
+String Config::devicePassword = String();
+Config::InternetConnectionType Config::internetConnectionType = Config::InternetConnectionType::WIFI;
+String Config::wifiSsid = String();
+String Config::wifiPassword = String();
+String Config::registratonToken = String();
+String Config::refreshToken = String();
+String Config::apiUrl = String();
+String Config::apiStationId = String();
+String Config::stationName = String();
+String Config::addressCountry = String();
+String Config::addressCity = String();
+String Config::addressStreet = String();
+String Config::addressNumber = String();
+Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
+
+void Config::lock() {
+  xSemaphoreTake(Config::mux, portMAX_DELAY);
+
+}
+
+void Config::unlock() {
+  xSemaphoreGive(Config::mux);
+}
+
+void Config::load(bool lock) {
+  if (lock) Config::lock();
+  Config::preferences.begin("prefs", false);
+  Config::devicePassword = Config::preferences.getString("device-password", "");
+  Config::internetConnectionType = static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
+  Config::wifiSsid = Config::preferences.getString("wifi-ssid", "");
+  Config::wifiPassword = Config::preferences.getString("wifi-password", "");
+  Config::registratonToken = Config::preferences.getString("register-token", "");
+  Config::refreshToken = Config::preferences.getString("refresh-token", "");
+  Config::apiUrl = Config::preferences.getString("api-url", "http://airella.cyfrogen.com/api");
+  Config::apiStationId = Config::preferences.getString("api-station-id", "");
+  Config::stationName = Config::preferences.getString("station-name", "");
+  Config::addressCountry = Config::preferences.getString("address-country", "");
+  Config::addressCity = Config::preferences.getString("address-city", "");
+  Config::addressStreet = Config::preferences.getString("address-street", "");
+  Config::addressNumber = Config::preferences.getString("address-number", "");
+  if (!Config::getRefreshToken().equals("") &&
+         !Config::getApiStationId().equals("")) {
+               Config::registrationState = Config::RegistrationState::REGISTERED;
+  } else {
+    Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
+  }
+  Config::preferences.end();
+  if (lock) Config::unlock();
+}
+
+void Config::save(bool lock) {
+  if (lock) Config::lock();
+  Config::preferences.begin("prefs", false);
+  Config::preferences.putString("device-password", Config::getDevicePassword());
+  Config::preferences.putString("wifi-ssid", Config::getWifiSsid());
+  Config::preferences.putString("wifi-password", Config::getWifiPassword());
+  Config::preferences.putString("register-token", Config::getRegistratonToken());
+  Config::preferences.putString("refresh-token", Config::getRefreshToken());
+  Config::preferences.putString("api-url", Config::getApiUrl());
+  Config::preferences.putString("api-station-id", Config::getApiStationId());
+  Config::preferences.putString("station-name", Config::getStationName());
+  Config::preferences.putString("address-country", Config::getAddressCountry());
+  Config::preferences.putString("address-city", Config::getAddressCity());
+  Config::preferences.putString("address-street", Config::getAddressStreet());
+  Config::preferences.putString("address-number", Config::getAddressNumber());
+  Config::preferences.end();
+  if (lock) Config::unlock();
+}
+
+void Config::reset(bool lock) {
+  if (lock) Config::lock();
+  Config::preferences.begin("prefs", false);
+  Config::preferences.clear();
+  Config::preferences.end();
+  Config::load(false);
+  if (lock) Config::unlock();
+}
+
+String Config::getDevicePassword(bool lock) { 
+  return Config::devicePassword; 
   }
 
-  preferences.end();
+Config::InternetConnectionType Config::getInternetConnectionType(bool lock) {
+  return Config::internetConnectionType;
 }
 
-void Config::save() {
-  preferences.begin("prefs", false);
-  preferences.putString("device-password", Config::getDevicePassword());
-  preferences.putString("wifi-ssid", Config::getWifiSsid());
-  preferences.putString("wifi-password", Config::getWifiPassword());
-  preferences.putString("register-token", Config::getRegistratonToken());
-  preferences.putString("refresh-token", Config::getRefreshToken());
-  preferences.putString("api-url", Config::getApiUrl());
-  preferences.putString("api-station-id", Config::getApiStationId());
-  preferences.putString("station-name", Config::getStationName());
-  preferences.putString("address-country", Config::getAddressCountry());
-  preferences.putString("address-city", Config::getAddressCity());
-  preferences.putString("address-street", Config::getAddressStreet());
-  preferences.putString("address-number", Config::getAddressNumber());
-  preferences.end();
-}
+String Config::getWifiSsid(bool lock) { return Config::wifiSsid; }
 
-void Config::reset() {
-  preferences.begin("prefs", false);
-  preferences.clear();
-  preferences.end();
-  Config::instance().load();
-}
+String Config::getWifiPassword(bool lock) { return Config::wifiPassword; }
 
-String Config::getDevicePassword() { return this->devicePassword; }
+String Config::getRegistratonToken(bool lock) { return Config::registratonToken; }
 
-Config::InternetConnectionType Config::getInternetConnectionType() {
-  return this->internetConnectionType;
-}
+String Config::getRefreshToken(bool lock) { return Config::refreshToken; }
 
-String Config::getWifiSsid() { return this->wifiSsid; }
+String Config::getApiUrl(bool lock) { return Config::apiUrl; }
 
-String Config::getWifiPassword() { return this->wifiPassword; }
+String Config::getApiStationId(bool lock) { return Config::apiStationId; }
 
-String Config::getRegistratonToken() { return this->registratonToken; }
+Config::RegistrationState Config::getRegistrationState(bool lock) { return Config::registrationState; }
 
-String Config::getRefreshToken() { return this->refreshToken; }
+String Config::getStationName(bool lock) { return Config::stationName; }
 
-String Config::getApiUrl() { return this->apiUrl; }
+String Config::getAddressCountry(bool lock) { return Config::addressCountry; }
 
-String Config::getApiStationId() { return this->apiStationId; }
+String Config::getAddressCity(bool lock) { return Config::addressCity; }
 
-Config::RegistrationState Config::getRegistrationState() { return this->registrationState; }
+String Config::getAddressStreet(bool lock) { return Config::addressStreet; }
 
-String Config::getStationName() { return this->stationName; }
+String Config::getAddressNumber(bool lock) { return Config::addressNumber; }
 
-String Config::getAddressCountry() { return this->addressCountry; }
-
-String Config::getAddressCity() { return this->addressCity; }
-
-String Config::getAddressStreet() { return this->addressStreet; }
-
-String Config::getAddressNumber() { return this->addressNumber; }
-
-void Config::setDevicePassword(String devicePassword) {
-  this->devicePassword = devicePassword;
+void Config::setDevicePassword(String devicePassword, bool lock) {
+  if (lock) Config::lock();
+  Config::devicePassword = devicePassword;
+  if (lock) Config::unlock();
 }
 
 void Config::setInternetConnectionType(
-    Config::InternetConnectionType internetConnectionType) {
-  this->internetConnectionType = internetConnectionType;
+    Config::InternetConnectionType internetConnectionType, bool lock) {
+  if (lock) Config::lock();
+  Config::internetConnectionType = internetConnectionType;
+  if (lock) Config::unlock();
 }
 
-void Config::setWifiSsid(String wifiSsid) { this->wifiSsid = wifiSsid; }
-
-void Config::setWifiPassword(String wifiPassword) {
-  this->wifiPassword = wifiPassword;
+void Config::setWifiSsid(String wifiSsid, bool lock) { 
+  if (lock) Config::lock();
+  Config::wifiSsid = wifiSsid;
+  if (lock) Config::unlock();
 }
 
-void Config::setRegistratonToken(String registratonToken) {
-  this->registratonToken = registratonToken;
+void Config::setWifiPassword(String wifiPassword, bool lock) {
+  if (lock) Config::lock();
+  Config::wifiPassword = wifiPassword;
+  if (lock) Config::unlock();
 }
 
-void Config::setRefreshToken(String refreshToken) {
-  this->refreshToken = refreshToken;
+void Config::setRegistratonToken(String registratonToken, bool lock) {
+  if (lock) Config::lock();
+  Config::registratonToken = registratonToken;
+  if (lock) Config::unlock();
 }
 
-void Config::setApiUrl(String apiUrl) { this->apiUrl = apiUrl; }
-
-void Config::setApiStationId(String apiStationId) {
-  this->apiStationId = apiStationId;
+void Config::setRefreshToken(String refreshToken, bool lock) {
+  if (lock) Config::lock();
+  Config::refreshToken = refreshToken;
+  if (lock) Config::unlock();
 }
 
-void Config::setRegistrationState(Config::RegistrationState registrationState) { 
-    this->registrationState = registrationState;
+void Config::setApiUrl(String apiUrl, bool lock) {   
+  if (lock) Config::lock();
+  Config::apiUrl = apiUrl;
+  if (lock) Config::unlock();
 }
 
-void Config::setStationName(String stationName) {
-  this->stationName = stationName;
+void Config::setApiStationId(String apiStationId, bool lock) {
+  if (lock) Config::lock();
+  Config::apiStationId = apiStationId;
+  if (lock) Config::unlock();
 }
 
-void Config::setAddressCountry(String addressCountry) {
-  this->addressCountry = addressCountry;
+void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock) { 
+  if (lock) Config::lock();
+  Config::registrationState = registrationState;
+  if (lock) Config::unlock();
 }
 
-void Config::setAddressCity(String addressCity) {
-  this->addressCity = addressCity;
+void Config::setStationName(String stationName, bool lock) {
+  if (lock) Config::lock();
+  Config::stationName = stationName;
+  if (lock) Config::unlock();
 }
 
-void Config::setAddressStreet(String addressStreet) {
-  this->addressStreet = addressStreet;
+void Config::setAddressCountry(String addressCountry, bool lock) {
+  if (lock) Config::lock();
+  Config::addressCountry = addressCountry;
+  if (lock) Config::unlock();
 }
 
-void Config::setAddressNumber(String addressNumber) {
-  this->addressNumber = addressNumber;
+void Config::setAddressCity(String addressCity, bool lock) {
+  if (lock) Config::lock();
+  Config::addressCity = addressCity;
+  if (lock) Config::unlock();
+}
+
+void Config::setAddressStreet(String addressStreet, bool lock) {
+  if (lock) Config::lock();
+  Config::addressStreet = addressStreet;
+  if (lock) Config::unlock();
+}
+
+void Config::setAddressNumber(String addressNumber, bool lock) {
+  if (lock) Config::lock();
+  Config::addressNumber = addressNumber;
+  if (lock) Config::unlock();
 }
