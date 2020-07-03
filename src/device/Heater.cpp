@@ -68,7 +68,7 @@ void Heater::run() {
     Logger::info("[Heater] run heater thread");
 }
 
-void threadFunction(void * pvParameters) {
+void Heater::threadFunction(void * pvParameters) {
     Heater *heater = (Heater *) pvParameters;
     unsigned long lastTimestamp = millis();
     unsigned int interval = 10000;

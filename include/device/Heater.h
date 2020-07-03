@@ -37,4 +37,6 @@ private:
     String deviceAddressToString(DeviceAddress deviceAddress);
     TaskHandle_t termoThreadHandler;
 
+    static void threadFunction(void * pvParameters);
+
 };
