@@ -13,15 +13,18 @@ struct PowerInfo {
 };
 
 class PowerSensor : public Sensor {
+
 public:
-    static void init();
-    static float getShounVoltage();
-    static float getBusVoltage();
-    static float getCurrent();
-    static float getPower();
-    static float getLoadVoltage();
-    static PowerInfo getPowerInfo();
+    PowerSensor();
+    float getBusVoltage();
+    float getCurrent();
+    float getPower();
+    float getLoadVoltage();
+    PowerInfo getPowerInfo();
+
 private:
-    static Adafruit_INA219 inaDevice;
-    static TwoWire i2cBus;
+    PowerSensorConfig config;
+    Adafruit_INA219 inaDevice;
+    TwoWire i2cBus;
+
 };
