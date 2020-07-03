@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 class Http {
-public:
+ public:
   struct Response {
     int code;
     String payload;

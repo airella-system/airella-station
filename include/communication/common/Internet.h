@@ -1,13 +1,12 @@
 #pragma once
 
+#include <Arduino.h>
 #include "communication/common/Http.h"
 #include "communication/gsm/GsmConn.h"
 #include "communication/wifi/WiFiConn.h"
-#include <Arduino.h>
 
 class Internet {
-
-public:
+ public:
   enum Type { WIFI = 0, GSM = 1 };
 
   static void setType(Type type);
@@ -18,6 +17,6 @@ public:
   static Http::Response httpPost(String url, String body, String authorization = "");
   static Http::Response httpPut(String url, String body, String authorization = "");
 
-private:
+ private:
   static Type type;
 };

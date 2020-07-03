@@ -52,12 +52,12 @@
 #define CLEAR_DATA_CHARACTERISTIC_UUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d0"
 
 class Bluetooth {
-public:
+ public:
   static void start(BluetoothHandler *bluetoothHandler);
   static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
 
-private:
+ private:
   static BLECharacteristic *stationNameCharacteristic;
   static BLECharacteristic *stationCountryCharacteristic;
   static BLECharacteristic *stationCityCharacteristic;

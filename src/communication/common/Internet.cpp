@@ -3,8 +3,7 @@
 Internet::Type Internet::type = Internet::WIFI;
 
 int Internet::start() {
-  return Internet::type == Internet::WIFI ? WiFiConn::start()
-                                          : GsmConn::start();
+  return Internet::type == Internet::WIFI ? WiFiConn::start() : GsmConn::start();
 }
 
 void Internet::stop() {
@@ -27,8 +26,9 @@ Http::Response Internet::httpPut(String url, String body, String authorization) 
 }
 
 bool Internet::isConnected() {
-  return Internet::type == Internet::WIFI ? WiFiConn::isConnected()
-                                          : GsmConn::isConnected();
+  return Internet::type == Internet::WIFI ? WiFiConn::isConnected() : GsmConn::isConnected();
 }
 
-void Internet::setType(Type type) { Internet::type = type; }
+void Internet::setType(Type type) {
+  Internet::type = type;
+}

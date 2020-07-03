@@ -4,19 +4,13 @@
 #include <Preferences.h>
 
 class Config {
-
-public:
+ public:
   enum InternetConnectionType {
     WIFI = 0,
     GSM = 1,
   };
 
-  enum RegistrationState {
-    NO_REGISTRATION = 0,
-    REGISTERING = 1,
-    REGISTRATION_ERROR = 2,
-    REGISTERED = 3
-  };
+  enum RegistrationState { NO_REGISTRATION = 0, REGISTERING = 1, REGISTRATION_ERROR = 2, REGISTERED = 3 };
 
   static void load(bool lock = true);
   static void save(bool lock = true);
@@ -51,7 +45,8 @@ public:
   static void setAddressStreet(String street, bool lock = true);
   static void setAddressNumber(String number, bool lock = true);
   static void setRegistrationState(RegistrationState registrationState, bool lock = true);
-private:
+
+ private:
   static Preferences preferences;
   static SemaphoreHandle_t mux;
 

@@ -21,7 +21,6 @@ Config::RegistrationState Config::registrationState = Config::RegistrationState:
 
 void Config::lock() {
   xSemaphoreTake(Config::mux, portMAX_DELAY);
-
 }
 
 void Config::unlock() {
@@ -32,7 +31,8 @@ void Config::load(bool lock) {
   if (lock) Config::lock();
   Config::preferences.begin("prefs", false);
   Config::devicePassword = Config::preferences.getString("device-password", "");
-  Config::internetConnectionType = static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
+  Config::internetConnectionType =
+      static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::wifiSsid = Config::preferences.getString("wifi-ssid", "");
   Config::wifiPassword = Config::preferences.getString("wifi-password", "");
   Config::registratonToken = Config::preferences.getString("register-token", "");
@@ -44,9 +44,8 @@ void Config::load(bool lock) {
   Config::addressCity = Config::preferences.getString("address-city", "");
   Config::addressStreet = Config::preferences.getString("address-street", "");
   Config::addressNumber = Config::preferences.getString("address-number", "");
-  if (!Config::getRefreshToken().equals("") &&
-         !Config::getApiStationId().equals("")) {
-               Config::registrationState = Config::RegistrationState::REGISTERED;
+  if (!Config::getRefreshToken().equals("") && !Config::getApiStationId().equals("")) {
+    Config::registrationState = Config::RegistrationState::REGISTERED;
   } else {
     Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
   }
@@ -82,37 +81,61 @@ void Config::reset(bool lock) {
   if (lock) Config::unlock();
 }
 
-String Config::getDevicePassword(bool lock) { 
-  return Config::devicePassword; 
-  }
+String Config::getDevicePassword(bool lock) {
+  return Config::devicePassword;
+}
 
 Config::InternetConnectionType Config::getInternetConnectionType(bool lock) {
   return Config::internetConnectionType;
 }
 
-String Config::getWifiSsid(bool lock) { return Config::wifiSsid; }
+String Config::getWifiSsid(bool lock) {
+  return Config::wifiSsid;
+}
 
-String Config::getWifiPassword(bool lock) { return Config::wifiPassword; }
+String Config::getWifiPassword(bool lock) {
+  return Config::wifiPassword;
+}
 
-String Config::getRegistratonToken(bool lock) { return Config::registratonToken; }
+String Config::getRegistratonToken(bool lock) {
+  return Config::registratonToken;
+}
 
-String Config::getRefreshToken(bool lock) { return Config::refreshToken; }
+String Config::getRefreshToken(bool lock) {
+  return Config::refreshToken;
+}
 
-String Config::getApiUrl(bool lock) { return Config::apiUrl; }
+String Config::getApiUrl(bool lock) {
+  return Config::apiUrl;
+}
 
-String Config::getApiStationId(bool lock) { return Config::apiStationId; }
+String Config::getApiStationId(bool lock) {
+  return Config::apiStationId;
+}
 
-Config::RegistrationState Config::getRegistrationState(bool lock) { return Config::registrationState; }
+Config::RegistrationState Config::getRegistrationState(bool lock) {
+  return Config::registrationState;
+}
 
-String Config::getStationName(bool lock) { return Config::stationName; }
+String Config::getStationName(bool lock) {
+  return Config::stationName;
+}
 
-String Config::getAddressCountry(bool lock) { return Config::addressCountry; }
+String Config::getAddressCountry(bool lock) {
+  return Config::addressCountry;
+}
 
-String Config::getAddressCity(bool lock) { return Config::addressCity; }
+String Config::getAddressCity(bool lock) {
+  return Config::addressCity;
+}
 
-String Config::getAddressStreet(bool lock) { return Config::addressStreet; }
+String Config::getAddressStreet(bool lock) {
+  return Config::addressStreet;
+}
 
-String Config::getAddressNumber(bool lock) { return Config::addressNumber; }
+String Config::getAddressNumber(bool lock) {
+  return Config::addressNumber;
+}
 
 void Config::setDevicePassword(String devicePassword, bool lock) {
   if (lock) Config::lock();
@@ -120,14 +143,13 @@ void Config::setDevicePassword(String devicePassword, bool lock) {
   if (lock) Config::unlock();
 }
 
-void Config::setInternetConnectionType(
-    Config::InternetConnectionType internetConnectionType, bool lock) {
+void Config::setInternetConnectionType(Config::InternetConnectionType internetConnectionType, bool lock) {
   if (lock) Config::lock();
   Config::internetConnectionType = internetConnectionType;
   if (lock) Config::unlock();
 }
 
-void Config::setWifiSsid(String wifiSsid, bool lock) { 
+void Config::setWifiSsid(String wifiSsid, bool lock) {
   if (lock) Config::lock();
   Config::wifiSsid = wifiSsid;
   if (lock) Config::unlock();
@@ -151,7 +173,7 @@ void Config::setRefreshToken(String refreshToken, bool lock) {
   if (lock) Config::unlock();
 }
 
-void Config::setApiUrl(String apiUrl, bool lock) {   
+void Config::setApiUrl(String apiUrl, bool lock) {
   if (lock) Config::lock();
   Config::apiUrl = apiUrl;
   if (lock) Config::unlock();
@@ -163,7 +185,7 @@ void Config::setApiStationId(String apiStationId, bool lock) {
   if (lock) Config::unlock();
 }
 
-void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock) { 
+void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock) {
   if (lock) Config::lock();
   Config::registrationState = registrationState;
   if (lock) Config::unlock();

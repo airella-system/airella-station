@@ -1,8 +1,8 @@
 #include "communication/wifi/WiFiConn.h"
-#include "config/Config.h"
-#include "maintenance/Logger.h"
 #include <HTTPClient.h>
 #include <WiFi.h>
+#include "config/Config.h"
+#include "maintenance/Logger.h"
 
 static HTTPClient http;
 bool WiFiConn::connected = false;
@@ -13,8 +13,7 @@ int WiFiConn::start() {
     connected = false;
     return -1;
   }
-  WiFi.begin(Config::getWifiSsid().c_str(),
-             Config::getWifiPassword().c_str());
+  WiFi.begin(Config::getWifiSsid().c_str(), Config::getWifiPassword().c_str());
   Serial.println("Connecting to wifi...");
   Serial.println(Config::getWifiSsid());
   Serial.println(Config::getWifiPassword());
@@ -53,8 +52,7 @@ bool WiFiConn::isConnected() {
 Http::Response WiFiConn::httpGet(String url, String authorization) {}
 
 Http::Response WiFiConn::httpPost(String url, String body, String authorization) {
-  Logger::debug(
-      ("POST Request to url: " + url + " with body: " + body).c_str());
+  Logger::debug(("POST Request to url: " + url + " with body: " + body).c_str());
 
   http.begin(url);
   http.addHeader("Content-Type", "application/json");

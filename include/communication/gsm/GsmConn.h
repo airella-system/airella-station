@@ -1,11 +1,10 @@
 #pragma once
 
-#include "communication/common/Http.h"
 #include <Arduino.h>
+#include "communication/common/Http.h"
 
 class GsmConn {
-
-public:
+ public:
   static int start();
   static void stop();
   static Http::Response httpGet(String url, String authorization = "");
@@ -13,5 +12,4 @@ public:
   static Http::Response httpPut(String url, String body, String authorization = "");
   static void setAuthorizationHeader(String value);
   static bool isConnected();
-
 };
