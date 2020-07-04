@@ -1,11 +1,11 @@
+#include <Arduino.h>
+#include <ArduinoJson.h>
 #include "api/Api.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
-#include <Arduino.h>
-#include <ArduinoJson.h>
 
 bool refreshRequested = false;
 unsigned long lastPublishMillis = 0;
@@ -32,15 +32,15 @@ void loop() {
     bool wasRegistered = Api.isRegistered();
     Api.configUpdated();
     if (!wasRegistered) {
-        double latitudeMin = 49.972368;
-        double latitudeMax = 50.137422;
-        double longitudeMin = 20.435403;
-        double longitudeMax = 20.735403;
+      double latitudeMin = 49.972368;
+      double latitudeMax = 50.137422;
+      double longitudeMin = 20.435403;
+      double longitudeMax = 20.735403;
 
-        double latitude = random(latitudeMin * 1000000, latitudeMax * 1000000) / 1000000.0;
-        double longitude = random(longitudeMin * 1000000, longitudeMax * 1000000) / 1000000.0;
+      double latitude = random(latitudeMin * 1000000, latitudeMax * 1000000) / 1000000.0;
+      double longitude = random(longitudeMin * 1000000, longitudeMax * 1000000) / 1000000.0;
 
-        Api.publishLocation(latitude, longitude);
+      Api.publishLocation(latitude, longitude);
     }
     refreshRequested = false;
   }

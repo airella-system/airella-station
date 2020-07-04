@@ -1,10 +1,9 @@
 #pragma once
-#include "communication/common/Http.h"
 #include <Arduino.h>
+#include "communication/common/Http.h"
 
 class WiFiConn {
-
-public:
+ public:
   static int start();
   static void stop();
   static bool isConnected();
@@ -12,6 +11,6 @@ public:
   static Http::Response httpPost(String url, String body, String authorization = "");
   static Http::Response httpPut(String url, String json, String authorization = "");
 
-private:
+ private:
   static bool connected;
 };
