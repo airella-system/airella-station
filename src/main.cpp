@@ -10,6 +10,10 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
+#include "core/Core.h";
+
+Core core;
+
 bool refreshRequested = false;
 
 class MyBluetoothHandler : public BluetoothHandler {
@@ -20,8 +24,9 @@ class MyBluetoothHandler : public BluetoothHandler {
 };
 
 void setup() {
+  core.setUp();
   Serial.begin(115200);
-  // Config::instance().load();
+  // Config::load();
   // Bluetooth::start(new MyBluetoothHandler());
   // Internet::setType(Internet::WIFI);
   // Internet::start();
@@ -33,9 +38,10 @@ void setup() {
 }
 
 void loop() {
+  core.loop();
   // if (refreshRequested) {
   //   Logger::debug("conf");
-  //   Config::instance().save();
+  //   Config::save();
   //   Api.configUpdated();
   //   refreshRequested = false;
   // }

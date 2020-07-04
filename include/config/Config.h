@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <Preferences.h>
 
 class Config {
 
@@ -10,41 +11,65 @@ public:
     GSM = 1,
   };
 
-  void load();
-  void save();
-  void reset();
+  enum RegistrationState {
+    NO_REGISTRATION = 0,
+    REGISTERING = 1,
+    REGISTRATION_ERROR = 2,
+    REGISTERED = 3
+  };
 
-  String getDevicePassword();
-  InternetConnectionType getInternetConnectionType();
-  String getWifiSsid();
-  String getWifiPassword();
-  String getRegistratonToken();
-  String getRefreshToken();
-  String getApiUrl();
-  String getApiStationId();
+  static void load(bool lock = true);
+  static void save(bool lock = true);
+  static void reset(bool lock = true);
 
-  void setDevicePassword(String devicePassword);
-  void setInternetConnectionType(InternetConnectionType internetConnectionType);
-  void setWifiSsid(String wifiSsid);
-  void setWifiPassword(String wifiPassword);
-  void setRegistratonToken(String registratonToken);
-  void setRefreshToken(String refreshToken);
-  void setApiUrl(String apiUrl);
-  void setApiStationId(String apiStationId);
+  static String getDevicePassword(bool lock = true);
+  static InternetConnectionType getInternetConnectionType(bool lock = true);
+  static String getWifiSsid(bool lock = true);
+  static String getWifiPassword(bool lock = true);
+  static String getRegistratonToken(bool lock = true);
+  static String getRefreshToken(bool lock = true);
+  static String getApiUrl(bool lock = true);
+  static String getApiStationId(bool lock = true);
+  static String getStationName(bool lock = true);
+  static String getAddressCountry(bool lock = true);
+  static String getAddressCity(bool lock = true);
+  static String getAddressStreet(bool lock = true);
+  static String getAddressNumber(bool lock = true);
+  static RegistrationState getRegistrationState(bool lock = true);
 
-  static Config &instance() {
-    static Config INSTANCE;
-    return INSTANCE;
-  }
-
+  static void setDevicePassword(String devicePassword, bool lock = true);
+  static void setInternetConnectionType(InternetConnectionType internetConnectionType, bool lock = true);
+  static void setWifiSsid(String wifiSsid, bool lock = true);
+  static void setWifiPassword(String wifiPassword, bool lock = true);
+  static void setRegistratonToken(String registratonToken, bool lock = true);
+  static void setRefreshToken(String refreshToken, bool lock = true);
+  static void setApiUrl(String apiUrl, bool lock = true);
+  static void setApiStationId(String apiStationId, bool lock = true);
+  static void setStationName(String name, bool lock = true);
+  static void setAddressCountry(String country, bool lock = true);
+  static void setAddressCity(String city, bool lock = true);
+  static void setAddressStreet(String street, bool lock = true);
+  static void setAddressNumber(String number, bool lock = true);
+  static void setRegistrationState(RegistrationState registrationState, bool lock = true);
 private:
-  Config(){};
-  String devicePassword;
-  InternetConnectionType internetConnectionType;
-  String wifiSsid;
-  String wifiPassword;
-  String registratonToken;
-  String refreshToken;
-  String apiUrl;
-  String apiStationId;
+  static Preferences preferences;
+  static SemaphoreHandle_t mux;
+
+  static void lock();
+  static void unlock();
+
+  static String devicePassword;
+  static InternetConnectionType internetConnectionType;
+  static String wifiSsid;
+  static String wifiPassword;
+  static String registratonToken;
+  static String refreshToken;
+  static String apiUrl;
+  static String apiStationId;
+  static String stationName;
+  static String addressCountry;
+  static String addressCity;
+  static String addressStreet;
+  static String addressNumber;
+  static RegistrationState registrationState;
 };

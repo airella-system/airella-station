@@ -20,8 +20,8 @@ private:
   bool updateAccessToken();
   bool registerSensor(const char *type);
 
-  String accessToken;
-  unsigned long accessTokenMillis;
+  String accessToken = String("");
+  unsigned long accessTokenMillis = 0;
 };
 
 extern ApiClass Api;
