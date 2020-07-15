@@ -12,7 +12,6 @@ AirSensor::AirSensor() : serial(config.serialNumber) {
   pinMode(config.powerPin, OUTPUT);
   digitalWrite(config.powerPin, LOW);
   serial.begin(9600, SERIAL_8N1, config.uartRx, config.uartTx, false, 1000);
-
   initialized = true;
   Logger::info("[AirSensor] Air sensor is active.");
 }

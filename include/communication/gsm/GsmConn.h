@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Arduino.h>
 #include "communication/common/Http.h"
+#include <Arduino.h>
 
 class GsmConn {
  public:
