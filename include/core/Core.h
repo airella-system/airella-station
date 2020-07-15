@@ -5,6 +5,7 @@
 #include "api/Api.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "communication/bluetooth/BluetoothHandler.h"
+#include "communication/bluetooth/BluetoothRefreshHandler.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
 #include "device/AirSensor.h"
@@ -27,3 +28,5 @@ class Core {
   Heater *heater = NULL;
   Storage *storage = NULL;
 };
+
+Core core;
