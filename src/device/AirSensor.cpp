@@ -12,7 +12,6 @@ AirSensor::AirSensor() : serial(config.serialNumber) {
   pinMode(config.powerPin, OUTPUT);
   digitalWrite(config.powerPin, LOW);
   serial.begin(9600, SERIAL_8N1, config.uartRx, config.uartTx, false, 1000);
-  
   initialized = true;
   Logger::info("[AirSensor] Air sensor is active.");
 }
@@ -115,11 +114,17 @@ void AirSensor::dumpBytes() const {
   }
 }
 
-uint16_t AirSensor::getPM1() const { return sensorBuffer.values.pm1; }
+uint16_t AirSensor::getPM1() const {
+  return sensorBuffer.values.pm1;
+}
 
-uint16_t AirSensor::getPM2_5() const { return sensorBuffer.values.pm2_5; }
+uint16_t AirSensor::getPM2_5() const {
+  return sensorBuffer.values.pm2_5;
+}
 
-uint16_t AirSensor::getPM10() const { return sensorBuffer.values.pm10; }
+uint16_t AirSensor::getPM10() const {
+  return sensorBuffer.values.pm10;
+}
 
 uint16_t AirSensor::getPM_1_0_atmos() const {
   return sensorBuffer.values.pm_1_0_atmos;
@@ -157,6 +162,10 @@ uint16_t AirSensor::getRawGreaterThan_10_0() const {
   return sensorBuffer.values.raw_gt_10_0;
 }
 
-uint8_t AirSensor::getHWVersion() const { return sensorBuffer.values.version_number; }
+uint8_t AirSensor::getHWVersion() const {
+  return sensorBuffer.values.version_number;
+}
 
-uint8_t AirSensor::getErrorCode() const { return sensorBuffer.values.error_code; }
+uint8_t AirSensor::getErrorCode() const {
+  return sensorBuffer.values.error_code;
+}

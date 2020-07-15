@@ -1,6 +1,6 @@
 #pragma once
 
 class BluetoothHandler {
-public:
+ public:
   virtual void deviceRefreshRequest();
 };
