@@ -2,11 +2,11 @@
 #include <Arduino.h>
 
 class Logger {
-private:
+ private:
   static void log(const char *type, const char *message);
   static void log(const char *type, const String *message);
 
-public:
+ public:
   static void info(const char *message);
   static void warning(const char *message);
   static void error(const char *message);

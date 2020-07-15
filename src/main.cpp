@@ -1,11 +1,11 @@
+#include <Arduino.h>
+#include <ArduinoJson.h>
 #include "api/Api.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
-#include <Arduino.h>
-#include <ArduinoJson.h>
 
 #include "core/Core.h"
 
@@ -23,7 +23,7 @@ class MyBluetoothHandler : public BluetoothHandler {
 void setup() {
   core.setUp();
   // Serial.begin(115200);
-  // Config::instance().load();
+  // Config::load();
   // Bluetooth::start(new MyBluetoothHandler());
   // Internet::setType(Internet::WIFI);
   // Internet::start();
@@ -38,7 +38,7 @@ void loop() {
   core.loop();
   // if (refreshRequested) {
   //   Logger::debug("conf");
-  //   Config::instance().save();
+  //   Config::save();
   //   Api.configUpdated();
   //   refreshRequested = false;
   // }

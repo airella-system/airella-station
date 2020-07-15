@@ -1,8 +1,8 @@
 #pragma once
 
-#include "device/Sensor.h"
 #include <DallasTemperature.h>
 #include <analogWrite.h>
+#include "device/Sensor.h"
 
 #define U1TX 13
 #define OW1 15
@@ -10,11 +10,21 @@
 #define ONE_WIRE_MAX_DEV 2
 
 struct HeaterStatus {
-    bool heaterIsOn;
-    bool threadIsRunning;
+  bool heaterIsOn;
+  bool threadIsRunning;
 };
 
 class Heater : public Sensor {
+ public:
+  Heater();
+  ~Heater();
+  void on();
+  void off();
+  void run();
+  void stop();
+  float getTemperature();
+  HeaterStatus getHeaterState() const;
+  HeaterStatus heaterStatus;
 
 public:
     Heater();
