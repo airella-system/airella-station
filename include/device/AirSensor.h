@@ -63,7 +63,7 @@ class AirSensor : public Sensor {
 
  private:
   bool isPowerOn;
-  HardwareSerial serial = NULL;
+  HardwareSerial serial;
   AirSensorBuffer sensorBuffer;
   AirSensorConfig config;
   bool dataReady;

@@ -15,7 +15,7 @@ struct HeaterStatus {
 };
 
 class Heater : public Sensor {
- public:
+public:
   Heater();
   ~Heater();
   void on();
@@ -26,27 +26,16 @@ class Heater : public Sensor {
   HeaterStatus getHeaterState() const;
   HeaterStatus heaterStatus;
 
-public:
-    Heater();
-    ~Heater();
-    void on();
-    void off();
-    void run();
-    void stop();
-    float getTemperature();
-    HeaterStatus getHeaterState() const;
-    HeaterStatus heaterStatus;
-
 private:
-    HeaterConfig config;
-    float temperatureDevice[ONE_WIRE_MAX_DEV];
-    DeviceAddress deviceAddress[ONE_WIRE_MAX_DEV];
-    int numberOfDevices;
-    OneWire communicationBus;
-    DallasTemperature thermometer;
-    String deviceAddressToString(DeviceAddress deviceAddress);
-    TaskHandle_t termoThreadHandler;
+  HeaterConfig config;
+  float temperatureDevice[ONE_WIRE_MAX_DEV];
+  DeviceAddress deviceAddress[ONE_WIRE_MAX_DEV];
+  int numberOfDevices;
+  OneWire communicationBus;
+  DallasTemperature thermometer;
+  String deviceAddressToString(DeviceAddress deviceAddress);
+  TaskHandle_t termoThreadHandler;
 
-    static void threadFunction(void * pvParameters);
+  static void threadFunction(void * pvParameters);
 
 };

@@ -29,4 +29,4 @@ class Core {
   Storage *storage = NULL;
 };
 
-Core core;
+extern Core core;

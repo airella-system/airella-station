@@ -1,3 +1,5 @@
+#pragma once
+
 #include "config/Config.h"
 #include "api/Api.h"
 #include "maintenance/Logger.h"
@@ -5,7 +7,7 @@
 
 class BluetoothRefreshHandler : public BluetoothHandler {
 public:
-    BluetoothRefreshHandler();
-    ~BluetoothRefreshHandler();
+    BluetoothRefreshHandler() {};
+    ~BluetoothRefreshHandler() {};
     void deviceRefreshRequest();
 };

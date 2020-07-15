@@ -16,7 +16,8 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up started");
 
   Config::load();
-  Bluetooth::start(new BluetoothRefreshHandler());
+  BluetoothRefreshHandler* handler = new BluetoothRefreshHandler();
+  Bluetooth::start(handler);
   Internet::setType(Internet::WIFI);
   Internet::start();
 
@@ -24,5 +25,7 @@ void Core::setUp() {
 }
 
 void Core::loop() {
-
+  
 }
+
+Core core;
