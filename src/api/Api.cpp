@@ -57,6 +57,8 @@ bool ApiClass::updateAccessToken() {
 }
 
 bool ApiClass::publishName(const char *name) {
+  if (!checkAuth()) return false;
+
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/name";
 
@@ -70,14 +72,12 @@ bool ApiClass::publishName(const char *name) {
   String debugText = String("Sensor set name response code: ") + response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 200) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 200;
 }
 
 bool ApiClass::publishLocation(double latitude, double longitude) {
+  if (!checkAuth()) return false;
+
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/location";
 
@@ -92,14 +92,12 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
   String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 200) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 200;
 }
 
 bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
+  if (!checkAuth()) return false;
+
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/address";
 
@@ -116,11 +114,7 @@ bool ApiClass::publishAddress(const char *country, const char *city, const char 
   String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 200) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 200;
 }
 
 bool ApiClass::registerStation() {
@@ -213,29 +207,24 @@ bool ApiClass::isRegistered() {
 }
 
 bool ApiClass::publishMeasurement(String sensor, double value) {
-  if (this->isRegistered() && this->updateAccessToken()) {
-    String apiUrlBase = Config::getApiUrl();
-    String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
+  if (!checkAuth()) return false;
 
-    const size_t capacity = JSON_OBJECT_SIZE(1);
-    DynamicJsonDocument doc(capacity);
-    Logger::debug(String(value).c_str());
-    doc["value"] = value;
-    String body = "";
-    serializeJson(doc, body);
+  String apiUrlBase = Config::getApiUrl();
+  String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
 
-    Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
+  const size_t capacity = JSON_OBJECT_SIZE(1);
+  DynamicJsonDocument doc(capacity);
+  Logger::debug(String(value).c_str());
+  doc["value"] = value;
+  String body = "";
+  serializeJson(doc, body);
 
-    String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;
-    Logger::debug(debugText.c_str());
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 
-    if (response.code == 200) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  return false;
+  String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 200;
 }
 
 void ApiClass::configUpdated() {
@@ -248,6 +237,10 @@ void ApiClass::configUpdated() {
   } else {
     Logger::debug("Already registered");
   }
+}
+
+bool ApiClass::checkAuth() {
+  return isRegistered() && updateAccessToken();
 }
 
 ApiClass Api;

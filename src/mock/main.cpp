@@ -18,7 +18,6 @@ class MyBluetoothHandler : public BluetoothHandler {
 };
 
 void setup() {
-  Serial.begin(115200);
   Config::load();
   Config::save();
   Bluetooth::start(new MyBluetoothHandler());

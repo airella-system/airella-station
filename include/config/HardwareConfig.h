@@ -7,11 +7,12 @@ struct WeatherSensorConfig {
   const unsigned char clockLinePin = 22;
 };
 
-struct AirSensorConfig {
-  const unsigned char serialNumber = 1;
-  const unsigned char powerPin = 26;
-  const unsigned char uartRx = 2;
-  const unsigned char uartTx = 13;
+class AirSensorConfig {
+public:
+  static const unsigned char serialNumber = 1;
+  static const unsigned char powerPin = 26;
+  static const unsigned char uartRx = 2;
+  static const unsigned char uartTx = 13;
 };
 
 struct PowerSensorConfig {

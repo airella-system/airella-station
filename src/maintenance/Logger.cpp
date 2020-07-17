@@ -1,5 +1,11 @@
 #include "maintenance/Logger.h"
 
+HardwareSerial Logger::serial = HardwareSerial(0);
+
+void Logger::setUp() {
+  serial.begin(115200,SERIAL_8N1,3,1,false,1000); 
+}
+
 void Logger::log(const char *type, const char *message) {
   // TODO: [in future] add persistence to SD cart storage, and add
   // synchronization time with NTP server
@@ -10,7 +16,7 @@ void Logger::log(const char *type, const char *message) {
   logMessage += timestamp;
   logMessage += "]: ";
   logMessage += message;
-  Serial.println(logMessage);
+  serial.println(logMessage);
 }
 
 void Logger::info(const char *message) {
@@ -39,7 +45,7 @@ void Logger::log(const char *type, const String *message) {
   logMessage += timestamp;
   logMessage += "]: ";
   logMessage.concat(*message);
-  Serial.println(logMessage);
+  serial.println(logMessage);
 }
 
 void Logger::info(const String *message) {

@@ -8,6 +8,7 @@
 #include "communication/bluetooth/BluetoothRefreshHandler.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
+#include "config/MeasurementType.h"
 #include "device/AirSensor.h"
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
@@ -16,17 +17,20 @@
 #include "maintenance/Logger.h"
 
 class Core {
- public:
+public:
   Core();
   void setUp();
   void loop();
 
- private:
+private:
   AirSensor *airSensor = NULL;
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
   Storage *storage = NULL;
+
+  MeasurementType measurementType;
+  unsigned long lastPublishMillis = 0;
 };
 
 extern Core core;
