@@ -96,10 +96,20 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
 
   Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
-  String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
+  String debugText = String("Sensor set location response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
   Logger::debug(debugText.c_str());
 
   return response.code == 200;
+}
+
+bool ApiClass::publishLocationFromConfig() {
+  return publishLocation(
+    Config::getLocationLatitude().toDouble(), 
+    Config::getLocationLongitude().toDouble()
+  );
 }
 
 bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
@@ -122,6 +132,15 @@ bool ApiClass::publishAddress(const char *country, const char *city, const char 
   Logger::debug(debugText.c_str());
 
   return response.code == 200;
+}
+
+bool ApiClass::publishAddressFromConfig() {
+  return publishAddress(
+    Config::getAddressCountry().c_str(), 
+    Config::getAddressCity().c_str(),
+    Config::getAddressStreet().c_str(), 
+    Config::getAddressNumber().c_str()
+  );
 }
 
 bool ApiClass::registerStation() {

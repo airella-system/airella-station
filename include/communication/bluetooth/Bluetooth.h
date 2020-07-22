@@ -62,6 +62,8 @@ class Bluetooth {
   static void start(BluetoothHandler *bluetoothHandler);
   static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
+  static String getLastOperationStatus();
+  static String setLastOperationStatus(String operationStatus);
 
  private:
   static BLECharacteristic *stationNameCharacteristic;
@@ -84,4 +86,6 @@ class Bluetooth {
   static BLECharacteristic *connStateCharacteristic;
   static BLECharacteristic *refreshDeviceCharacteristic;
   static BLECharacteristic *clearDataCharacteristic;
+
+  static String lastOperatioinState;
 };

@@ -27,6 +27,8 @@ BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
+String Bluetooth::lastOperatioinState = "";
+
 #ifdef BT_AUTH_ENABLE
 class MySecurity : public BLESecurityCallbacks {
   uint32_t onPassKeyRequest() { return 123456; }
@@ -50,16 +52,13 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setWifiSsid(stringValue);
-    Config::save();
-    Internet::start();
   }
 };
 
-// TODO: zaimplementować obsługę last state
 class LastActionStateCallback : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic *pCharacteristic) {
     Logger::debug("[LastActionStateCallback::onRead()] revoke");
-    pCharacteristic->setValue(String(Config::getRegistrationState()).c_str());
+    pCharacteristic->setValue(Bluetooth::getLastOperationStatus().c_str());
   }
 };
 
@@ -184,8 +183,8 @@ class RefreshDeviceCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) { 
     Logger::debug("[RefreshDeviceCallback::onWrite()] revoke");
     std::string value = pCharacteristic->getValue();
-    String actionNAme = String(value.c_str());
-    Bluetooth::bluetoothHandler->deviceRefreshRequest(&actionNAme); 
+    String actionName(value.c_str());
+    Bluetooth::bluetoothHandler->deviceRefreshRequest(actionName); 
   }
 };
 
@@ -331,4 +330,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
   esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
   #endif
+}
+
+String Bluetooth::getLastOperationStatus() {
+  return lastOperatioinState;
+}
+
+String Bluetooth::setLastOperationStatus(String operationStatus) {
+  lastOperatioinState = operationStatus;
 }

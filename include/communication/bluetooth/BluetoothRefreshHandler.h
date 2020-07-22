@@ -10,5 +10,5 @@ class BluetoothRefreshHandler : public BluetoothHandler {
 public:
     BluetoothRefreshHandler() {};
     ~BluetoothRefreshHandler() {};
-    void deviceRefreshRequest(const String &actionName);
+    void deviceRefreshRequest(String &actionName);
 };

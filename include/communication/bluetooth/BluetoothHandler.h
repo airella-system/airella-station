@@ -2,5 +2,5 @@
 
 class BluetoothHandler {
  public:
-  virtual void deviceRefreshRequest();
+  virtual void deviceRefreshRequest(String &actionName);
 };

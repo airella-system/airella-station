@@ -48,12 +48,15 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up ended");
 }
 
+// TODO: oganąć uniwersalny handler do BT i zapisywanie stanu
 // TODO: ogarnać kiedy pytać o autoryzację, bo teraz pytało o autoryzację przy rejestracji czyli bez sensu
 // TODO: co się stanie jeśli wszsytkie albo część preferencji się skasuje
 // TODO: logowanie błędów w measurement
 // TODO: logowanie błędów w klasie od neta
 // TODO: dorobić obsługę błędów, klasę Troubleshooting
 // TODO: klasa api tam trzeba dodać logi i autoryzacje ogarnać
+// TODO: dorobić temporary config i dopiero potem flushować
+// TODO: dorobić wysyłanie lokalizacji przy rejestracji
 void Core::main() {
   // todo: obsłożyć overflow
   while(true) {
