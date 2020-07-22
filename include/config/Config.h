@@ -53,8 +53,8 @@ class Config {
   static void setLocationLongitude(String longitude, bool lock = true);
   static void setLocationManual(bool manual, bool lock = true);
 
- private:
   static Preferences preferences;
+ private:
   static SemaphoreHandle_t mux;
 
   static void lock();
