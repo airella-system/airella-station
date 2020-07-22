@@ -48,12 +48,14 @@ void loop() {
     Logger::debug("Publishing data");
     double temperature = random(15 * 100, 25 * 100) / 100.0;
     double humidity = random(0 * 100, 100 * 100) / 100.0;
+    double pressure = random(950 * 100, 1050 * 100) / 100.0;
     double pm1 = random(20 * 100, 40 * 100) / 100.0;
     double pm2_5 = random(10 * 100, 20 * 100) / 100.0;
     double pm10 = random(20 * 100, 40 * 100) / 100.0;
 
     Api.publishMeasurement("temperature", temperature);
     Api.publishMeasurement("humidity", humidity);
+    Api.publishMeasurement("pressure", pressure);
     Api.publishMeasurement("pm1", pm1);
     Api.publishMeasurement("pm2_5", pm2_5);
     Api.publishMeasurement("pm10", pm10);

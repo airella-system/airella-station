@@ -17,6 +17,10 @@ String Config::addressCountry = String();
 String Config::addressCity = String();
 String Config::addressStreet = String();
 String Config::addressNumber = String();
+String Config::locationLatitude = String();
+String Config::locationLongitude = String();
+bool Config::locationManual = false;
+
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
 void Config::lock() {
@@ -44,6 +48,9 @@ void Config::load(bool lock) {
   Config::addressCity = Config::preferences.getString("address-city", "");
   Config::addressStreet = Config::preferences.getString("address-street", "");
   Config::addressNumber = Config::preferences.getString("address-number", "");
+  Config::locationLatitude = Config::preferences.getString("loc-latitude", "");
+  Config::locationLongitude = Config::preferences.getString("loc-longitude", "");
+  Config::locationManual = Config::preferences.getBool("loc-manual", false);
   if (!Config::getRefreshToken().equals("") && !Config::getApiStationId().equals("")) {
     Config::registrationState = Config::RegistrationState::REGISTERED;
   } else {
@@ -68,6 +75,9 @@ void Config::save(bool lock) {
   Config::preferences.putString("address-city", Config::getAddressCity());
   Config::preferences.putString("address-street", Config::getAddressStreet());
   Config::preferences.putString("address-number", Config::getAddressNumber());
+  Config::preferences.putString("loc-latitude", Config::getLocationLatitude());
+  Config::preferences.putString("loc-longitude", Config::getLocationLongitude());
+  Config::preferences.putBool("loc-manual", Config::getLocationManual());
   Config::preferences.end();
   if (lock) Config::unlock();
 }
@@ -135,6 +145,18 @@ String Config::getAddressStreet(bool lock) {
 
 String Config::getAddressNumber(bool lock) {
   return Config::addressNumber;
+}
+
+String Config::getLocationLatitude(bool lock) {
+  return Config::locationLatitude;
+}
+
+String Config::getLocationLongitude(bool lock) {
+  return Config::locationLongitude;
+}
+
+bool Config::getLocationManual(bool lock) {
+  return Config::locationManual;
 }
 
 void Config::setDevicePassword(String devicePassword, bool lock) {
@@ -218,5 +240,23 @@ void Config::setAddressStreet(String addressStreet, bool lock) {
 void Config::setAddressNumber(String addressNumber, bool lock) {
   if (lock) Config::lock();
   Config::addressNumber = addressNumber;
+  if (lock) Config::unlock();
+}
+
+void Config::setLocationLatitude(String latitude, bool lock) {
+  if (lock) Config::lock();
+  Config::locationLatitude = latitude;
+  if (lock) Config::unlock();
+}
+
+void Config::setLocationLongitude(String longitude, bool lock) {
+  if (lock) Config::lock();
+  Config::locationLongitude = longitude;
+  if (lock) Config::unlock();
+}
+
+void Config::setLocationManual(bool manual, bool lock) {
+  if (lock) Config::lock();
+  Config::locationManual = manual;
   if (lock) Config::unlock();
 }
