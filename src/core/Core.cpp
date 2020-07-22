@@ -18,13 +18,13 @@ void Core::setUp() {
   Config::save();
 
   Bluetooth::start(new BluetoothRefreshHandler());
-  Internet::setType(Internet::WIFI);
-  Internet::start();
+  // Internet::setType(Internet::WIFI);
+  // Internet::start();
 
-  airSensor = new AirSensor();
-  airSensor->powerOn();
-  airSensor->calibrate();
-  weatherSensor = new WeatherSensor();
+  // airSensor = new AirSensor();
+  // airSensor->powerOn();
+  // airSensor->calibrate();
+  // weatherSensor = new WeatherSensor();
 
   if(false) { //static config
     Config::setRegistratonToken("dbb2c782-9947-44fc-9f0c-44bf2c8223e6");
@@ -39,23 +39,23 @@ void Core::setUp() {
     Api.publishLocation(49.713481, 20.339463);
     Api.configUpdated();
   }
-  Logger::info("[Core]: Setting up ended, run main thread");
+  // Logger::info("[Core]: Setting up ended, run main thread");
 }
 
 void Core::loop() {
   // todo: obsłożyć overflow
-  if ((millis() - lastPublishMillis) > 10000) {
-    Logger::info("[Core]: Start measurement");
+  // if ((millis() - lastPublishMillis) > 10000) {
+  //   Logger::info("[Core]: Start measurement");
 
-    Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
-    Api.publishMeasurement(measurementType.humidity, weatherSensor->getHumidity());
-    airSensor->measurement();
-    Api.publishMeasurement(measurementType.pm1, airSensor->getPM1());
-    Api.publishMeasurement(measurementType.pm2_5, airSensor->getPM2_5());
-    Api.publishMeasurement(measurementType.pm10, airSensor->getPM10());
+  //   Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
+  //   Api.publishMeasurement(measurementType.humidity, weatherSensor->getHumidity());
+  //   airSensor->measurement();
+  //   Api.publishMeasurement(measurementType.pm1, airSensor->getPM1());
+  //   Api.publishMeasurement(measurementType.pm2_5, airSensor->getPM2_5());
+  //   Api.publishMeasurement(measurementType.pm10, airSensor->getPM10());
 
-    lastPublishMillis = millis();
-  }
+  //   lastPublishMillis = millis();
+  // }
   delay(10000);
 }
 
