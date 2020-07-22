@@ -2,7 +2,7 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 
-// #define BT_AUTH_ENABLE 1
+#define BT_AUTH_ENABLE 1
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 
@@ -11,6 +11,9 @@ BLECharacteristic *Bluetooth::stationCountryCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::stationCityCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::stationStreetCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::stationNumberCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::latitudeCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::longitudeCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::locationManualCharacteristic = nullptr;
 
 BLECharacteristic *Bluetooth::devPasswordCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::inetConnTypeCharacteristic = nullptr;
@@ -130,6 +133,42 @@ class StationNumberCallback : public BLECharacteristicCallbacks {
   }
 };
 
+class LatitudeCallback : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    Logger::debug("[LatitudeCallback::onWrite()] revoke");
+    std::string value = pCharacteristic->getValue();
+    String stringValue = String(value.c_str());
+    Config::setLocationLatitude(stringValue);
+    Config::save();
+  }
+};
+
+class LongitudeCallback : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    Logger::debug("[LongitudeCallback::onWrite()] revoke");
+    std::string value = pCharacteristic->getValue();
+    String stringValue = String(value.c_str());
+    Config::setLocationLongitude(stringValue);
+    Config::save();
+  }
+};
+
+class LocationManualCallback : public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    Logger::debug("[LocationManualCallback::onWrite()] revoke");
+    std::string value = pCharacteristic->getValue();
+    String stringValue = String(value.c_str());
+    if (stringValue.charAt(0) == '1') {
+      Config::setLocationManual(true);
+    } else {
+      Config::setLocationManual(false);
+    }
+    Config::save();
+  }
+};
+
+
+
 class RegistrationTokenCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     Logger::debug("[RegistrationTokenCallback::onWrite()] revoke");
@@ -219,13 +258,21 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
       STATION_CITY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationCityCharacteristic->setCallbacks(new StationCityCallback());
 
-  stationStreetCharacteristic = pService->createCharacteristic(
-      STATION_STREET_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
-  stationStreetCharacteristic->setCallbacks(new StationStreetCallback());
-
   stationNumberCharacteristic = pService->createCharacteristic(
       STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationNumberCharacteristic->setCallbacks(new StationNumberCallback());
+
+  latitudeCharacteristic = pService->createCharacteristic(
+      STATION_STREET_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  latitudeCharacteristic->setCallbacks(new LatitudeCallback());
+
+  longitudeCharacteristic = pService->createCharacteristic(
+      STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  longitudeCharacteristic->setCallbacks(new LongitudeCallback());
+
+  locationManualCharacteristic = pService->createCharacteristic(
+      STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  locationManualCharacteristic->setCallbacks(new LocationManualCallback());
 
   devStateCharacteristic =
       pService->createCharacteristic(DEVICE_STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
@@ -254,6 +301,9 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   stationCityCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   stationStreetCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   stationNumberCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+  latitudeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+  longitudeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+  locationManualCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   devStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   connStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
   refreshDeviceCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);

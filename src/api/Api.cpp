@@ -186,6 +186,10 @@ bool ApiClass::registerStation() {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
+  if (!registerSensor("pressure")) {
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
   if (!registerSensor("pm1")) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
