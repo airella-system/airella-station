@@ -20,7 +20,7 @@ class Core {
 public:
   Core();
   void setUp();
-  void loop();
+  void main();
 
 private:
   AirSensor *airSensor = NULL;

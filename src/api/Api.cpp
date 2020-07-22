@@ -48,8 +48,10 @@ bool ApiClass::updateAccessToken() {
       const char *token = doc["data"]["accessToken"]["token"];
       this->accessToken = String(token);
       this->accessTokenMillis = millis();
+      Logger::info("[ApiClass::updateAccessToken] Token refreshed successfully.");
       return true;
     }
+    Logger::info("[ApiClass::updateAccessToken] Unable to refresh token.");
     return false;
   } else {
     return true;

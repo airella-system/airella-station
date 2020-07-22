@@ -6,6 +6,7 @@
 #include <BLEUtils.h>
 
 #include "BluetoothHandler.h"
+#include "communication/common/Internet.h"
 
 #define SERVICE_UUID "f1eb6601-af50-4cf3-9f6e-4e1c6fb8e88c"
 

@@ -48,6 +48,7 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
     String stringValue = String(value.c_str());
     Config::setWifiSsid(stringValue);
     Config::save();
+    Internet::start();
   }
 };
 
@@ -65,6 +66,7 @@ class WifiPasswordCallback : public BLECharacteristicCallbacks {
     String stringValue = String(value.c_str());
     Config::setWifiPassword(stringValue);
     Config::save();
+    Internet::start();
   }
 };
 

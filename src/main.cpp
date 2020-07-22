@@ -6,5 +6,7 @@ void setup() {
 }
 
 void loop() {
-  core.loop();
+  Logger::info("[Core]: Start main");
+  core.main();
+  Logger::error("[Core]: Escape from main loop");
 }
