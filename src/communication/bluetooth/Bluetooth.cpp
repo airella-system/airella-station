@@ -260,6 +260,10 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
       STATION_CITY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationCityCharacteristic->setCallbacks(new StationCityCallback());
 
+  stationStreetCharacteristic = pService->createCharacteristic(
+      STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationStreetCharacteristic->setCallbacks(new StationStreetCallback());
+
   stationNumberCharacteristic = pService->createCharacteristic(
       STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationNumberCharacteristic->setCallbacks(new StationNumberCallback());

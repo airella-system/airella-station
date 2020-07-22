@@ -16,6 +16,7 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up started");
 
   Config::load();
+  Logger::info("[Core]: Loaded preferences.");
 
   #ifdef STATIC_CONFIG
   Config::setWifiSsid("default");
@@ -57,6 +58,7 @@ void Core::setUp() {
 // TODO: klasa api tam trzeba dodać logi i autoryzacje ogarnać
 // TODO: dorobić temporary config i dopiero potem flushować
 // TODO: dorobić wysyłanie lokalizacji przy rejestracji
+// TODO: co w sytuacji gdy preferences nie istnieje a ja chce je załątować
 void Core::main() {
   // todo: obsłożyć overflow
   while(true) {
