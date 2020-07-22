@@ -10,6 +10,7 @@ class ApiClass {
   bool registerStation();
   bool publishMeasurement(String sensor, double value);
   bool publishName(const char *name);
+  bool publishNameFromConfig();
   bool publishLocation(double longitude, double latitude);
   bool publishLocationFromConfig();
   bool publishAddress(const char *country, const char *city, const char *street, const char *number);

@@ -14,6 +14,7 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
     else if(actionName.equals("address")) {
         Bluetooth::setLastOperationStatus("address|setting_up");
         Api.publishAddressFromConfig();
+        Api.publishNameFromConfig();
         Config::save();
         Bluetooth::setLastOperationStatus("address|ok");
     }

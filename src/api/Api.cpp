@@ -143,6 +143,12 @@ bool ApiClass::publishAddressFromConfig() {
   );
 }
 
+bool ApiClass::publishNameFromConfig() {
+  return publishName(
+    Config::getStationName().c_str()
+  );
+}
+
 bool ApiClass::registerStation() {
   this->accessToken = String("");
   this->accessTokenMillis = 0;
@@ -269,6 +275,7 @@ bool ApiClass::publishMeasurement(String sensor, double value) {
 }
 
 void ApiClass::configUpdated() {
+  Logger::debug("[API::configUpdated] Config updated!");
   if (!this->isRegistered()) {
     this->registerStation();
     Config::save();

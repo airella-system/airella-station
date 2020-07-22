@@ -63,7 +63,7 @@ class Bluetooth {
   static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
   static String getLastOperationStatus();
-  static String setLastOperationStatus(String operationStatus);
+  static void setLastOperationStatus(String operationStatus);
 
  private:
   static BLECharacteristic *stationNameCharacteristic;

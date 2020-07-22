@@ -27,7 +27,7 @@ BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
-String Bluetooth::lastOperatioinState = "";
+String Bluetooth::lastOperatioinState = String();
 
 #ifdef BT_AUTH_ENABLE
 class MySecurity : public BLESecurityCallbacks {
@@ -206,6 +206,9 @@ void Bluetooth::reloadValues() {
   stationCityCharacteristic->setValue(Config::getAddressCity().c_str());
   stationStreetCharacteristic->setValue(Config::getAddressStreet().c_str());
   stationNumberCharacteristic->setValue(Config::getAddressNumber().c_str());
+  latitudeCharacteristic->setValue(Config::getLocationLatitude().c_str());
+  longitudeCharacteristic->setValue(Config::getLocationLongitude().c_str());
+  locationManualCharacteristic->setValue(Config::getLocationManual() ? "1" : "0");
 }
 
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
@@ -260,20 +263,24 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
       STATION_CITY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationCityCharacteristic->setCallbacks(new StationCityCallback());
 
+  stationStreetCharacteristic = pService->createCharacteristic(
+      STATION_STREET_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationStreetCharacteristic->setCallbacks(new StationStreetCallback());
+
   stationNumberCharacteristic = pService->createCharacteristic(
       STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   stationNumberCharacteristic->setCallbacks(new StationNumberCallback());
 
   latitudeCharacteristic = pService->createCharacteristic(
-      STATION_STREET_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+      LOCATION_LATITUDE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   latitudeCharacteristic->setCallbacks(new LatitudeCallback());
 
   longitudeCharacteristic = pService->createCharacteristic(
-      STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+      LOCATION_LONGITUDE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   longitudeCharacteristic->setCallbacks(new LongitudeCallback());
 
   locationManualCharacteristic = pService->createCharacteristic(
-      STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+      LOCATION_MANUALLY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
   locationManualCharacteristic->setCallbacks(new LocationManualCallback());
 
   devStateCharacteristic =
@@ -336,6 +343,6 @@ String Bluetooth::getLastOperationStatus() {
   return lastOperatioinState;
 }
 
-String Bluetooth::setLastOperationStatus(String operationStatus) {
+void Bluetooth::setLastOperationStatus(String operationStatus) {
   lastOperatioinState = operationStatus;
 }
