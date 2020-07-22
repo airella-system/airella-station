@@ -52,6 +52,7 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
   }
 };
 
+//TODO: zamienić na last state
 class RegistrationStateCallback : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic *pCharacteristic) {
     Logger::debug("[RegistrationStateCallback::onRead()] revoke");

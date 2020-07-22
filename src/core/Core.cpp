@@ -1,5 +1,7 @@
 #include "core/Core.h"
 
+// #define STATIC_CONFIG
+
 Core::Core() {
   Logger::setUp();
   Logger::info("[Core]: Iniatlizing...");
@@ -13,6 +15,20 @@ Core::Core() {
 void Core::setUp() {
   Logger::info("[Core]: Setting up started");
 
+  Config::load();
+
+  #ifdef STATIC_CONFIG
+  Config::setWifiSsid("default");
+  Config::setApiUrl("http://airella.cyfrogen.com/api");
+  Config::setRegistratonToken("03cdfeca-ddb2-4856-b69e-0b0ceaf10113");
+  Config::setStationName("Mleko");
+  Config::setAddressCity("Slopnice");
+  Config::setAddressCountry("Poland");
+  Config::setAddressStreet("Slopnice");
+  Config::setAddressNumber("123");
+  Config::save();
+  #endif
+
   Bluetooth::start(new BluetoothRefreshHandler());
   Internet::setType(Internet::WIFI);
   Internet::start();
@@ -22,22 +38,22 @@ void Core::setUp() {
   airSensor->calibrate();
   weatherSensor = new WeatherSensor();
 
-  if(false) { //static config
-    Config::setRegistratonToken("dbb2c782-9947-44fc-9f0c-44bf2c8223e6");
-    Config::setStationName("Mleko");
-    Config::setAddressCity("Slopnice");
-    Config::setAddressCountry("Poland");
-    Config::setAddressStreet("Slopnice");
-    Config::setAddressNumber("123");
-    Config::save();
-    Api.publishName("Mleko");
-    Api.publishAddress("Poland", "Slopnice", "Slopnice", "123");
-    Api.publishLocation(49.713481, 20.339463);
-    Api.configUpdated();
-  }
+  #ifdef STATIC_CONFIG
+  Api.configUpdated();
+  Api.publishName("Mleko");
+  Api.publishAddress("Poland", "Slopnice", "Slopnice", "123");
+  Api.publishLocation(49.713481, 20.339463);
+  #endif
+
   Logger::info("[Core]: Setting up ended");
 }
 
+// TODO: ogarnać kiedy pytać o autoryzację, bo teraz pytało o autoryzację przy rejestracji czyli bez sensu
+// TODO: co się stanie jeśli wszsytkie albo część preferencji się skasuje
+// TODO: logowanie błędów w measurement
+// TODO: logowanie błędów w klasie od neta
+// TODO: dorobić obsługę błędów, klasę Troubleshooting
+// TODO: klasa api tam trzeba dodać logi i torchę pozmieniać
 void Core::main() {
   // todo: obsłożyć overflow
   while(true) {

@@ -59,7 +59,9 @@ bool ApiClass::updateAccessToken() {
 }
 
 bool ApiClass::publishName(const char *name) {
-  if (!checkAuth()) return false;
+  //TODO: jasna pała, przecież to tak nie może być, bo przy rejestracji to jest tywoływane a wtedy 
+  //nie można sie zautoryzować jeszcze
+  // if (!checkAuth()) return false;
 
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/name";
@@ -71,14 +73,17 @@ bool ApiClass::publishName(const char *name) {
 
   Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
-  String debugText = String("Sensor set name response code: ") + response.code + " payload: " + response.payload;
+  String debugText = String("[ApiClass::publishName] Sensor set name response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
   Logger::debug(debugText.c_str());
 
   return response.code == 200;
 }
 
 bool ApiClass::publishLocation(double latitude, double longitude) {
-  if (!checkAuth()) return false;
+  // if (!checkAuth()) return false;
 
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/location";
@@ -98,7 +103,7 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
 }
 
 bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
-  if (!checkAuth()) return false;
+  // if (!checkAuth()) return false;
 
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/address";
@@ -124,13 +129,13 @@ bool ApiClass::registerStation() {
   this->accessTokenMillis = 0;
   if (Config::getRegistratonToken().equals("")) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    Logger::debug("Registration fail - no registration token");
+    Logger::debug("[ApiClass::registerStation()] Registration fail - no registration token");
     return false;
   }
 
   if (!Internet::isConnected()) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    Logger::debug("Registration fail - no internet connection");
+    Logger::debug("[ApiClass::registerStation()] Registration fail - no internet connection");
     return false;
   }
   Config::setRegistrationState(Config::RegistrationState::REGISTERING);
@@ -148,7 +153,10 @@ bool ApiClass::registerStation() {
 
   Http::Response response = Internet::httpPost(url, body);
 
-  String debugText = String("Registraton response code: ") + response.code + " payload: " + response.payload;
+  String debugText = String("[ApiClass::registerStation()] Registraton response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
   Logger::debug(debugText.c_str());
 
   if (response.code != 201) {
@@ -164,6 +172,7 @@ bool ApiClass::registerStation() {
   Config::setRefreshToken(String(refreshToken));
 
   if (!updateAccessToken()) {
+    Logger::debug("[ApiClass::registerStation()] Unable to update token");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
@@ -171,17 +180,20 @@ bool ApiClass::registerStation() {
   String name = Config::getStationName();
   if (!name.equals("")) {
     if (!publishName(name.c_str())) {
+      Logger::debug("nie ustawolo nazwy stacji");
       Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-      return false;
+      // return false;
     }
   }
   publishAddress(Config::getAddressCountry().c_str(), Config::getAddressCity().c_str(),
                  Config::getAddressStreet().c_str(), Config::getAddressNumber().c_str());
 
   if (!registerSensor("temperature")) {
+    Logger::debug("nie ustawilo temperatury");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
+  Logger::debug("pies");
   if (!registerSensor("humidity")) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
@@ -199,6 +211,7 @@ bool ApiClass::registerStation() {
     return false;
   }
 
+  Logger::debug("mleko");
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
   Config::save();
   return true;
@@ -209,7 +222,10 @@ bool ApiClass::isRegistered() {
 }
 
 bool ApiClass::publishMeasurement(String sensor, double value) {
-  if (!checkAuth()) return false;
+  if (!checkAuth()) {
+    Logger::debug("[ApiClass::publishMeasurement()] Authorization failed, unable to send data");
+    return false;
+  }
 
   String apiUrlBase = Config::getApiUrl();
   String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
@@ -230,9 +246,6 @@ bool ApiClass::publishMeasurement(String sensor, double value) {
 }
 
 void ApiClass::configUpdated() {
-  Internet::stop();
-  Internet::start();
-
   if (!this->isRegistered()) {
     this->registerStation();
     Config::save();
