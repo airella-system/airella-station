@@ -2,7 +2,7 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 
-#define BT_AUTH_ENABLE 1
+// #define BT_AUTH_ENABLE 1
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 
@@ -55,10 +55,10 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
   }
 };
 
-//TODO: zamienić na last state
-class RegistrationStateCallback : public BLECharacteristicCallbacks {
+// TODO: zaimplementować obsługę last state
+class LastActionStateCallback : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[RegistrationStateCallback::onRead()] revoke");
+    Logger::debug("[LastActionStateCallback::onRead()] revoke");
     pCharacteristic->setValue(String(Config::getRegistrationState()).c_str());
   }
 };
@@ -183,7 +183,9 @@ class RegistrationTokenCallback : public BLECharacteristicCallbacks {
 class RefreshDeviceCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) { 
     Logger::debug("[RefreshDeviceCallback::onWrite()] revoke");
-    Bluetooth::bluetoothHandler->deviceRefreshRequest(); 
+    std::string value = pCharacteristic->getValue();
+    String actionNAme = String(value.c_str());
+    Bluetooth::bluetoothHandler->deviceRefreshRequest(&actionNAme); 
   }
 };
 
@@ -229,7 +231,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   registrationStateCharacteristic =
       pService->createCharacteristic(REGISTRATION_STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
   
-  registrationStateCharacteristic->setCallbacks(new RegistrationStateCallback());
+  registrationStateCharacteristic->setCallbacks(new LastActionStateCallback());
 
   ssidCharacteristic = pService->createCharacteristic(
       SSID_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);

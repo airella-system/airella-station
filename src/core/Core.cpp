@@ -53,7 +53,7 @@ void Core::setUp() {
 // TODO: logowanie błędów w measurement
 // TODO: logowanie błędów w klasie od neta
 // TODO: dorobić obsługę błędów, klasę Troubleshooting
-// TODO: klasa api tam trzeba dodać logi i torchę pozmieniać
+// TODO: klasa api tam trzeba dodać logi i autoryzacje ogarnać
 void Core::main() {
   // todo: obsłożyć overflow
   while(true) {
