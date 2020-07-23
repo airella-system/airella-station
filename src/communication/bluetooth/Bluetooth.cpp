@@ -173,7 +173,6 @@ class RegistrationTokenCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setRegistratonToken(stringValue);
-    Config::save();
   }
 };
 

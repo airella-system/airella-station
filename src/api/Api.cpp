@@ -19,11 +19,7 @@ bool ApiClass::registerSensor(const char *type) {
   String debugText = String("Sensor add response code: ") + response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 201) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 201;
 }
 
 bool ApiClass::updateAccessToken() {
@@ -205,42 +201,69 @@ bool ApiClass::registerStation() {
   String name = Config::getStationName();
   if (!name.equals("")) {
     if (!publishName(name.c_str())) {
-      Logger::debug("nie ustawolo nazwy stacji");
+      Logger::debug("[ApiClass::registerStation()] Unable to set station name");
       Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-      // return false;
+      return false;
     }
   }
   publishAddress(Config::getAddressCountry().c_str(), Config::getAddressCity().c_str(),
                  Config::getAddressStreet().c_str(), Config::getAddressNumber().c_str());
 
   if (!registerSensor("temperature")) {
-    Logger::debug("nie ustawilo temperatury");
+    Logger::debug("[ApiClass::registerStation()] Unable to register remperature sensor");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
-  Logger::debug("pies");
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered remperature sensor");
+  }
+  
   if (!registerSensor("humidity")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register humidity sensor");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered humidity sensor");
+  }
+  
   if (!registerSensor("pressure")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pressure sensor");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
-  if (!registerSensor("pm1")) {
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    return false;
-  }
-  if (!registerSensor("pm2_5")) {
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    return false;
-  }
-  if (!registerSensor("pm10")) {
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    return false;
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pressure sensor");
   }
 
-  Logger::debug("mleko");
+  if (!registerSensor("pm1")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pm1 sensor");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pm1 sensor");
+  }
+
+  if (!registerSensor("pm2_5")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pm2_5 sensor");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pm2_5 sensor");
+  }
+
+  if (!registerSensor("pm10")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pm10 sensor");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pm10 sensor");
+  }
+
+  Logger::info("[ApiClass::registerStation()] Registered successfull.");
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
   Config::save();
   return true;
@@ -280,7 +303,7 @@ void ApiClass::configUpdated() {
     this->registerStation();
     Config::save();
   } else {
-    Logger::debug("Already registered");
+    Logger::debug("[API::configUpdated] Already registered");
   }
 }
 

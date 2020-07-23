@@ -2,7 +2,13 @@
 #include "communication/bluetooth/Bluetooth.h"
 
 void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
-    Logger::info("[BluetoothRefreshHandler]: Receive config update request");
+    Logger::info(
+        (
+            String("[BluetoothRefreshHandler]: Receive config update request, action (") 
+            + actionName 
+            + ")"
+        ).c_str()
+    );
     if(actionName.equals("wifi")) {
         Bluetooth::setLastOperationStatus("wifi|setting_up");
         Internet::stop();
