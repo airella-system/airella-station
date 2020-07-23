@@ -55,8 +55,7 @@ bool ApiClass::updateAccessToken() {
 }
 
 bool ApiClass::publishName(const char *name) {
-  //TODO: jasna pała, przecież to tak nie może być, bo przy rejestracji to jest tywoływane a wtedy 
-  //nie można sie zautoryzować jeszcze
+  //TODO: when check auth? to correct
   // if (!checkAuth()) return false;
 
   String apiUrlBase = Config::getApiUrl();
@@ -101,13 +100,6 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
   return response.code == 200;
 }
 
-bool ApiClass::publishLocationFromConfig() {
-  return publishLocation(
-    Config::getLocationLatitude().toDouble(), 
-    Config::getLocationLongitude().toDouble()
-  );
-}
-
 bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
   // if (!checkAuth()) return false;
 
@@ -128,21 +120,6 @@ bool ApiClass::publishAddress(const char *country, const char *city, const char 
   Logger::debug(debugText.c_str());
 
   return response.code == 200;
-}
-
-bool ApiClass::publishAddressFromConfig() {
-  return publishAddress(
-    Config::getAddressCountry().c_str(), 
-    Config::getAddressCity().c_str(),
-    Config::getAddressStreet().c_str(), 
-    Config::getAddressNumber().c_str()
-  );
-}
-
-bool ApiClass::publishNameFromConfig() {
-  return publishName(
-    Config::getStationName().c_str()
-  );
 }
 
 bool ApiClass::registerStation() {
@@ -206,8 +183,37 @@ bool ApiClass::registerStation() {
       return false;
     }
   }
-  publishAddress(Config::getAddressCountry().c_str(), Config::getAddressCity().c_str(),
-                 Config::getAddressStreet().c_str(), Config::getAddressNumber().c_str());
+
+  bool actionResult = true;
+  actionResult = publishAddress(
+    Config::getAddressCountry().c_str(), 
+    Config::getAddressCity().c_str(),
+    Config::getAddressStreet().c_str(), 
+    Config::getAddressNumber().c_str()
+  );
+
+  if (!actionResult) {
+    Logger::debug("[ApiClass::registerStation()] Unable to set address");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Set station address");
+  }
+
+  actionResult = publishLocation(
+    Config::getLocationLatitude().toDouble(),
+    Config::getLocationLongitude().toDouble()
+  );
+
+  if (!actionResult) {
+    Logger::debug("[ApiClass::registerStation()] Unable to set location");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Set station location");
+  }
 
   if (!registerSensor("temperature")) {
     Logger::debug("[ApiClass::registerStation()] Unable to register remperature sensor");

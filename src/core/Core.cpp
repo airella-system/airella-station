@@ -17,7 +17,6 @@ void Core::setUp() {
 
   Config::load();
   Logger::info("[Core]: Loaded preferences.");
-  Logger::info((String("[mleko]") + Config::getRegistratonToken()).c_str());
 
   #ifdef STATIC_CONFIG
   Config::setWifiSsid("default");
@@ -51,7 +50,13 @@ void Core::setUp() {
 }
 
 void Core::main() {
-  // todo: obsłożyć overflow
+  if(!Api.isRegistered()) {
+    Logger::info("[Core]: Wait for registrations.");
+    while(!Api.isRegistered()) {
+      delay(1000);
+    }
+  }
+  
   while(true) {
     if ((millis() - lastPublishMillis) > 10000) {
       Logger::info("[Core]: Start measurement");

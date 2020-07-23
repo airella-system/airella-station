@@ -87,7 +87,6 @@ class StationNameCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setStationName(stringValue);
-    Config::save();
   }
 };
 
@@ -97,7 +96,6 @@ class StationCountryCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressCountry(stringValue);
-    Config::save();
   }
 };
 
@@ -107,7 +105,6 @@ class StationCityCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressCity(stringValue);
-    Config::save();
   }
 };
 
@@ -117,7 +114,6 @@ class StationStreetCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressStreet(stringValue);
-    Config::save();
   }
 };
 
@@ -127,7 +123,6 @@ class StationNumberCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressNumber(stringValue);
-    Config::save();
   }
 };
 
@@ -137,7 +132,6 @@ class LatitudeCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setLocationLatitude(stringValue);
-    Config::save();
   }
 };
 
@@ -147,7 +141,6 @@ class LongitudeCallback : public BLECharacteristicCallbacks {
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setLocationLongitude(stringValue);
-    Config::save();
   }
 };
 
@@ -161,7 +154,6 @@ class LocationManualCallback : public BLECharacteristicCallbacks {
     } else {
       Config::setLocationManual(false);
     }
-    Config::save();
   }
 };
 
