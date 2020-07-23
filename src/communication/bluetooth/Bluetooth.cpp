@@ -48,7 +48,7 @@ class MySecurity : public BLESecurityCallbacks {
 
 class WifiSsidCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[WifiSsidCallback::onWrite()] revoke");
+    Logger::debug("[WifiSsidCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setWifiSsid(stringValue);
@@ -57,25 +57,23 @@ class WifiSsidCallback : public BLECharacteristicCallbacks {
 
 class LastActionStateCallback : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LastActionStateCallback::onRead()] revoke");
+    Logger::debug("[LastActionStateCallback::onRead()] called");
     pCharacteristic->setValue(Bluetooth::getLastOperationStatus().c_str());
   }
 };
 
 class WifiPasswordCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[WifiPasswordCallback::onWrite()] revoke");
+    Logger::debug("[WifiPasswordCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setWifiPassword(stringValue);
-    Config::save();
-    Internet::start();
   }
 };
 
 class ApiUrlCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ApiUrlCallback::onWrite()] revoke");
+    Logger::debug("[ApiUrlCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setApiUrl(stringValue);
@@ -85,7 +83,7 @@ class ApiUrlCallback : public BLECharacteristicCallbacks {
 
 class StationNameCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationNameCallback::onWrite()] revoke");
+    Logger::debug("[StationNameCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setStationName(stringValue);
@@ -95,7 +93,7 @@ class StationNameCallback : public BLECharacteristicCallbacks {
 
 class StationCountryCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationCountryCallback::onWrite()] revoke");
+    Logger::debug("[StationCountryCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressCountry(stringValue);
@@ -105,7 +103,7 @@ class StationCountryCallback : public BLECharacteristicCallbacks {
 
 class StationCityCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationCityCallback::onWrite()] revoke");
+    Logger::debug("[StationCityCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressCity(stringValue);
@@ -115,7 +113,7 @@ class StationCityCallback : public BLECharacteristicCallbacks {
 
 class StationStreetCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationStreetCallback::onWrite()] revoke");
+    Logger::debug("[StationStreetCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressStreet(stringValue);
@@ -125,7 +123,7 @@ class StationStreetCallback : public BLECharacteristicCallbacks {
 
 class StationNumberCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationNumberCallback::onWrite()] revoke");
+    Logger::debug("[StationNumberCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setAddressNumber(stringValue);
@@ -135,7 +133,7 @@ class StationNumberCallback : public BLECharacteristicCallbacks {
 
 class LatitudeCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LatitudeCallback::onWrite()] revoke");
+    Logger::debug("[LatitudeCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setLocationLatitude(stringValue);
@@ -145,7 +143,7 @@ class LatitudeCallback : public BLECharacteristicCallbacks {
 
 class LongitudeCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LongitudeCallback::onWrite()] revoke");
+    Logger::debug("[LongitudeCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setLocationLongitude(stringValue);
@@ -155,7 +153,7 @@ class LongitudeCallback : public BLECharacteristicCallbacks {
 
 class LocationManualCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LocationManualCallback::onWrite()] revoke");
+    Logger::debug("[LocationManualCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     if (stringValue.charAt(0) == '1') {
@@ -171,7 +169,7 @@ class LocationManualCallback : public BLECharacteristicCallbacks {
 
 class RegistrationTokenCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[RegistrationTokenCallback::onWrite()] revoke");
+    Logger::debug("[RegistrationTokenCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String stringValue = String(value.c_str());
     Config::setRegistratonToken(stringValue);
@@ -181,7 +179,7 @@ class RegistrationTokenCallback : public BLECharacteristicCallbacks {
 
 class RefreshDeviceCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) { 
-    Logger::debug("[RefreshDeviceCallback::onWrite()] revoke");
+    Logger::debug("[RefreshDeviceCallback::onWrite()] called");
     std::string value = pCharacteristic->getValue();
     String actionName(value.c_str());
     Bluetooth::bluetoothHandler->deviceRefreshRequest(actionName); 
@@ -190,7 +188,7 @@ class RefreshDeviceCallback : public BLECharacteristicCallbacks {
 
 class ClearDataCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ClearDataCallback::onWrite()] revoke");
+    Logger::debug("[ClearDataCallback::onWrite()] called");
     Config::reset();
     Bluetooth::reloadValues();
   }
