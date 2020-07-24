@@ -19,11 +19,7 @@ bool ApiClass::registerSensor(const char *type) {
   String debugText = String("Sensor add response code: ") + response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 201) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 201;
 }
 
 bool ApiClass::updateAccessToken() {
@@ -48,8 +44,10 @@ bool ApiClass::updateAccessToken() {
       const char *token = doc["data"]["accessToken"]["token"];
       this->accessToken = String(token);
       this->accessTokenMillis = millis();
+      Logger::info("[ApiClass::updateAccessToken] Token refreshed successfully.");
       return true;
     }
+    Logger::info("[ApiClass::updateAccessToken] Unable to refresh token.");
     return false;
   } else {
     return true;
@@ -57,6 +55,9 @@ bool ApiClass::updateAccessToken() {
 }
 
 bool ApiClass::publishName(const char *name) {
+  //TODO: when check auth? to correct
+  // if (!checkAuth()) return false;
+
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/name";
 
@@ -67,17 +68,18 @@ bool ApiClass::publishName(const char *name) {
 
   Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
-  String debugText = String("Sensor set name response code: ") + response.code + " payload: " + response.payload;
+  String debugText = String("[ApiClass::publishName] Sensor set name response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 200) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 200;
 }
 
 bool ApiClass::publishLocation(double latitude, double longitude) {
+  // if (!checkAuth()) return false;
+
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/location";
 
@@ -89,17 +91,18 @@ bool ApiClass::publishLocation(double latitude, double longitude) {
 
   Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
 
-  String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
+  String debugText = String("Sensor set location response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 200) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 200;
 }
 
 bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
+  // if (!checkAuth()) return false;
+
   String apiUrlBase = Config::getApiUrl();
   String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/address";
 
@@ -116,11 +119,7 @@ bool ApiClass::publishAddress(const char *country, const char *city, const char 
   String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
   Logger::debug(debugText.c_str());
 
-  if (response.code == 200) {
-    return true;
-  } else {
-    return false;
-  }
+  return response.code == 200;
 }
 
 bool ApiClass::registerStation() {
@@ -128,13 +127,13 @@ bool ApiClass::registerStation() {
   this->accessTokenMillis = 0;
   if (Config::getRegistratonToken().equals("")) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    Logger::debug("Registration fail - no registration token");
+    Logger::debug("[ApiClass::registerStation()] Registration fail - no registration token");
     return false;
   }
 
   if (!Internet::isConnected()) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    Logger::debug("Registration fail - no internet connection");
+    Logger::debug("[ApiClass::registerStation()] Registration fail - no internet connection");
     return false;
   }
   Config::setRegistrationState(Config::RegistrationState::REGISTERING);
@@ -152,7 +151,10 @@ bool ApiClass::registerStation() {
 
   Http::Response response = Internet::httpPost(url, body);
 
-  String debugText = String("Registraton response code: ") + response.code + " payload: " + response.payload;
+  String debugText = String("[ApiClass::registerStation()] Registraton response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
   Logger::debug(debugText.c_str());
 
   if (response.code != 201) {
@@ -168,6 +170,7 @@ bool ApiClass::registerStation() {
   Config::setRefreshToken(String(refreshToken));
 
   if (!updateAccessToken()) {
+    Logger::debug("[ApiClass::registerStation()] Unable to update token");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
@@ -175,34 +178,98 @@ bool ApiClass::registerStation() {
   String name = Config::getStationName();
   if (!name.equals("")) {
     if (!publishName(name.c_str())) {
+      Logger::debug("[ApiClass::registerStation()] Unable to set station name");
       Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
       return false;
     }
   }
-  publishAddress(Config::getAddressCountry().c_str(), Config::getAddressCity().c_str(),
-                 Config::getAddressStreet().c_str(), Config::getAddressNumber().c_str());
+
+  bool actionResult = true;
+  actionResult = publishAddress(
+    Config::getAddressCountry().c_str(), 
+    Config::getAddressCity().c_str(),
+    Config::getAddressStreet().c_str(), 
+    Config::getAddressNumber().c_str()
+  );
+
+  if (!actionResult) {
+    Logger::debug("[ApiClass::registerStation()] Unable to set address");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Set station address");
+  }
+
+  actionResult = publishLocation(
+    Config::getLocationLatitude().toDouble(),
+    Config::getLocationLongitude().toDouble()
+  );
+
+  if (!actionResult) {
+    Logger::debug("[ApiClass::registerStation()] Unable to set location");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Set station location");
+  }
 
   if (!registerSensor("temperature")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register remperature sensor");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered remperature sensor");
+  }
+  
   if (!registerSensor("humidity")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register humidity sensor");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
-  if (!registerSensor("pm1")) {
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered humidity sensor");
+  }
+  
+  if (!registerSensor("pressure")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pressure sensor");
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     return false;
   }
-  if (!registerSensor("pm2_5")) {
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    return false;
-  }
-  if (!registerSensor("pm10")) {
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    return false;
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pressure sensor");
   }
 
+  if (!registerSensor("pm1")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pm1 sensor");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pm1 sensor");
+  }
+
+  if (!registerSensor("pm2_5")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pm2_5 sensor");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pm2_5 sensor");
+  }
+
+  if (!registerSensor("pm10")) {
+    Logger::debug("[ApiClass::registerStation()] Unable to register pm10 sensor");
+    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
+    return false;
+  }
+  else {
+    Logger::info("[ApiClass::registerStation()] Registered pm10 sensor");
+  }
+
+  Logger::info("[ApiClass::registerStation()] Registered successfull.");
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
   Config::save();
   return true;
@@ -213,41 +280,41 @@ bool ApiClass::isRegistered() {
 }
 
 bool ApiClass::publishMeasurement(String sensor, double value) {
-  if (this->isRegistered() && this->updateAccessToken()) {
-    String apiUrlBase = Config::getApiUrl();
-    String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
-
-    const size_t capacity = JSON_OBJECT_SIZE(1);
-    DynamicJsonDocument doc(capacity);
-    Logger::debug(String(value).c_str());
-    doc["value"] = value;
-    String body = "";
-    serializeJson(doc, body);
-
-    Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
-
-    String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;
-    Logger::debug(debugText.c_str());
-
-    if (response.code == 200) {
-      return true;
-    } else {
-      return false;
-    }
+  if (!checkAuth()) {
+    Logger::debug("[ApiClass::publishMeasurement()] Authorization failed, unable to send data");
+    return false;
   }
-  return false;
+
+  String apiUrlBase = Config::getApiUrl();
+  String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
+
+  const size_t capacity = JSON_OBJECT_SIZE(1);
+  DynamicJsonDocument doc(capacity);
+  Logger::debug(String(value).c_str());
+  doc["value"] = value;
+  String body = "";
+  serializeJson(doc, body);
+
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
+
+  String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 200;
 }
 
 void ApiClass::configUpdated() {
-  Internet::stop();
-  Internet::start();
-
+  Logger::debug("[API::configUpdated] Config updated!");
   if (!this->isRegistered()) {
     this->registerStation();
     Config::save();
   } else {
-    Logger::debug("Already registered");
+    Logger::debug("[API::configUpdated] Already registered");
   }
+}
+
+bool ApiClass::checkAuth() {
+  return isRegistered() && updateAccessToken();
 }
 
 ApiClass Api;

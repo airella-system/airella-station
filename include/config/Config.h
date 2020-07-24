@@ -29,6 +29,10 @@ class Config {
   static String getAddressCity(bool lock = true);
   static String getAddressStreet(bool lock = true);
   static String getAddressNumber(bool lock = true);
+  static String getLocationLatitude(bool lock = true);
+  static String getLocationLongitude(bool lock = true);
+  static bool getLocationManual(bool lock = true);
+
   static RegistrationState getRegistrationState(bool lock = true);
 
   static void setDevicePassword(String devicePassword, bool lock = true);
@@ -45,9 +49,12 @@ class Config {
   static void setAddressStreet(String street, bool lock = true);
   static void setAddressNumber(String number, bool lock = true);
   static void setRegistrationState(RegistrationState registrationState, bool lock = true);
+  static void setLocationLatitude(String latitude, bool lock = true);
+  static void setLocationLongitude(String longitude, bool lock = true);
+  static void setLocationManual(bool manual, bool lock = true);
 
- private:
   static Preferences preferences;
+ private:
   static SemaphoreHandle_t mux;
 
   static void lock();
@@ -66,5 +73,9 @@ class Config {
   static String addressCity;
   static String addressStreet;
   static String addressNumber;
+  static String locationLatitude;
+  static String locationLongitude;
+  static bool locationManual;
+
   static RegistrationState registrationState;
 };

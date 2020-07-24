@@ -18,6 +18,7 @@ class ApiClass {
  private:
   bool updateAccessToken();
   bool registerSensor(const char *type);
+  bool checkAuth();
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;

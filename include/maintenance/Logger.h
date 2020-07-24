@@ -7,6 +7,8 @@ class Logger {
   static void log(const char *type, const String *message);
 
  public:
+  static HardwareSerial serial;
+  static void setUp();
   static void info(const char *message);
   static void warning(const char *message);
   static void error(const char *message);

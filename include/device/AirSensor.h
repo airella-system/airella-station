@@ -44,7 +44,9 @@ class AirSensor : public Sensor {
   ~AirSensor();
   void powerOn();
   void powerOff();
+  void calibrate();
   void measurement();
+  void singleMeasurement(bool logging /* = true */);
   AirSensorMeasurement getMeasurementData() const;
   uint16_t getPM1() const;
   uint16_t getPM2_5() const;
@@ -63,15 +65,13 @@ class AirSensor : public Sensor {
 
  private:
   bool isPowerOn;
-  HardwareSerial serial = NULL;
+  HardwareSerial serial;
   AirSensorBuffer sensorBuffer;
   AirSensorConfig config;
   bool dataReady;
   unsigned char lastByte;
   unsigned char nextByte;
   int bufferIndex;
-  unsigned char powerPin;
-  unsigned char ledPin;
 
   void updateBuffer();
   void convertSensorData();

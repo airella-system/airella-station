@@ -1,12 +1,11 @@
 #include "device/AirSensor.h"
 
-AirSensor::AirSensor() : serial(config.serialNumber) {
+AirSensor::AirSensor() : serial(AirSensorConfig::serialNumber) {
   Logger::info("[AirSensor] Initalizing ...");
   isPowerOn = false;
   dataReady = false;
   lastByte = 0;
   nextByte = 0;
-  powerPin = 0;
   bufferIndex = 0;
 
   pinMode(config.powerPin, OUTPUT);
@@ -23,12 +22,21 @@ AirSensor::~AirSensor() {
 
 void AirSensor::powerOn() {
   Logger::info("[AirSensor] Air sensor power ON.");
-  digitalWrite(powerPin, HIGH);
+  digitalWrite(config.powerPin, HIGH);
 }
 
 void AirSensor::powerOff() {
   Logger::info("[AirSensor] Air sensor power OFF.");
-  digitalWrite(powerPin, LOW);
+  digitalWrite(config.powerPin, LOW);
+}
+
+void AirSensor::calibrate() {
+  Logger::info("[AirSensor] Start calibrate.");
+  for(int i = 0; i < 10; i++) {
+    singleMeasurement(false);
+    delay(200);
+  }
+  Logger::info("[AirSensor] End calibrate.");
 }
 
 AirSensorMeasurement AirSensor::getMeasurementData() const {
@@ -37,6 +45,58 @@ AirSensorMeasurement AirSensor::getMeasurementData() const {
 
 void AirSensor::measurement() {
   Logger::info("[AirSensor] New measurement.");
+  int measurementCount = 5;
+  AirSensorMeasurement lastMeasutement;
+  AirSensorMeasurement measutementAvg;
+
+  measutementAvg = getMeasurementData();
+  for(int i = 0; i < measurementCount; i++) {
+    singleMeasurement(false);
+    if(i == 0) {
+      measutementAvg = getMeasurementData();
+    }
+    lastMeasutement = getMeasurementData();
+    measutementAvg.pm1 += lastMeasutement.pm1;
+    measutementAvg.pm2_5 += lastMeasutement.pm2_5;
+    measutementAvg.pm10 += lastMeasutement.pm10;
+    measutementAvg.pm_1_0_atmos += lastMeasutement.pm_1_0_atmos;
+    measutementAvg.pm_2_5_atmos += lastMeasutement.pm_2_5_atmos;
+    measutementAvg.pm_10_0_atmos += lastMeasutement.pm_10_0_atmos;
+    measutementAvg.raw_gt_0_3 += lastMeasutement.raw_gt_0_3;
+    measutementAvg.raw_gt_0_5 += lastMeasutement.raw_gt_0_5;
+    measutementAvg.raw_gt_1_0 += lastMeasutement.raw_gt_1_0;
+    measutementAvg.raw_gt_2_5 += lastMeasutement.raw_gt_2_5;
+    measutementAvg.raw_gt_5_0 += lastMeasutement.raw_gt_5_0;
+    measutementAvg.raw_gt_10_0 += lastMeasutement.raw_gt_10_0;
+
+    if(lastMeasutement.error_code > 0) {
+      measutementAvg.error_code = lastMeasutement.error_code;
+    }
+  }
+
+  measutementAvg.pm1 /= measurementCount;
+  measutementAvg.pm2_5 /= measurementCount;
+  measutementAvg.pm10 /= measurementCount;
+  measutementAvg.pm_1_0_atmos /= measurementCount;
+  measutementAvg.pm_2_5_atmos /= measurementCount;
+  measutementAvg.pm_10_0_atmos /= measurementCount;
+  measutementAvg.raw_gt_0_3 /= measurementCount;
+  measutementAvg.raw_gt_0_5 /= measurementCount;
+  measutementAvg.raw_gt_1_0 /= measurementCount;
+  measutementAvg.raw_gt_2_5 /= measurementCount;
+  measutementAvg.raw_gt_5_0 /= measurementCount;
+  measutementAvg.raw_gt_10_0 /= measurementCount;
+
+  uint16_t sum = 0;
+  for (int i = 0; i < (AIR_SENSOR_DATA_SIZE - 2); i++) {
+    sum += sensorBuffer.bytes[i];
+  }
+  measutementAvg.checksum = sum;
+  sensorBuffer.values = measutementAvg;
+}
+
+void AirSensor::singleMeasurement(bool logging = true) {
+  if(logging) Logger::info("[AirSensor] New single measurement.");
   for (int i = 0; i < AIR_SENSOR_DATA_SIZE; i++) {
     updateBuffer();
   }

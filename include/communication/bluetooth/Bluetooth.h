@@ -6,6 +6,7 @@
 #include <BLEUtils.h>
 
 #include "BluetoothHandler.h"
+#include "communication/common/Internet.h"
 
 #define SERVICE_UUID "f1eb6601-af50-4cf3-9f6e-4e1c6fb8e88c"
 
@@ -36,6 +37,11 @@
 #define STATION_STREET_CHARACTERISTIC_UUID "171a79f2-3f0b-4a21-9d6c-12dd318d1582"
 #define STATION_NUMBER_CHARACTERISTIC_UUID "1ed02261-8571-45d9-9cdf-7092b2a315e8"
 
+// GPS Location
+#define LOCATION_LATITUDE_CHARACTERISTIC_UUID "394bf3e9-df5d-4765-9a47-e1fd722ae0cb"
+#define LOCATION_LONGITUDE_CHARACTERISTIC_UUID "cca719aa-7cf0-45f2-b2b6-dba82e0d62ab"
+#define LOCATION_MANUALLY_CHARACTERISTIC_UUID "54ef86d9-e6b5-42ba-a4a2-518f93350eb2"
+
 // Device state - determines if all sensors are working
 #define DEVICE_STATE_CHARACTERISTIC_UUID "f363fc8f-92dd-4e0b-ae26-90e3e17e6560"
 
@@ -56,6 +62,8 @@ class Bluetooth {
   static void start(BluetoothHandler *bluetoothHandler);
   static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
+  static String getLastOperationStatus();
+  static void setLastOperationStatus(String operationStatus);
 
  private:
   static BLECharacteristic *stationNameCharacteristic;
@@ -63,6 +71,9 @@ class Bluetooth {
   static BLECharacteristic *stationCityCharacteristic;
   static BLECharacteristic *stationStreetCharacteristic;
   static BLECharacteristic *stationNumberCharacteristic;
+  static BLECharacteristic *latitudeCharacteristic;
+  static BLECharacteristic *longitudeCharacteristic;
+  static BLECharacteristic *locationManualCharacteristic;
 
   static BLECharacteristic *devPasswordCharacteristic;
   static BLECharacteristic *inetConnTypeCharacteristic;
@@ -75,4 +86,6 @@ class Bluetooth {
   static BLECharacteristic *connStateCharacteristic;
   static BLECharacteristic *refreshDeviceCharacteristic;
   static BLECharacteristic *clearDataCharacteristic;
+
+  static String lastOperatioinState;
 };
