@@ -3,11 +3,10 @@
 #include <DallasTemperature.h>
 #include <analogWrite.h>
 #include "device/Sensor.h"
+#include "device/WeatherSensor.h"
 
-#define U1TX 13
-#define OW1 15
-#define HEATER_ON 25
 #define ONE_WIRE_MAX_DEV 2
+#define CALCULATE_DEWPOIN 1
 
 struct HeaterStatus {
   bool heaterIsOn;
@@ -16,15 +15,19 @@ struct HeaterStatus {
 
 class Heater : public Sensor {
 public:
-  Heater();
+  Heater(WeatherSensor &_weatherSensor);
   ~Heater();
   void on();
   void off();
   void run();
   void stop();
   float getTemperature();
+  float getHumidity();
+  float dewPoint(float humidity, float temperature) const;
   HeaterStatus getHeaterState() const;
   HeaterStatus heaterStatus;
+  const float temperatureTrashold = 3;
+  const float temperatureLevel = 0;
 
 private:
   HeaterConfig config;
@@ -33,8 +36,11 @@ private:
   int numberOfDevices;
   OneWire communicationBus;
   DallasTemperature thermometer;
-  String deviceAddressToString(DeviceAddress deviceAddress);
   TaskHandle_t termoThreadHandler;
+  WeatherSensor weatherSensor;
+  String deviceAddressToString(DeviceAddress deviceAddress) const;
+  bool shouldTurnOn() const;
+  bool shouldTurnOff() const;
 
   static void threadFunction(void * pvParameters);
 

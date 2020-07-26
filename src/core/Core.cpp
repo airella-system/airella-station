@@ -6,7 +6,6 @@ Core::Core() {
   Logger::setUp();
   Logger::info("[Core]: Iniatlizing...");
   // powerSensor = new PowerSensor();
-  // heater = new Heater();
   // storage = new Storage();
 
   Logger::info("[Core]: Iniatlized OK");
@@ -38,6 +37,7 @@ void Core::setUp() {
   airSensor->powerOn();
   airSensor->calibrate();
   weatherSensor = new WeatherSensor();
+  heater = new Heater(*weatherSensor);
 
   #ifdef STATIC_CONFIG
   Api.configUpdated();
@@ -58,7 +58,7 @@ void Core::main() {
   }
   
   while(true) {
-    if ((millis() - lastPublishMillis) > 10000) {
+    if (abs(millis() - lastPublishMillis) > 10000) {
       Logger::info("[Core]: Start measurement");
 
       Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
