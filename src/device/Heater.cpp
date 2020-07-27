@@ -17,17 +17,19 @@ Heater::Heater(WeatherSensor &_weatherSensor)
 
   thermometer = DallasTemperature(&communicationBus);
   thermometer.begin();
+  delay(2000);
+  thermometer.begin();
+  delay(1000);
 
-  Logger::info("[Heater] Parasite power is: ");
   if (thermometer.isParasitePowerMode()) {
     Logger::info("[Heater] Parasite power is: ON");
   } else {
     Logger::info("[Heater] Parasite power is: OFF");
   }
 
+  thermometer.requestTemperatures();
   numberOfDevices = thermometer.getDeviceCount();
   Logger::info("[Heater] Number of device: " + numberOfDevices);
-
   thermometer.requestTemperatures();
 
   for (int i = 0; i < numberOfDevices; i++) {
@@ -57,7 +59,13 @@ Heater::~Heater() {
 
 void Heater::on() {
   heaterStatus.heaterIsOn = true;
-  analogWrite(config.analogPin, 10);
+  analogWrite(config.analogPin, 50);
+  Logger::info("Heater is ON");
+}
+
+void Heater::setPower(int power) {
+  heaterStatus.heaterIsOn = true;
+  analogWrite(config.analogPin, power);
   Logger::info("Heater is ON");
 }
 
@@ -70,12 +78,12 @@ void Heater::off() {
 void Heater::run() {
   heaterStatus.threadIsRunning = true;
   // xTaskCreatePinnedToCore(TaskFunction_t, Name, StackSize, void *pvParameters, Priority, TaskHandle_t, xCoreID)
-  xTaskCreatePinnedToCore(threadFunction, "termoThread", 10000, this, 1, &termoThreadHandler, 1);
+  xTaskCreatePinnedToCore(this->threadFunction, "termoThread", 10000, this, 1, &termoThreadHandler, 1);
   Logger::info("[Heater] run heater thread");
 }
 
 #ifdef CALCULATE_DEWPOIN
-void threadFunction(void *pvParameters) {
+void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned long lastTimestamp = millis();
   unsigned int interval = 1000 * 10; // 10s
@@ -107,32 +115,38 @@ void threadFunction(void *pvParameters) {
   }
 }
 #else
-void threadFunction(void *pvParameters) {
+void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned long lastTimestamp = millis();
   unsigned int interval = 1000 * 10; // 10s
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
+  float currentTemperature = 0;
 
   while (true) {
     if (abs(millis() - lastTimestamp) > interval) {
       lastTimestamp = millis();
+      currentTemperature = heater->getTemperature();
 
-      float currentTemperature = heater->getTemperature();
       if (!heaterIsOn && currentTemperature < heater->temperatureLevel &&
           abs(currentTemperature - heater->temperatureLevel) > heater->temperatureTrashold) {
         heater->on();
         heaterIsOn = true;
-        heater->heaterStatus.heaterIsOn = heaterIsOn;
       }
       if (heaterIsOn && currentTemperature > heater->temperatureLevel &&
           abs(currentTemperature - heater->temperatureLevel) > heater->temperatureTrashold) {
         heater->off();
         heaterIsOn = false;
-        heater->heaterStatus.heaterIsOn = heaterIsOn;
       }
     } else {
       delay(interval/2);
     }
+
+    String tmp = "CT: ";
+    tmp += currentTemperature;
+    tmp += " state: ";
+    tmp += heaterIsOn;
+    Logger::debug(&tmp);
+
   }
 }
 #endif
@@ -144,13 +158,12 @@ void Heater::stop() {
 }
 
 float Heater::getTemperature() {
-  thermometer.setWaitForConversion(false);
-  thermometer.requestTemperatures();
-
   for (int i = 0; i < numberOfDevices; i++) {
     temperatureDevice[i] = thermometer.getTempC(deviceAddress[i]);
   }
 
+  thermometer.setWaitForConversion(false);
+  thermometer.requestTemperatures();
   return temperatureDevice[0];
 }
 
@@ -173,5 +186,12 @@ float Heater::getHumidity() {
 
 float Heater::dewPoint(float humidity, float temperature) const {
   return 243.04 * (log(humidity / 100.0) + ((17.625 * temperature) / (243.04 + temperature))) 
-         / (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)))
+         / (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)));
+}
+
+int Heater::clalculatePower(float temperature) const {
+  // temperatureLevel;
+  
+  // return 255 * (1 - temperature)
+  return 0;
 }

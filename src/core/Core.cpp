@@ -33,11 +33,12 @@ void Core::setUp() {
   Internet::setType(Internet::WIFI);
   Internet::start();
 
-  airSensor = new AirSensor();
-  airSensor->powerOn();
-  airSensor->calibrate();
+  // airSensor = new AirSensor();
+  // airSensor->powerOn();
+  // airSensor->calibrate();
   weatherSensor = new WeatherSensor();
   heater = new Heater(*weatherSensor);
+  heater->run();
 
   #ifdef STATIC_CONFIG
   Api.configUpdated();
@@ -47,9 +48,16 @@ void Core::setUp() {
   #endif
 
   Logger::info("[Core]: Setting up ended");
+
+  String tmp = "TEMP: ";
+  tmp += weatherSensor->getTemperature();
+  Logger::debug(&tmp);
 }
 
 void Core::main() {
+  
+  while(true) delay(1000);
+
   if(!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");
     while(!Api.isRegistered()) {

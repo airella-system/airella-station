@@ -6,7 +6,7 @@
 #include "device/WeatherSensor.h"
 
 #define ONE_WIRE_MAX_DEV 2
-#define CALCULATE_DEWPOIN 1
+// #define CALCULATE_DEWPOIN true
 
 struct HeaterStatus {
   bool heaterIsOn;
@@ -18,6 +18,7 @@ public:
   Heater(WeatherSensor &_weatherSensor);
   ~Heater();
   void on();
+  void setPower(int power);
   void off();
   void run();
   void stop();
@@ -26,8 +27,8 @@ public:
   float dewPoint(float humidity, float temperature) const;
   HeaterStatus getHeaterState() const;
   HeaterStatus heaterStatus;
-  const float temperatureTrashold = 3;
-  const float temperatureLevel = 0;
+  const float temperatureTrashold = 1;
+  const float temperatureLevel = 30;
 
 private:
   HeaterConfig config;
@@ -41,6 +42,7 @@ private:
   String deviceAddressToString(DeviceAddress deviceAddress) const;
   bool shouldTurnOn() const;
   bool shouldTurnOff() const;
+  int clalculatePower(float temperature) const;
 
   static void threadFunction(void * pvParameters);
 
