@@ -60,7 +60,7 @@ Heater::~Heater() {
 void Heater::on() {
   heaterStatus.heaterIsOn = true;
   analogWrite(config.analogPin, 50);
-  Logger::info("Heater is ON");
+  Logger::info("[Heater::on()] Heater is ON");
 }
 
 void Heater::setPower(int power) {
@@ -72,7 +72,7 @@ void Heater::setPower(int power) {
 void Heater::off() {
   heaterStatus.heaterIsOn = false;
   analogWrite(config.analogPin, 0);
-  Logger::info("Heater is OFF");
+  Logger::info("[Heater::off()] Heater is OFF");
 }
 
 void Heater::run() {
@@ -97,20 +97,23 @@ void Heater::threadFunction(void *pvParameters) {
       float humidity = heater->getHumidity();
       float dewPoint = heater->dewPoint(humidity, temperature);
       float temperatureLevel = dewPoint + 5;
+      int maxPower = 255;
 
-      if (!heaterIsOn && temperature < temperatureLevel) {
-        heater->on();
+      // if temperature is lower more than 2 degree than expected temperature => full power
+      if (!heaterIsOn && temperature < temperatureLevel - 0.5 ) {
+        heater->setPower(maxPower);
         heaterIsOn = true;
-        heater->heaterStatus.heaterIsOn = heaterIsOn;
       }
-      if (heaterIsOn && temperature > temperatureLevel &&
-          abs(temperature - temperatureLevel) > heater->temperatureTrashold) {
+      else if(heaterIsOn && abs(temperatureLevel - temperature) <= 0.5) {
+        int power = 255 * (temperatureLevel + 0.5 - temperature);
+        heater->setPower(power);
+      }
+      else if (heaterIsOn && temperature > temperatureLevel + 0.5) {
         heater->off();
         heaterIsOn = false;
-        heater->heaterStatus.heaterIsOn = heaterIsOn;
       }
     } else {
-      delay(interval/2);
+      delay(2);
     }
   }
 }

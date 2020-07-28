@@ -6,7 +6,7 @@
 #include "device/WeatherSensor.h"
 
 #define ONE_WIRE_MAX_DEV 2
-// #define CALCULATE_DEWPOIN true
+#define CALCULATE_DEWPOIN true
 
 struct HeaterStatus {
   bool heaterIsOn;
