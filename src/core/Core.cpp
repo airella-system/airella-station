@@ -1,6 +1,7 @@
 #include "core/Core.h"
 
 // #define STATIC_CONFIG
+// #define STOP_MAIN_LOOP
 
 Core::Core() {
   Logger::setUp();
@@ -33,9 +34,9 @@ void Core::setUp() {
   Internet::setType(Internet::WIFI);
   Internet::start();
 
-  // airSensor = new AirSensor();
-  // airSensor->powerOn();
-  // airSensor->calibrate();
+  airSensor = new AirSensor();
+  airSensor->powerOn();
+  airSensor->calibrate();
   weatherSensor = new WeatherSensor();
   heater = new Heater(*weatherSensor);
   heater->run();
@@ -48,15 +49,13 @@ void Core::setUp() {
   #endif
 
   Logger::info("[Core]: Setting up ended");
-
-  String tmp = "TEMP: ";
-  tmp += weatherSensor->getTemperature();
-  Logger::debug(&tmp);
 }
 
 void Core::main() {
   
+#ifdef STOP_MAIN_LOOP
   while(true) delay(1000);
+#endif
 
   if(!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");

@@ -59,14 +59,15 @@ Heater::~Heater() {
 
 void Heater::on() {
   heaterStatus.heaterIsOn = true;
+  currentPower = 50;
   analogWrite(config.analogPin, 50);
   Logger::info("[Heater::on()] Heater is ON");
 }
 
 void Heater::setPower(int power) {
   heaterStatus.heaterIsOn = true;
+  currentPower = power;
   analogWrite(config.analogPin, power);
-  Logger::info("Heater is ON");
 }
 
 void Heater::off() {
@@ -86,8 +87,10 @@ void Heater::run() {
 void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned long lastTimestamp = millis();
-  unsigned int interval = 1000 * 10; // 10s
+  unsigned int intervalMax = 1000 * 10; // 10s
+  unsigned int interval = intervalMax;
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
+  int counter = 0;
 
   while (true) {
     if (abs(millis() - lastTimestamp) > interval) {
@@ -97,23 +100,43 @@ void Heater::threadFunction(void *pvParameters) {
       float humidity = heater->getHumidity();
       float dewPoint = heater->dewPoint(humidity, temperature);
       float temperatureLevel = dewPoint + 5;
-      int maxPower = 255;
 
-      // if temperature is lower more than 2 degree than expected temperature => full power
       if (!heaterIsOn && temperature < temperatureLevel - 0.5 ) {
-        heater->setPower(maxPower);
+        heater->setPower(MAX_POWER);
         heaterIsOn = true;
+        Logger::info("[Heater] Power is ON");
+        interval = intervalMax;
       }
       else if(heaterIsOn && abs(temperatureLevel - temperature) <= 0.5) {
-        int power = 255 * (temperatureLevel + 0.5 - temperature);
+        int power = MAX_POWER * (temperatureLevel + 0.5 - temperature);
         heater->setPower(power);
+        interval = intervalMax / 5;
       }
       else if (heaterIsOn && temperature > temperatureLevel + 0.5) {
         heater->off();
         heaterIsOn = false;
+        interval = intervalMax;
       }
+
+      counter++;
+      if(counter % 10 == 0) {
+        String message = "[Heater]: ";
+        message += "T: ";
+        message += temperature;
+        message += ", H: ";
+        message += humidity;
+        message += ", Dp: ";
+        message += dewPoint;
+        message += ", P: ";
+        message += heater->getCurrentPower();
+        message += ", state: ";
+        message += heaterIsOn;
+        Logger::debug(&message);
+        counter = 1;
+      }
+
     } else {
-      delay(2);
+      delay(interval);
     }
   }
 }
@@ -124,6 +147,7 @@ void Heater::threadFunction(void *pvParameters) {
   unsigned int interval = 1000 * 10; // 10s
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
   float currentTemperature = 0;
+  int counter = 0;
 
   while (true) {
     if (abs(millis() - lastTimestamp) > interval) {
@@ -144,12 +168,18 @@ void Heater::threadFunction(void *pvParameters) {
       delay(interval/2);
     }
 
-    String tmp = "CT: ";
-    tmp += currentTemperature;
-    tmp += " state: ";
-    tmp += heaterIsOn;
-    Logger::debug(&tmp);
-
+    counter++;
+    if(counter % 10 == 0) {
+      String message = "[Heater]: ";
+      message += "T: ";
+      message += heater->getTemperature();
+      message += ", Tc: ";
+      message += currentTemperature;
+      message += ", state: ";
+      message += heaterIsOn;
+      Logger::debug(&message);
+      counter = 1;
+    }
   }
 }
 #endif
@@ -161,12 +191,11 @@ void Heater::stop() {
 }
 
 float Heater::getTemperature() {
+  thermometer.requestTemperatures();
   for (int i = 0; i < numberOfDevices; i++) {
     temperatureDevice[i] = thermometer.getTempC(deviceAddress[i]);
   }
 
-  thermometer.setWaitForConversion(false);
-  thermometer.requestTemperatures();
   return temperatureDevice[0];
 }
 
@@ -192,9 +221,6 @@ float Heater::dewPoint(float humidity, float temperature) const {
          / (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)));
 }
 
-int Heater::clalculatePower(float temperature) const {
-  // temperatureLevel;
-  
-  // return 255 * (1 - temperature)
-  return 0;
+unsigned int Heater::getCurrentPower() const {
+  return currentPower;
 }
