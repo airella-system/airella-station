@@ -1,12 +1,12 @@
 #include "core/Core.h"
 
 // #define STATIC_CONFIG
+// #define STOP_MAIN_LOOP
 
 Core::Core() {
   Logger::setUp();
   Logger::info("[Core]: Iniatlizing...");
   // powerSensor = new PowerSensor();
-  // heater = new Heater();
   // storage = new Storage();
 
   Logger::info("[Core]: Iniatlized OK");
@@ -38,6 +38,8 @@ void Core::setUp() {
   airSensor->powerOn();
   airSensor->calibrate();
   weatherSensor = new WeatherSensor();
+  heater = new Heater(*weatherSensor);
+  heater->run();
 
   #ifdef STATIC_CONFIG
   Api.configUpdated();
@@ -50,6 +52,11 @@ void Core::setUp() {
 }
 
 void Core::main() {
+  
+#ifdef STOP_MAIN_LOOP
+  while(true) delay(1000);
+#endif
+
   if(!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");
     while(!Api.isRegistered()) {
@@ -58,7 +65,7 @@ void Core::main() {
   }
   
   while(true) {
-    if ((millis() - lastPublishMillis) > 10000) {
+    if (abs(millis() - lastPublishMillis) > 10000) {
       Logger::info("[Core]: Start measurement");
 
       Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
