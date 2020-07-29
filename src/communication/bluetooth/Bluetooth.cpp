@@ -2,7 +2,7 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 
-// #define BT_AUTH_ENABLE 1
+#define BT_AUTH_ENABLE 1
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 

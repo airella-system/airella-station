@@ -1,7 +1,14 @@
 #include "device/Heater.h"
 
-Heater::Heater() : communicationBus(config.oneWirePin) {
+Heater::Heater(WeatherSensor &_weatherSensor) 
+  : communicationBus(config.oneWirePin), weatherSensor(_weatherSensor) {
   Logger::info("[Heater] Initalizing ...");
+  
+  if(!weatherSensor.isInit()) {
+    Logger::error("[Heater] Weather sensor is uninitialized or null.");
+    return;
+  }
+
   String message;
   analogWriteFrequency(config.analogPin, 1000);
   analogWrite(config.analogPin, 0);
@@ -9,24 +16,31 @@ Heater::Heater() : communicationBus(config.oneWirePin) {
   heaterStatus.threadIsRunning = false;
 
   thermometer = DallasTemperature(&communicationBus);
+  /*
+  * This section is a little strange, but i haven't idea why this does not work with single begin
+  * TODO: debug this and correct
+  */
   thermometer.begin();
+  delay(2000);
+  thermometer.begin();
+  delay(1000);
 
-  Logger::info("[Heater] Parasite power is: ");
   if (thermometer.isParasitePowerMode()) {
     Logger::info("[Heater] Parasite power is: ON");
   } else {
     Logger::info("[Heater] Parasite power is: OFF");
   }
 
+  thermometer.requestTemperatures();
   numberOfDevices = thermometer.getDeviceCount();
   Logger::info("[Heater] Number of device: " + numberOfDevices);
-
   thermometer.requestTemperatures();
 
   for (int i = 0; i < numberOfDevices; i++) {
     if (thermometer.getAddress(deviceAddress[i], i)) {
       message = "[Heater] Found device " + i;
-      message += " with address: " + deviceAddressToString(deviceAddress[i]);
+      message += " with address: ";
+      message += deviceAddressToString(deviceAddress[i]);
       Logger::info(&message);
     } else {
       message = "[Heater] Found ghost device at " + i;
@@ -49,65 +63,130 @@ Heater::~Heater() {
 
 void Heater::on() {
   heaterStatus.heaterIsOn = true;
-  analogWrite(config.analogPin, 10);
-  Logger::info("Heater is ON");
+  currentPower = 50;
+  analogWrite(config.analogPin, 50);
+  Logger::info("[Heater::on()] Heater is ON");
+}
+
+void Heater::setPower(int power) {
+  heaterStatus.heaterIsOn = true;
+  currentPower = power;
+  analogWrite(config.analogPin, power);
 }
 
 void Heater::off() {
   heaterStatus.heaterIsOn = false;
   analogWrite(config.analogPin, 0);
-  Logger::info("Heater is OFF");
+  Logger::info("[Heater::off()] Heater is OFF");
 }
 
 void Heater::run() {
   heaterStatus.threadIsRunning = true;
   // xTaskCreatePinnedToCore(TaskFunction_t, Name, StackSize, void *pvParameters, Priority, TaskHandle_t, xCoreID)
-  xTaskCreatePinnedToCore(threadFunction, "termoThread", 10000, this, 1, &termoThreadHandler, 1);
+  xTaskCreatePinnedToCore(this->threadFunction, "termoThread", 10000, this, 1, &termoThreadHandler, 1);
   Logger::info("[Heater] run heater thread");
 }
 
-void threadFunction(void *pvParameters) {
+#ifdef CALCULATE_DEWPOINT
+void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned long lastTimestamp = millis();
-  unsigned int interval = 10000;
-  unsigned int delayInterval = 100;
-  unsigned int resetArterFails = 5;
-  unsigned int failsTolerantCount = interval / delayInterval * resetArterFails;  // reset after overflow
-  unsigned int possibleFails = failsTolerantCount;
-
+  unsigned int intervalMax = 1000 * 10; // 10s
+  unsigned int interval = intervalMax;
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
-  float lastTemperature = heater->getTemperature();
-  float temperatureTrashold = 3;
-  float temperatureLowerLimit = 0;
+  int counter = 0;
 
   while (true) {
-    if (millis() - lastTimestamp > interval) {
-      possibleFails = failsTolerantCount;
+    if (abs(millis() - lastTimestamp) > interval) {
       lastTimestamp = millis();
 
-      float currentTemperature = heater->getTemperature();
-      if (!heaterIsOn && currentTemperature < temperatureLowerLimit &&
-          abs(currentTemperature - temperatureLowerLimit) > temperatureTrashold) {
-        heater->on();
+      float temperature = heater->getTemperature();
+      float humidity = heater->getHumidity();
+      float dewPoint = heater->calculateDewPoint(humidity, temperature);
+      float temperatureLevel = dewPoint + 5;
+
+      if (!heaterIsOn && temperature < temperatureLevel - 0.5 ) {
+        heater->setPower(MAX_POWER);
         heaterIsOn = true;
-        heater->heaterStatus.heaterIsOn = heaterIsOn;
+        Logger::info("[Heater] Power is ON");
+        interval = intervalMax;
       }
-      if (heaterIsOn && currentTemperature > temperatureLowerLimit &&
-          abs(currentTemperature - temperatureLowerLimit) > temperatureTrashold) {
+      else if(heaterIsOn && abs(temperatureLevel - temperature) <= 0.5) {
+        int power = MAX_POWER * (temperatureLevel + 0.5 - temperature);
+        heater->setPower(power);
+        interval = intervalMax / 5;
+      }
+      else if (heaterIsOn && temperature > temperatureLevel + 0.5) {
         heater->off();
         heaterIsOn = false;
-        heater->heaterStatus.heaterIsOn = heaterIsOn;
+        interval = intervalMax;
       }
+
+      counter++;
+      if(counter % 10 == 0) {
+        String message = "[Heater]: ";
+        message += "T: ";
+        message += temperature;
+        message += ", H: ";
+        message += humidity;
+        message += ", Dp: ";
+        message += dewPoint;
+        message += ", P: ";
+        message += heater->getCurrentPower();
+        message += ", state: ";
+        message += heaterIsOn;
+        Logger::debug(&message);
+        counter = 1;
+      }
+
     } else {
-      possibleFails--;
-      if (possibleFails < 1) {
-        possibleFails = failsTolerantCount;
-        lastTimestamp = millis();
-      }
-      delay(delayInterval);
+      delay(interval);
     }
   }
 }
+#else
+void Heater::threadFunction(void *pvParameters) {
+  Heater *heater = (Heater *)pvParameters;
+  unsigned long lastTimestamp = millis();
+  unsigned int interval = 1000 * 10; // 10s
+  bool heaterIsOn = heater->getHeaterState().heaterIsOn;
+  float currentTemperature = 0;
+  int counter = 0;
+
+  while (true) {
+    if (abs(millis() - lastTimestamp) > interval) {
+      lastTimestamp = millis();
+      currentTemperature = heater->getTemperature();
+
+      if (!heaterIsOn && currentTemperature < heater->temperatureLevel &&
+          abs(currentTemperature - heater->temperatureLevel) > heater->temperatureTrashold) {
+        heater->on();
+        heaterIsOn = true;
+      }
+      if (heaterIsOn && currentTemperature > heater->temperatureLevel &&
+          abs(currentTemperature - heater->temperatureLevel) > heater->temperatureTrashold) {
+        heater->off();
+        heaterIsOn = false;
+      }
+    } else {
+      delay(interval/2);
+    }
+
+    counter++;
+    if(counter % 10 == 0) {
+      String message = "[Heater]: ";
+      message += "T: ";
+      message += heater->getTemperature();
+      message += ", Tc: ";
+      message += currentTemperature;
+      message += ", state: ";
+      message += heaterIsOn;
+      Logger::debug(&message);
+      counter = 1;
+    }
+  }
+}
+#endif
 
 void Heater::stop() {
   heaterStatus.threadIsRunning = false;
@@ -116,9 +195,7 @@ void Heater::stop() {
 }
 
 float Heater::getTemperature() {
-  thermometer.setWaitForConversion(false);
   thermometer.requestTemperatures();
-
   for (int i = 0; i < numberOfDevices; i++) {
     temperatureDevice[i] = thermometer.getTempC(deviceAddress[i]);
   }
@@ -128,4 +205,30 @@ float Heater::getTemperature() {
 
 HeaterStatus Heater::getHeaterState() const {
   return heaterStatus;
+}
+
+String Heater::deviceAddressToString(DeviceAddress deviceAddress) const {
+  String str = "";
+  for (uint8_t i = 0; i < 8; i++){
+    if( deviceAddress[i] < 16 ) str += String(0, HEX);
+    str += String(deviceAddress[i], HEX);
+  }
+  return str;
+}
+
+float Heater::getHumidity() {
+  return weatherSensor.getHumidity();
+}
+
+float Heater::calculateDewPoint(float humidity, float temperature) const {
+  /*
+  * Equations courtesy of Brian McNoldy from http://andrew.rsmas.miami.edu
+  * Based on https://github.com/finitespace/BME280/blob/master/src/EnvironmentCalculations.cpp
+  */
+  return 243.04 * (log(humidity / 100.0) + ((17.625 * temperature) / (243.04 + temperature))) 
+         / (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)));
+}
+
+unsigned int Heater::getCurrentPower() const {
+  return currentPower;
 }

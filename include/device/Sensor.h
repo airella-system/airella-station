@@ -5,7 +5,8 @@
 #include "maintenance/Logger.h"
 
 class Sensor {
- protected:
-  bool isInit();
-  bool initialized = false;
+  public:
+    bool isInit();
+  protected:
+    bool initialized = false;
 };
