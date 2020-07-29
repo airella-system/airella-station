@@ -16,6 +16,10 @@ Heater::Heater(WeatherSensor &_weatherSensor)
   heaterStatus.threadIsRunning = false;
 
   thermometer = DallasTemperature(&communicationBus);
+  /*
+  * This section is a little strange, but i haven't idea why this does not work with single begin
+  * TODO: debug this and correct
+  */
   thermometer.begin();
   delay(2000);
   thermometer.begin();
@@ -83,7 +87,7 @@ void Heater::run() {
   Logger::info("[Heater] run heater thread");
 }
 
-#ifdef CALCULATE_DEWPOIN
+#ifdef CALCULATE_DEWPOINT
 void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned long lastTimestamp = millis();
@@ -98,7 +102,7 @@ void Heater::threadFunction(void *pvParameters) {
 
       float temperature = heater->getTemperature();
       float humidity = heater->getHumidity();
-      float dewPoint = heater->dewPoint(humidity, temperature);
+      float dewPoint = heater->calculateDewPoint(humidity, temperature);
       float temperatureLevel = dewPoint + 5;
 
       if (!heaterIsOn && temperature < temperatureLevel - 0.5 ) {
@@ -216,7 +220,11 @@ float Heater::getHumidity() {
   return weatherSensor.getHumidity();
 }
 
-float Heater::dewPoint(float humidity, float temperature) const {
+float Heater::calculateDewPoint(float humidity, float temperature) const {
+  /*
+  * Equations courtesy of Brian McNoldy from http://andrew.rsmas.miami.edu
+  * Based on https://github.com/finitespace/BME280/blob/master/src/EnvironmentCalculations.cpp
+  */
   return 243.04 * (log(humidity / 100.0) + ((17.625 * temperature) / (243.04 + temperature))) 
          / (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)));
 }

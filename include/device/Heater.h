@@ -7,7 +7,7 @@
 
 #define ONE_WIRE_MAX_DEV 2
 #define MAX_POWER 255
-#define CALCULATE_DEWPOIN true
+#define CALCULATE_DEWPOINT true
 
 struct HeaterStatus {
   bool heaterIsOn;
@@ -25,7 +25,7 @@ public:
   void stop();
   float getTemperature();
   float getHumidity();
-  float dewPoint(float humidity, float temperature) const;
+  float calculateDewPoint(float humidity, float temperature) const;
   unsigned int getCurrentPower() const;
   HeaterStatus getHeaterState() const;
   HeaterStatus heaterStatus;
