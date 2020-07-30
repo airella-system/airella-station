@@ -15,6 +15,7 @@
 #include "device/Storage.h"
 #include "device/WeatherSensor.h"
 #include "maintenance/Logger.h"
+#include "time/Time.h"
 
 class Core {
 public:

@@ -1,8 +1,7 @@
 #include "time/Time.h"
 
 Time::Time() : timeClient(ntpUDP) {
-  connect();
-  update();
+  semaphore = xSemaphoreCreateMutex();
 }
 
 void Time::lock() {
@@ -18,57 +17,74 @@ bool Time::isInitialized() const {
 }
 
 void Time::connect() {
-  if(initialized) return;
+  Logger::info("[Time::connect()] Try to connect to NTP server");
+  if(initialized) {
+    Logger::warning("[Time::connect()] Already connect to NTP server");
+    return;
+  }
 
   lock();
   if(WiFi.status() != WL_CONNECTED) {
     initialized = false;
+    unlock();
+    Logger::debug("[Time::connect()] Unable to connect to NTP server, reasone: no internet connection");
+    return;
   }
 
   timeClient.begin();
   initialized = true;
   unlock();
+  Logger::debug("[Time::connect()] Initialized OK");
 }
 
 void Time::update() {
   lock();
   timeClient.update();
-  timestamp = millis();
+  lastRefreshTimestamp = millis();
   unlock();
-}
-
-unsigned int Time::getYear() {
-  
-}
-
-unsigned int Time::getMonth() {
-  
-}
-
-unsigned int Time::getDay() {
-  
-}
-
-unsigned int Time::getHour() {
-  
-}
-
-unsigned int Time::getMinute() {
-
-}
-
-unsigned int Time::getSecond() {
-  
+  Logger::debug("[Time::connect()] Synchronized time with NTP server");
 }
 
 Date_t Time::getDate() {
-  
+  tm* timeInfo = getTimeInfo();
+
+  return Date_t(
+    timeInfo->tm_year + 1900,
+    timeInfo->tm_mon + 1,
+    timeInfo->tm_mday
+  );
 }
 
 Time_t Time::getTime() {
-  
+  tm* timeInfo = getTimeInfo();
+
+  return Time_t(
+    timeInfo->tm_hour + TIMEZONE_HOUR_SHIFT,
+    timeInfo->tm_min,
+    timeInfo->tm_sec
+  );
 }
 
 DateTime_t Time::getDataTime() {
-  
+  tm* timeInfo = getTimeInfo();
+
+  Date_t date(
+    timeInfo->tm_year + 1900,
+    timeInfo->tm_mon + 1,
+    timeInfo->tm_mday
+  );
+  Time_t time(
+    timeInfo->tm_hour + TIMEZONE_HOUR_SHIFT,
+    timeInfo->tm_min,
+    timeInfo->tm_sec
+  );
+
+  return DateTime_t(date, time);
 }
+
+tm* Time::getTimeInfo() {
+  time_t totalSecunds = timeClient.getEpochTime();
+  return localtime(&totalSecunds);
+}
+
+Time timeProvider;

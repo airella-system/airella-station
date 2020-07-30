@@ -4,6 +4,10 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <WiFi.h>
+#include <time.h>
+#include "maintenance/Logger.h"
+
+#define TIMEZONE_HOUR_SHIFT 2
 
 struct Date_t {
   unsigned int year;
@@ -16,7 +20,10 @@ struct Date_t {
   {};
   
   String toString() {
-    return String(year) + "-" + String(month) + "-" + String(day);
+    String monthStr = month < 10 ? String("0") + month : String(month);
+    String dayStr = day < 10 ? String("0") + day : String(day);
+
+    return String(year) + "/" + monthStr + "/" + dayStr;
   }
 };
 
@@ -31,7 +38,11 @@ struct Time_t {
   {};
 
   String toString() {
-    return String(hour) + ":" + String(minute) + ":" + String(second);
+    String hourStr = hour < 10 ? "0" + hour : String(hour);
+    String minuteStr = minute < 10 ? String("0") + minute : String(minute);
+    String secondStr = second < 10 ? String("0") + second : String(second);
+
+    return hourStr + ":" + minuteStr + ":" + secondStr;
   }
 };
 
@@ -40,7 +51,7 @@ struct DateTime_t {
   Time_t time;
 
   DateTime_t() {};
-  DateTime_t(Date_t _date, Time_t _time)
+  DateTime_t(Date_t &_date, Time_t &_time)
     : date(_date), time(_time) 
   {};
 
@@ -52,30 +63,27 @@ struct DateTime_t {
 class Time {
 
 public:
+  Time();
+  ~Time() {};
+  
   bool isInitialized() const;
   void connect();
   void update();
-  unsigned int getYear();
-  unsigned int getMonth();
-  unsigned int getDay();
-  unsigned int getHour();
-  unsigned int getMinute();
-  unsigned int getSecond();
   Date_t getDate();
   Time_t getTime();
   DateTime_t getDataTime();
 
 private:
-  Time();
-  ~Time() {};
-
   WiFiUDP ntpUDP;
   NTPClient timeClient;
   bool initialized;
-  unsigned long timestamp;
+  unsigned long lastRefreshTimestamp;
+  tm* getTimeInfo();
 
   SemaphoreHandle_t semaphore;
   void lock();
   void unlock();
 
 };
+
+extern Time timeProvider;

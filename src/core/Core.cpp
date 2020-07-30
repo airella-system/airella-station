@@ -34,6 +34,9 @@ void Core::setUp() {
   Internet::setType(Internet::WIFI);
   Internet::start();
 
+  timeProvider.connect();
+  timeProvider.update();
+
   airSensor = new AirSensor();
   airSensor->powerOn();
   airSensor->calibrate();
@@ -53,6 +56,11 @@ void Core::setUp() {
 
 void Core::main() {
   
+  // while(true) {
+  //   String tmp = timeProvider.getDataTime().toString();
+  //   Logger::debug(&tmp);
+  //   delay(1000);
+  // }
 #ifdef STOP_MAIN_LOOP
   while(true) delay(1000);
 #endif
