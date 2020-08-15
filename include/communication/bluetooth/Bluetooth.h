@@ -4,7 +4,7 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include "communication/bluetooth/chunker/BluetoothChunkReceiver.h"
+#include "communication/bluetooth/chunker/receiver/BluetoothChunkReceiver.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"

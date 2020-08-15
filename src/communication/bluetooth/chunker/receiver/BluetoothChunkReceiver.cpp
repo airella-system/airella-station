@@ -1,4 +1,4 @@
-#include "communication/bluetooth/chunker/BluetoothChunkReceiver.h"
+#include "communication/bluetooth/chunker/receiver/BluetoothChunkReceiver.h"
 
 BluetoothChunkReceiver::BluetoothChunkReceiver(BLEService* pService, const char* cuuid, const uint32_t access) {
   characteristic = pService->createCharacteristic(cuuid, access);
@@ -28,12 +28,12 @@ bool BluetoothChunkReceiver::startTransaction() {
   return true;
 }
 
-std::string BluetoothChunkReceiver::endTransaction() {
+void BluetoothChunkReceiver::endTransaction() {
   Logger::debug("[BluetoothChunkReceiver::endTransaction()] Ended transaction");
   activeTransaction = false;
   buffer.clear();
   value = buildData();
-  return value;
+  callback->callback();
 }
 
 bool BluetoothChunkReceiver::add(std::string data) {
@@ -79,8 +79,4 @@ bool BluetoothChunkReceiver::isActiveTransaction() {
 void BluetoothChunkReceiver::setCallback(ChunkerReceiverCallback*_callback) {
   callback = _callback;
   callback->setChunker(this);
-}
-
-void BluetoothChunkReceiver::runCallback() {
-  callback->callback();
 }

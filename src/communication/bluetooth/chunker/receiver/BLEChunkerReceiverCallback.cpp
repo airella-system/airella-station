@@ -1,8 +1,8 @@
-#include "communication/bluetooth/chunker/BLEChunkerReceiverCallback.h"
+#include "communication/bluetooth/chunker/receiver/BLEChunkerReceiverCallback.h"
 
 void BLEChunkerReceiverCallback::onRead(BLECharacteristic *pCharacteristic) {
   Logger::debug("[ChunkerUploadCallback::onRead()] called");
-  chunker->runCallback();
+  chunker->endTransaction();
 }
 
 void BLEChunkerReceiverCallback::onWrite(BLECharacteristic* pCharacteristic) {

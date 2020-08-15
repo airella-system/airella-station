@@ -1,6 +1,6 @@
 #pragma once
 
-#include "communication/bluetooth/chunker/BluetoothChunkReceiver.h"
+#include "communication/bluetooth/chunker/receiver/BluetoothChunkReceiver.h"
 
 class BluetoothChunkReceiver;
 
