@@ -1,3 +1,3 @@
 #pragma once
 
-#define TMP 5
+#define BT_AUTH_ENABLE 1

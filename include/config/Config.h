@@ -34,6 +34,9 @@ class Config {
   static String getLocationLongitude(bool lock = true);
   static bool getLocationManual(bool lock = true);
 
+  static String getChunkerTestUpload(bool lock = true);
+  static String getChunkerTestDownload(bool lock = true);
+
   static RegistrationState getRegistrationState(bool lock = true);
 
   static void setDevicePassword(String devicePassword, bool lock = true);
@@ -53,6 +56,9 @@ class Config {
   static void setLocationLatitude(String latitude, bool lock = true);
   static void setLocationLongitude(String longitude, bool lock = true);
   static void setLocationManual(bool manual, bool lock = true);
+
+  static void setChunkerTestUpload(String manual, bool lock = true);
+  static void setChunkerTestDownload(String manual, bool lock = true);
 
   static Preferences preferences;
  private:
@@ -77,6 +83,9 @@ class Config {
   static String locationLatitude;
   static String locationLongitude;
   static bool locationManual;
+
+  static String chunkerTestUpload;
+  static String chunkerTestDownload;
 
   static RegistrationState registrationState;
 };

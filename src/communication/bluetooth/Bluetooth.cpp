@@ -2,8 +2,6 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 
-#define BT_AUTH_ENABLE 1
-
 const uint32_t Bluetooth::W_PROPERTY = BLECharacteristic::PROPERTY_WRITE;
 const uint32_t Bluetooth::R_PROPERTY = BLECharacteristic::PROPERTY_READ;
 const uint32_t Bluetooth::RW_PROPERTY = BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE;
@@ -30,6 +28,8 @@ BLECharacteristic *Bluetooth::devStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
+
+BluetoothChunkReceiver* Bluetooth::chunkerTestUploadCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
@@ -161,8 +161,6 @@ class LocationManualCallback : public BLECharacteristicCallbacks {
   }
 };
 
-
-
 class RegistrationTokenCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     Logger::debug("[RegistrationTokenCallback::onWrite()] called");
@@ -189,6 +187,13 @@ class ClearDataCallback : public BLECharacteristicCallbacks {
   }
 };
 
+class ChunkerTestUploadBallback : public ChunkerReceiverCallback {
+  void callback() {
+    Logger::debug("[ChunkerTestUploadBallback::callback()] called");
+    Config::setChunkerTestUpload(chunker->getValue().c_str());
+  }
+};
+
 void Bluetooth::reloadValues() {
   ssidCharacteristic->setValue(Config::getWifiSsid().c_str());
   wifiPassCharacteristic->setValue(Config::getWifiPassword().c_str());
@@ -202,6 +207,8 @@ void Bluetooth::reloadValues() {
   latitudeCharacteristic->setValue(Config::getLocationLatitude().c_str());
   longitudeCharacteristic->setValue(Config::getLocationLongitude().c_str());
   locationManualCharacteristic->setValue(Config::getLocationManual() ? "1" : "0");
+
+  chunkerTestUploadCharacteristic->setValue(Config::getChunkerTestUpload().c_str());
 }
 
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
@@ -268,6 +275,10 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
 
   clearDataCharacteristic = pService->createCharacteristic(CLEAR_DATA_CUUID, W_PROPERTY);
   clearDataCharacteristic->setCallbacks(new ClearDataCallback());
+
+  chunkerTestUploadCharacteristic = new BluetoothChunkReceiver(pService, TEST_CHUNK_UPLOAD_CUUID, RW_PROPERTY);
+
+  chunkerTestUploadCharacteristic->setCallback(new ChunkerTestUploadBallback());
 
   #ifdef BT_AUTH_ENABLE
   devPasswordCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
