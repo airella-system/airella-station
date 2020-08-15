@@ -4,6 +4,10 @@
 
 #define BT_AUTH_ENABLE 1
 
+const uint32_t Bluetooth::W_PROPERTY = BLECharacteristic::PROPERTY_WRITE;
+const uint32_t Bluetooth::R_PROPERTY = BLECharacteristic::PROPERTY_READ;
+const uint32_t Bluetooth::RW_PROPERTY = BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE;
+
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 
 BLECharacteristic *Bluetooth::stationNameCharacteristic = nullptr;
@@ -212,100 +216,79 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(BLEUUID((const char *)SERVICE_UUID), 60);
 
-  devPasswordCharacteristic =
-      pService->createCharacteristic(DEVICE_PASSWORD_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  devPasswordCharacteristic = pService->createCharacteristic(DEVICE_PASSWORD_CUUID, W_PROPERTY);
   
-  inetConnTypeCharacteristic =
-      pService->createCharacteristic(INTERNET_CONNECTION_TYPE_CHARACTERISTIC_UUID,
-                                     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  inetConnTypeCharacteristic = pService->createCharacteristic(INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
   
-  registrationStateCharacteristic =
-      pService->createCharacteristic(REGISTRATION_STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
-  
+  registrationStateCharacteristic = pService->createCharacteristic(REGISTRATION_STATE_CUUID, R_PROPERTY);
   registrationStateCharacteristic->setCallbacks(new LastActionStateCallback());
 
-  ssidCharacteristic = pService->createCharacteristic(
-      SSID_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  ssidCharacteristic = pService->createCharacteristic(SSID_CUUID, RW_PROPERTY);
   ssidCharacteristic->setCallbacks(new WifiSsidCallback());
 
-  wifiPassCharacteristic =
-      pService->createCharacteristic(WIFI_PASWORD_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  wifiPassCharacteristic = pService->createCharacteristic(WIFI_PASWORD_CUUID, W_PROPERTY);
   wifiPassCharacteristic->setCallbacks(new WifiPasswordCallback());
 
-  registerTokenCharacteristic =
-      pService->createCharacteristic(REGISTRATION_TOKEN_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  registerTokenCharacteristic = pService->createCharacteristic(REGISTRATION_TOKEN_CUUID, W_PROPERTY);
   registerTokenCharacteristic->setCallbacks(new RegistrationTokenCallback());
 
-  apiUrlCharacteristic = pService->createCharacteristic(
-      API_URL_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  apiUrlCharacteristic = pService->createCharacteristic(API_URL_CUUID, RW_PROPERTY);
   apiUrlCharacteristic->setCallbacks(new ApiUrlCallback());
 
-  stationNameCharacteristic = pService->createCharacteristic(
-      STATION_NAME_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationNameCharacteristic = pService->createCharacteristic(STATION_NAME_CUUID, RW_PROPERTY);
   stationNameCharacteristic->setCallbacks(new StationNameCallback());
 
-  stationCountryCharacteristic = pService->createCharacteristic(
-      STATION_COUNTRY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationCountryCharacteristic = pService->createCharacteristic(STATION_COUNTRY_CUUID, RW_PROPERTY);
   stationCountryCharacteristic->setCallbacks(new StationCountryCallback());
 
-  stationCityCharacteristic = pService->createCharacteristic(
-      STATION_CITY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationCityCharacteristic = pService->createCharacteristic(STATION_CITY_CUUID, RW_PROPERTY);
   stationCityCharacteristic->setCallbacks(new StationCityCallback());
 
-  stationStreetCharacteristic = pService->createCharacteristic(
-      STATION_STREET_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationStreetCharacteristic = pService->createCharacteristic(STATION_STREET_CUUID, RW_PROPERTY);
   stationStreetCharacteristic->setCallbacks(new StationStreetCallback());
 
-  stationNumberCharacteristic = pService->createCharacteristic(
-      STATION_NUMBER_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  stationNumberCharacteristic = pService->createCharacteristic(STATION_NUMBER_CUUID, RW_PROPERTY);
   stationNumberCharacteristic->setCallbacks(new StationNumberCallback());
 
-  latitudeCharacteristic = pService->createCharacteristic(
-      LOCATION_LATITUDE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  latitudeCharacteristic = pService->createCharacteristic(LOCATION_LATITUDE_CUUID, RW_PROPERTY);
   latitudeCharacteristic->setCallbacks(new LatitudeCallback());
 
-  longitudeCharacteristic = pService->createCharacteristic(
-      LOCATION_LONGITUDE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  longitudeCharacteristic = pService->createCharacteristic(LOCATION_LONGITUDE_CUUID, RW_PROPERTY);
   longitudeCharacteristic->setCallbacks(new LongitudeCallback());
 
-  locationManualCharacteristic = pService->createCharacteristic(
-      LOCATION_MANUALLY_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+  locationManualCharacteristic = pService->createCharacteristic(LOCATION_MANUALLY_CUUID, RW_PROPERTY);
   locationManualCharacteristic->setCallbacks(new LocationManualCallback());
 
-  devStateCharacteristic =
-      pService->createCharacteristic(DEVICE_STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
+  devStateCharacteristic = pService->createCharacteristic(DEVICE_STATE_CUUID, R_PROPERTY);
 
-  connStateCharacteristic =
-      pService->createCharacteristic(CONNECTION_STATE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ);
+  connStateCharacteristic = pService->createCharacteristic(CONNECTION_STATE_CUUID, R_PROPERTY);
 
-  refreshDeviceCharacteristic =
-      pService->createCharacteristic(REFRESH_DEVICE_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  refreshDeviceCharacteristic = pService->createCharacteristic(REFRESH_DEVICE_CUUID, W_PROPERTY);
   refreshDeviceCharacteristic->setCallbacks(new RefreshDeviceCallback());
 
-  clearDataCharacteristic =
-      pService->createCharacteristic(CLEAR_DATA_CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_WRITE);
+  clearDataCharacteristic = pService->createCharacteristic(CLEAR_DATA_CUUID, W_PROPERTY);
   clearDataCharacteristic->setCallbacks(new ClearDataCallback());
 
   #ifdef BT_AUTH_ENABLE
-  devPasswordCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  inetConnTypeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  registrationStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  ssidCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  wifiPassCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  registerTokenCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  apiUrlCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  stationNameCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  stationCountryCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  stationCityCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  stationStreetCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  stationNumberCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  latitudeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  longitudeCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  locationManualCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  devStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  connStateCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  refreshDeviceCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
-  clearDataCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED);
+  devPasswordCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  registrationStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  ssidCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  wifiPassCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  registerTokenCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  apiUrlCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  stationNameCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  stationCountryCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  stationCityCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  stationStreetCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  stationNumberCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  latitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  longitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  locationManualCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  devStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  connStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  refreshDeviceCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  clearDataCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   #endif
 
   reloadValues();
