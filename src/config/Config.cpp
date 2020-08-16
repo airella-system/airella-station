@@ -21,8 +21,7 @@ String Config::locationLatitude = String();
 String Config::locationLongitude = String();
 bool Config::locationManual = false;
 
-String Config::chunkerTestUpload = String();
-String Config::chunkerTestDownload = String();
+String Config::chunkerTest = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
@@ -162,12 +161,8 @@ bool Config::getLocationManual(bool lock) {
   return Config::locationManual;
 }
 
-String Config::getChunkerTestUpload(bool lock) {
-  return Config::chunkerTestUpload;
-}
-
-String Config::getChunkerTestDownload(bool lock) {
-  return Config::chunkerTestDownload;
+String Config::getChunkerTest(bool lock) {
+  return Config::chunkerTest;
 }
 
 void Config::setDevicePassword(String devicePassword, bool lock) {
@@ -272,14 +267,8 @@ void Config::setLocationManual(bool manual, bool lock) {
   if (lock) Config::unlock();
 }
 
-void Config::setChunkerTestUpload(String manual, bool lock) {
+void Config::setChunkerTest(String manual, bool lock) {
   if (lock) Config::lock();
-  Config::chunkerTestUpload = manual;
-  if (lock) Config::unlock();
-}
-
-void Config::setChunkerTestDownload(String manual, bool lock) {
-  if (lock) Config::lock();
-  Config::chunkerTestDownload = manual;
+  Config::chunkerTest = manual;
   if (lock) Config::unlock();
 }

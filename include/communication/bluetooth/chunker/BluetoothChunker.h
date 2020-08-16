@@ -7,29 +7,59 @@
 #include <iterator>
 #include <BLEDevice.h>
 #include "maintenance/Logger.h"
-#include "communication/bluetooth/chunker/BluetoothChunkCallback.h"
+#include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
+#include "communication/bluetooth/chunker/BLEChunkerCallback.h"
 
 #define BT_CHUNKER_TIMEOUT 10 // timeout in sec
 #define BT_MTU 20 // in bytes
 
+class BLEChunkerCallback;
+
 class BluetoothChunker {
 
 public:
-	BluetoothChunker() {};
-	~BluetoothChunker() {};
+	BluetoothChunker(BLEService* pService, const char* cuuid, const uint32_t access);
+	~BluetoothChunker();
 
-	virtual bool startTransaction() = 0;
-  virtual void endTransaction() = 0;
-	virtual bool setValue(std::string value) = 0;
-  virtual std::string getValue() = 0;
+	bool startReceiving(std::string& firstChunk);
+  void endReceiving();
+	bool isActiveReceiving();
 
-	bool isActiveTransaction() {
-		return activeTransaction;
-	};
+  std::string startSending();
+  void endSending();
+	bool isActiveSending();
 
-protected:
-	bool activeTransaction = false;
+  void setCallback(BluetoothChunkerCallback* callback);
+  void setPermission(esp_gatt_perm_t perm);
+
+	bool setValue(std::string value);
+  std::string getValue();
+
+  std::string getChunk();
+  void addChunk(std::string value);
+
+private:
+  unsigned char headerSize = 1;
 	BLECharacteristic* characteristic;
 	std::string value;
+  BluetoothChunkerCallback* callback;
+  BLEChunkerCallback* BLECallback;
+
+	bool activeReceiving = false;
+  unsigned long toReceiveChunkCount;
+  unsigned long receiveChunkCount;
+  unsigned long receiveTimestamp = 0;
+  unsigned long maxBufferSize = 10;
+  std::vector<std::string> buffer;
+
+	bool activeSending= false;
+  unsigned long toSendChunkCount;
+  unsigned long sentChunkCount;
+  unsigned long sentTimestamp = 0;
+
+  bool isReceiverTimeout();
+  bool isSenderTimeout();
+  void clearReceivingTransaction();
+  void clearSendingTransaction();
 
 };

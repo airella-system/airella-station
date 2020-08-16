@@ -29,8 +29,7 @@ BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
-BluetoothChunkReceiver* Bluetooth::chunkerTestUploadCharacteristic = nullptr;
-BluetoothChunkSender* Bluetooth::chunkerTestDownloadCharacteristic = nullptr;
+BluetoothChunker* Bluetooth::chunkerTestCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
@@ -188,17 +187,15 @@ class ClearDataCallback : public BLECharacteristicCallbacks {
   }
 };
 
-class ChunkerTestUploadBallback : public BluetoothChunkCallback<BluetoothChunkReceiver> {
-  void callback() {
-    Logger::debug("[ChunkerTestUploadBallback::callback()] called");
-    Config::setChunkerTestUpload(chunker->getValue().c_str());
+class ChunkerTestBallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[ChunkerTestBallback::afterReceive()] called");
+    Config::setChunkerTest(chunker->getValue().c_str());
   }
-};
 
-class ChunkerTestDownloadBallback : public BluetoothChunkCallback<BluetoothChunkSender> {
-  void callback() {
-    Logger::debug("[ChunkerTestUploadBallback::callback()] called");
-    Config::setChunkerTestDownload(chunker->getValue().c_str());
+  void beforeSend() {
+    Logger::debug("[ChunkerTestBallback::beforeSend()] called");
+    chunker->setValue(Config::getChunkerTest().c_str());
   }
 };
 
@@ -216,7 +213,7 @@ void Bluetooth::reloadValues() {
   longitudeCharacteristic->setValue(Config::getLocationLongitude().c_str());
   locationManualCharacteristic->setValue(Config::getLocationManual() ? "1" : "0");
 
-  chunkerTestUploadCharacteristic->setValue(Config::getChunkerTestUpload().c_str());
+  chunkerTestCharacteristic->setValue(Config::getChunkerTest().c_str());
 }
 
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
@@ -284,10 +281,8 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   clearDataCharacteristic = pService->createCharacteristic(CLEAR_DATA_CUUID, W_PROPERTY);
   clearDataCharacteristic->setCallbacks(new ClearDataCallback());
 
-  chunkerTestUploadCharacteristic = new BluetoothChunkReceiver(pService, TEST_CHUNK_UPLOAD_CUUID, RW_PROPERTY);
-
-  chunkerTestUploadCharacteristic->setCallback(new ChunkerTestUploadBallback());
-  chunkerTestUploadCharacteristic->setCallback(new ChunkerTestUploadBallback());
+  chunkerTestCharacteristic = new BluetoothChunker(pService, TEST_CHUNK_CUUID, RW_PROPERTY);
+  chunkerTestCharacteristic->setCallback(new ChunkerTestBallback());
 
   #ifdef BT_AUTH_ENABLE
   devPasswordCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);

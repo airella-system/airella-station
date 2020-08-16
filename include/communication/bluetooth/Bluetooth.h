@@ -4,9 +4,8 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include "communication/bluetooth/chunker/receiver/BluetoothChunkReceiver.h"
-#include "communication/bluetooth/chunker/sender/BluetoothChunkSender.h"
-#include "communication/bluetooth/chunker/BluetoothChunkCallback.h"
+#include "communication/bluetooth/chunker/BluetoothChunker.h"
+#include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
@@ -61,8 +60,7 @@
 #define CLEAR_DATA_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d0"
 
 // BT chunker test
-#define TEST_CHUNK_UPLOAD_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d1"
-#define TEST_CHUNK_DOWNLOAD_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d2"
+#define TEST_CHUNK_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d1"
 
 #define DEFAULT_BT_PERMISSION ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED
 
@@ -100,8 +98,7 @@ class Bluetooth {
   static BLECharacteristic *refreshDeviceCharacteristic;
   static BLECharacteristic *clearDataCharacteristic;
 
-  static BluetoothChunkReceiver* chunkerTestUploadCharacteristic;
-  static BluetoothChunkSender* chunkerTestDownloadCharacteristic;
+  static BluetoothChunker* chunkerTestCharacteristic;
 
   static String lastOperatioinState;
 };
