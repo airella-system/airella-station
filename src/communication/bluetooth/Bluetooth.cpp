@@ -30,6 +30,7 @@ BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
 BluetoothChunkReceiver* Bluetooth::chunkerTestUploadCharacteristic = nullptr;
+BluetoothChunkSender* Bluetooth::chunkerTestDownloadCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
@@ -187,10 +188,17 @@ class ClearDataCallback : public BLECharacteristicCallbacks {
   }
 };
 
-class ChunkerTestUploadBallback : public ChunkerReceiverCallback {
+class ChunkerTestUploadBallback : public BluetoothChunkCallback<BluetoothChunkReceiver> {
   void callback() {
     Logger::debug("[ChunkerTestUploadBallback::callback()] called");
     Config::setChunkerTestUpload(chunker->getValue().c_str());
+  }
+};
+
+class ChunkerTestDownloadBallback : public BluetoothChunkCallback<BluetoothChunkSender> {
+  void callback() {
+    Logger::debug("[ChunkerTestUploadBallback::callback()] called");
+    Config::setChunkerTestDownload(chunker->getValue().c_str());
   }
 };
 
@@ -278,6 +286,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
 
   chunkerTestUploadCharacteristic = new BluetoothChunkReceiver(pService, TEST_CHUNK_UPLOAD_CUUID, RW_PROPERTY);
 
+  chunkerTestUploadCharacteristic->setCallback(new ChunkerTestUploadBallback());
   chunkerTestUploadCharacteristic->setCallback(new ChunkerTestUploadBallback());
 
   #ifdef BT_AUTH_ENABLE

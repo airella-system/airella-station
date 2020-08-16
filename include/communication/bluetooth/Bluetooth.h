@@ -5,6 +5,8 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include "communication/bluetooth/chunker/receiver/BluetoothChunkReceiver.h"
+#include "communication/bluetooth/chunker/sender/BluetoothChunkSender.h"
+#include "communication/bluetooth/chunker/BluetoothChunkCallback.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
@@ -99,6 +101,7 @@ class Bluetooth {
   static BLECharacteristic *clearDataCharacteristic;
 
   static BluetoothChunkReceiver* chunkerTestUploadCharacteristic;
+  static BluetoothChunkSender* chunkerTestDownloadCharacteristic;
 
   static String lastOperatioinState;
 };

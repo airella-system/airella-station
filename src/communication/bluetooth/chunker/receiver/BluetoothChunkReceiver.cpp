@@ -64,19 +64,20 @@ void BluetoothChunkReceiver::setPermission(esp_gatt_perm_t perm) {
   characteristic->setAccessPermissions(perm);
 }
 
-void BluetoothChunkReceiver::setValue(std::string value) {
+bool BluetoothChunkReceiver::setValue(std::string value) {
+  if(activeTransaction) {
+    Logger::debug("[BluetoothChunkReceiver::setValue()] Unable to set value");
+    return false;
+  }
   characteristic->setValue(value);
+  return true;
 }
 
 std::string BluetoothChunkReceiver::getValue() {
   return value;
 }
 
-bool BluetoothChunkReceiver::isActiveTransaction() {
-  return activeTransaction;
-}
-
-void BluetoothChunkReceiver::setCallback(ChunkerReceiverCallback*_callback) {
+void BluetoothChunkReceiver::setCallback(BluetoothChunkCallback<BluetoothChunkReceiver>*_callback) {
   callback = _callback;
   callback->setChunker(this);
 }
