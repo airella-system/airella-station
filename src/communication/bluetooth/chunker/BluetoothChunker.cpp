@@ -12,9 +12,15 @@ BluetoothChunker::~BluetoothChunker() {
 }
 
 bool BluetoothChunker::startReceiving(std::string& headerChunk) {
-  if(isActiveReceiving()) return false;
-  //invalid message
-  if(headerChunk.length() < headerSize) return false;
+  if(isActiveReceiving()) {
+    Logger::error("[BluetoothChunker::startReceiving()] Reveiving transaction already started");
+    return false;
+  }
+  
+  if(headerChunk.length() < headerSize) {
+    Logger::error("[BluetoothChunker::startReceiving()] Invalid message");
+    return false;
+  }
 
   toReceiveChunkCount = 0;
   //copy num save in many chars to single long type variable
@@ -29,6 +35,7 @@ bool BluetoothChunker::startReceiving(std::string& headerChunk) {
   headerChunk = headerChunk.substr(headerSize);
   activeReceiving = true;
   receiveTimestamp = millis();
+  Logger::debug("[BluetoothChunker::startReceiving()] Started reveiving transaction");
   return true;
 }
 
@@ -51,6 +58,9 @@ void BluetoothChunker::endReceiving() {
 
   value = data;
   clearReceivingTransaction();
+  String message = "[BluetoothChunker::endReceiving()] Ended reveiving transaction: ";
+  message += value.c_str();
+  Logger::debug(message.c_str());
 }
 
 bool BluetoothChunker::isActiveReceiving() {
@@ -59,8 +69,15 @@ bool BluetoothChunker::isActiveReceiving() {
 }
 
 std::string BluetoothChunker::startSending() {
-  if(isActiveSending()) return "";
-  if(std::log2(value.length()) > headerSize * 8) return "";
+  if(isActiveSending()) {
+    Logger::error("[BluetoothChunker::startSending()] Sending transaction already started");
+    return "";
+  }
+
+  if(std::log2(value.length()) > headerSize * 8) {
+    Logger::error("[BluetoothChunker::startSending()] To loong message");
+    return "";
+  }
   activeSending = true;
   toSendChunkCount = (value.length() + headerSize) / BT_MTU;
   toSendChunkCount += (value.length() + headerSize) % BT_MTU == 0 ? 0 : 1;
@@ -83,13 +100,16 @@ std::string BluetoothChunker::startSending() {
 
   sentChunkCount++;
   sentTimestamp = millis();
+  String message = "[BluetoothChunker::startSending()] Started sending transaction: ";
+  message += value.c_str();
+  Logger::debug(message.c_str());
   if(toSendChunkCount == sentChunkCount) endSending();
-
   return firstChunk;
 }
 
 void BluetoothChunker::endSending() {
   clearSendingTransaction();
+  Logger::error("[BluetoothChunker::endSending()] Ended sending transaction");
 }
 
 bool BluetoothChunker::isActiveSending() {
