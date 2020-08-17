@@ -4,6 +4,8 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
+#include "communication/bluetooth/chunker/BluetoothChunker.h"
+#include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
@@ -11,51 +13,56 @@
 #define SERVICE_UUID "f1eb6601-af50-4cf3-9f6e-4e1c6fb8e88c"
 
 // Bluetooth password - something we must re-consider
-#define DEVICE_PASSWORD_CHARACTERISTIC_UUID "126b5b11-6590-4229-8026-ba30ad032133"
+#define DEVICE_PASSWORD_CUUID "126b5b11-6590-4229-8026-ba30ad032133"
 
 // WIFI or GSM
-#define INTERNET_CONNECTION_TYPE_CHARACTERISTIC_UUID "7d9059a5-f426-4f2f-9050-3c88036beb1b"
+#define INTERNET_CONNECTION_TYPE_CUUID "7d9059a5-f426-4f2f-9050-3c88036beb1b"
 
 // WiFi SSID
-#define SSID_CHARACTERISTIC_UUID "45bee5c6-8043-4c6e-b497-fad68a340b70"
+#define SSID_CUUID "45bee5c6-8043-4c6e-b497-fad68a340b70"
 
 // WiFi password
-#define WIFI_PASWORD_CHARACTERISTIC_UUID "0851dd07-b59f-40c6-8114-357c7dff694c"
+#define WIFI_PASWORD_CUUID "0851dd07-b59f-40c6-8114-357c7dff694c"
 
 // Registration token from backend
-#define REGISTRATION_TOKEN_CHARACTERISTIC_UUID "cb520851-1fd3-446e-a590-e777ddd0232c"
+#define REGISTRATION_TOKEN_CUUID "cb520851-1fd3-446e-a590-e777ddd0232c"
 
 // Api url
-#define API_URL_CHARACTERISTIC_UUID "20418184-e336-4409-a04d-61d7cf31f56b"
+#define API_URL_CUUID "20418184-e336-4409-a04d-61d7cf31f56b"
 
 // Station name
-#define STATION_NAME_CHARACTERISTIC_UUID "23d334ae-161c-4024-a634-57b781fde853"
+#define STATION_NAME_CUUID "23d334ae-161c-4024-a634-57b781fde853"
 
 // Station address
-#define STATION_COUNTRY_CHARACTERISTIC_UUID "cb5f7871-ad3c-4d60-85c6-ca48b5d70550"
-#define STATION_CITY_CHARACTERISTIC_UUID "fe070113-c0c5-4237-b907-fdc7eb6b4cd9"
-#define STATION_STREET_CHARACTERISTIC_UUID "171a79f2-3f0b-4a21-9d6c-12dd318d1582"
-#define STATION_NUMBER_CHARACTERISTIC_UUID "1ed02261-8571-45d9-9cdf-7092b2a315e8"
+#define STATION_COUNTRY_CUUID "cb5f7871-ad3c-4d60-85c6-ca48b5d70550"
+#define STATION_CITY_CUUID "fe070113-c0c5-4237-b907-fdc7eb6b4cd9"
+#define STATION_STREET_CUUID "171a79f2-3f0b-4a21-9d6c-12dd318d1582"
+#define STATION_NUMBER_CUUID "1ed02261-8571-45d9-9cdf-7092b2a315e8"
 
 // GPS Location
-#define LOCATION_LATITUDE_CHARACTERISTIC_UUID "394bf3e9-df5d-4765-9a47-e1fd722ae0cb"
-#define LOCATION_LONGITUDE_CHARACTERISTIC_UUID "cca719aa-7cf0-45f2-b2b6-dba82e0d62ab"
-#define LOCATION_MANUALLY_CHARACTERISTIC_UUID "54ef86d9-e6b5-42ba-a4a2-518f93350eb2"
+#define LOCATION_LATITUDE_CUUID "394bf3e9-df5d-4765-9a47-e1fd722ae0cb"
+#define LOCATION_LONGITUDE_CUUID "cca719aa-7cf0-45f2-b2b6-dba82e0d62ab"
+#define LOCATION_MANUALLY_CUUID "54ef86d9-e6b5-42ba-a4a2-518f93350eb2"
 
 // Device state - determines if all sensors are working
-#define DEVICE_STATE_CHARACTERISTIC_UUID "f363fc8f-92dd-4e0b-ae26-90e3e17e6560"
+#define DEVICE_STATE_CUUID "f363fc8f-92dd-4e0b-ae26-90e3e17e6560"
 
 // Connection state - determines if connection to internet services is ok
-#define CONNECTION_STATE_CHARACTERISTIC_UUID "ba71dcda-609f-4b3e-8095-11662afa4c5f"
+#define CONNECTION_STATE_CUUID "ba71dcda-609f-4b3e-8095-11662afa4c5f"
 
 // Registration state - determines if registration process has finished/failed
-#define REGISTRATION_STATE_CHARACTERISTIC_UUID "176959dd-c1f5-4dac-88b8-1f28977fa7ef"
+#define REGISTRATION_STATE_CUUID "176959dd-c1f5-4dac-88b8-1f28977fa7ef"
 
 // Refreshs device when any message is received
-#define REFRESH_DEVICE_CHARACTERISTIC_UUID "2ca7df70-42df-482e-81cf-468e0fcec5dc"
+#define REFRESH_DEVICE_CUUID "2ca7df70-42df-482e-81cf-468e0fcec5dc"
 
 // Clears device when any message is received
-#define CLEAR_DATA_CHARACTERISTIC_UUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d0"
+#define CLEAR_DATA_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d0"
+
+// BT chunker test
+#define TEST_CHUNK_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d1"
+
+#define DEFAULT_BT_PERMISSION ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED
 
 class Bluetooth {
  public:
@@ -64,6 +71,10 @@ class Bluetooth {
   static BluetoothHandler *bluetoothHandler;
   static String getLastOperationStatus();
   static void setLastOperationStatus(String operationStatus);
+
+  static const uint32_t W_PROPERTY;
+  static const uint32_t R_PROPERTY;
+  static const uint32_t RW_PROPERTY;
 
  private:
   static BLECharacteristic *stationNameCharacteristic;
@@ -86,6 +97,8 @@ class Bluetooth {
   static BLECharacteristic *connStateCharacteristic;
   static BLECharacteristic *refreshDeviceCharacteristic;
   static BLECharacteristic *clearDataCharacteristic;
+
+  static BluetoothChunker* chunkerTestCharacteristic;
 
   static String lastOperatioinState;
 };

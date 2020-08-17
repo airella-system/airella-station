@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <Preferences.h>
+#include "config/Defines.h"
 
 class Config {
  public:
@@ -33,6 +34,8 @@ class Config {
   static String getLocationLongitude(bool lock = true);
   static bool getLocationManual(bool lock = true);
 
+  static String getChunkerTest(bool lock = true);
+
   static RegistrationState getRegistrationState(bool lock = true);
 
   static void setDevicePassword(String devicePassword, bool lock = true);
@@ -52,6 +55,8 @@ class Config {
   static void setLocationLatitude(String latitude, bool lock = true);
   static void setLocationLongitude(String longitude, bool lock = true);
   static void setLocationManual(bool manual, bool lock = true);
+
+  static void setChunkerTest(String manual, bool lock = true);
 
   static Preferences preferences;
  private:
@@ -76,6 +81,8 @@ class Config {
   static String locationLatitude;
   static String locationLongitude;
   static bool locationManual;
+
+  static String chunkerTest;
 
   static RegistrationState registrationState;
 };

@@ -21,6 +21,8 @@ String Config::locationLatitude = String();
 String Config::locationLongitude = String();
 bool Config::locationManual = false;
 
+String Config::chunkerTest = String();
+
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
 void Config::lock() {
@@ -159,6 +161,10 @@ bool Config::getLocationManual(bool lock) {
   return Config::locationManual;
 }
 
+String Config::getChunkerTest(bool lock) {
+  return Config::chunkerTest;
+}
+
 void Config::setDevicePassword(String devicePassword, bool lock) {
   if (lock) Config::lock();
   Config::devicePassword = devicePassword;
@@ -258,5 +264,11 @@ void Config::setLocationLongitude(String longitude, bool lock) {
 void Config::setLocationManual(bool manual, bool lock) {
   if (lock) Config::lock();
   Config::locationManual = manual;
+  if (lock) Config::unlock();
+}
+
+void Config::setChunkerTest(String manual, bool lock) {
+  if (lock) Config::lock();
+  Config::chunkerTest = manual;
   if (lock) Config::unlock();
 }
