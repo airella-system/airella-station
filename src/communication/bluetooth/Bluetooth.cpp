@@ -1,6 +1,7 @@
 #include "communication/bluetooth/Bluetooth.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
+#include "communication/bluetooth/BLECallbacks.h"
 
 const uint32_t Bluetooth::W_PROPERTY = BLECharacteristic::PROPERTY_WRITE;
 const uint32_t Bluetooth::R_PROPERTY = BLECharacteristic::PROPERTY_READ;
@@ -18,18 +19,19 @@ BLECharacteristic *Bluetooth::longitudeCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::locationManualCharacteristic = nullptr;
 
 BLECharacteristic *Bluetooth::devPasswordCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::inetConnTypeCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::registrationStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::ssidCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::wifiPassCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::registerTokenCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::apiUrlCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::devStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
 
 BluetoothChunker* Bluetooth::chunkerTestCharacteristic = nullptr;
+
+BLECharacteristic *Bluetooth::registrationStateCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::inetConnTypeCharacteristic = nullptr;
+BLECharacteristic *Bluetooth::deviceStateCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
@@ -49,143 +51,6 @@ class MySecurity : public BLESecurityCallbacks {
   void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) {}
 };
 #endif
-
-class WifiSsidCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[WifiSsidCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setWifiSsid(stringValue);
-  }
-};
-
-class LastActionStateCallback : public BLECharacteristicCallbacks {
-  void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LastActionStateCallback::onRead()] called");
-    pCharacteristic->setValue(Bluetooth::getLastOperationStatus().c_str());
-  }
-};
-
-class WifiPasswordCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[WifiPasswordCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setWifiPassword(stringValue);
-  }
-};
-
-class ApiUrlCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ApiUrlCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setApiUrl(stringValue);
-    Config::save();
-  }
-};
-
-class StationNameCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationNameCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setStationName(stringValue);
-  }
-};
-
-class StationCountryCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationCountryCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressCountry(stringValue);
-  }
-};
-
-class StationCityCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationCityCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressCity(stringValue);
-  }
-};
-
-class StationStreetCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationStreetCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressStreet(stringValue);
-  }
-};
-
-class StationNumberCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationNumberCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressNumber(stringValue);
-  }
-};
-
-class LatitudeCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LatitudeCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setLocationLatitude(stringValue);
-  }
-};
-
-class LongitudeCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LongitudeCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setLocationLongitude(stringValue);
-  }
-};
-
-class LocationManualCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LocationManualCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    if (stringValue.charAt(0) == '1') {
-      Config::setLocationManual(true);
-    } else {
-      Config::setLocationManual(false);
-    }
-  }
-};
-
-class RegistrationTokenCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[RegistrationTokenCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setRegistratonToken(stringValue);
-  }
-};
-
-class RefreshDeviceCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) { 
-    Logger::debug("[RefreshDeviceCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String actionName(value.c_str());
-    Bluetooth::bluetoothHandler->deviceRefreshRequest(actionName); 
-  }
-};
-
-class ClearDataCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ClearDataCallback::onWrite()] called");
-    Config::reset();
-    Bluetooth::reloadValues();
-  }
-};
 
 class ChunkerTestBallback : public BluetoothChunkerCallback {
   void afterReceive() {
@@ -271,8 +136,6 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   locationManualCharacteristic = pService->createCharacteristic(LOCATION_MANUALLY_CUUID, RW_PROPERTY);
   locationManualCharacteristic->setCallbacks(new LocationManualCallback());
 
-  devStateCharacteristic = pService->createCharacteristic(DEVICE_STATE_CUUID, R_PROPERTY);
-
   connStateCharacteristic = pService->createCharacteristic(CONNECTION_STATE_CUUID, R_PROPERTY);
 
   refreshDeviceCharacteristic = pService->createCharacteristic(REFRESH_DEVICE_CUUID, W_PROPERTY);
@@ -284,10 +147,18 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   chunkerTestCharacteristic = new BluetoothChunker(pService, TEST_CHUNK_CUUID, RW_PROPERTY);
   chunkerTestCharacteristic->setCallback(new ChunkerTestBallback());
 
+  registrationStateCharacteristic = pService->createCharacteristic(REGISTRATION_STATE_CUUID, R_PROPERTY);
+  registrationStateCharacteristic->setCallbacks(new RegistrationStateCallback());
+
+  inetConnTypeCharacteristic = pService->createCharacteristic(CONNECTION_STATE_CUUID, R_PROPERTY);
+  inetConnTypeCharacteristic->setCallbacks(new InetConnectionStateCallback());
+
+  deviceStateCharacteristic = pService->createCharacteristic(DEVICE_STATE_CUUID, R_PROPERTY);
+  deviceStateCharacteristic->setCallbacks(new DeviceStateCallback());
+
   #ifdef BT_AUTH_ENABLE
   devPasswordCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  registrationStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   ssidCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   wifiPassCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   registerTokenCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
@@ -300,10 +171,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   latitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   longitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   locationManualCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  devStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   connStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   refreshDeviceCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   clearDataCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  registrationStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  deviceStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   #endif
 
   reloadValues();
