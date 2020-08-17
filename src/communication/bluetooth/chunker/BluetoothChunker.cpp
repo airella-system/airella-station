@@ -17,22 +17,22 @@ bool BluetoothChunker::startReceiving(std::string& headerChunk) {
     return false;
   }
   
-  if(headerChunk.length() < headerSize) {
+  if(headerChunk.length() < BT_CHUNKER_HEADER_SIZE) {
     Logger::error("[BluetoothChunker::startReceiving()] Invalid message");
     return false;
   }
 
   toReceiveChunkCount = 0;
   //copy num save in many chars to single long type variable
-  for(int i = 0; i < headerSize; i++) {
+  for(int i = 0; i < BT_CHUNKER_HEADER_SIZE; i++) {
     // save sizeof(char) bytes
     toReceiveChunkCount = toReceiveChunkCount | headerChunk[i]; 
     // move all bytes of 8 byte in left, make space for next part of num
-    if(i < headerSize - 1) toReceiveChunkCount = toReceiveChunkCount << 8;
+    if(i < BT_CHUNKER_HEADER_SIZE - 1) toReceiveChunkCount = toReceiveChunkCount << 8;
   }
   
-  //remove header
-  headerChunk = headerChunk.substr(headerSize);
+  //remove the header from original chunk
+  headerChunk = headerChunk.substr(BT_CHUNKER_HEADER_SIZE);
   activeReceiving = true;
   receiveTimestamp = millis();
   Logger::debug("[BluetoothChunker::startReceiving()] Started reveiving transaction");
@@ -74,19 +74,19 @@ std::string BluetoothChunker::startSending() {
     return "";
   }
 
-  if(std::log2(value.length()) > headerSize * 8) {
+  if(std::log2(value.length()) > BT_CHUNKER_HEADER_SIZE * 8) {
     Logger::error("[BluetoothChunker::startSending()] To loong message");
     return "";
   }
   activeSending = true;
-  toSendChunkCount = (value.length() + headerSize) / BT_MTU;
-  toSendChunkCount += (value.length() + headerSize) % BT_MTU == 0 ? 0 : 1;
+  toSendChunkCount = (value.length() + BT_CHUNKER_HEADER_SIZE) / BT_MTU;
+  toSendChunkCount += (value.length() + BT_CHUNKER_HEADER_SIZE) % BT_MTU == 0 ? 0 : 1;
 
   std::string firstChunk = "";
   
   if(sentChunkCount == 0) {
 
-    for(int i = 0; i < headerSize; i++) {
+    for(int i = 0; i < BT_CHUNKER_HEADER_SIZE; i++) {
       char numChunk = toSendChunkCount >> (8 * i);
       firstChunk += " ";
       firstChunk[i] = firstChunk[i] & 00000000;
@@ -94,7 +94,7 @@ std::string BluetoothChunker::startSending() {
     }
 
     unsigned long bufferSize = value.size();
-    int dataSize = std::min((unsigned long)(BT_MTU - headerSize), bufferSize);
+    int dataSize = std::min((unsigned long)(BT_MTU - BT_CHUNKER_HEADER_SIZE), bufferSize);
     firstChunk += value.substr(0, dataSize);
   }
 

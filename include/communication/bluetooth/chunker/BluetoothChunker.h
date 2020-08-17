@@ -12,6 +12,7 @@
 
 #define BT_CHUNKER_TIMEOUT 10 // timeout in sec
 #define BT_MTU 20 // in bytes
+#define BT_CHUNKER_HEADER_SIZE 1 // in bytes
 
 class BLEChunkerCallback;
 
@@ -39,7 +40,6 @@ public:
   void addChunk(std::string value);
 
 private:
-  unsigned char headerSize = 1;
 	BLECharacteristic* characteristic;
 	std::string value;
   BluetoothChunkerCallback* callback;
