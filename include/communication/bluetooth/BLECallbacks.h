@@ -3,6 +3,7 @@
 #include "communication/bluetooth/Bluetooth.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
+#include "maintenance/Guardian.h"
 
 class WifiSsidCallback : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
@@ -138,5 +139,29 @@ class ClearDataCallback : public BLECharacteristicCallbacks {
     Logger::debug("[ClearDataCallback::onWrite()] called");
     Config::reset();
     Bluetooth::reloadValues();
+  }
+};
+
+class RegistrationStateCallback : public BLECharacteristicCallbacks {
+  void onRead(BLECharacteristic *pCharacteristic) {
+    Logger::debug("[RegistrationStateCallback::onRead()] called");
+    int state = Config::getRegistrationState();
+    pCharacteristic->setValue(state);
+  }
+};
+
+class InetConnectionStateCallback : public BLECharacteristicCallbacks {
+  void onRead(BLECharacteristic *pCharacteristic) {
+    Logger::debug("[ConnectionStateCallback::onRead()] called");
+    int wifiState = WiFiConn::isConnected();
+    pCharacteristic->setValue(wifiState);
+  }
+};
+
+class DeviceStateCallback : public BLECharacteristicCallbacks {
+  void onRead(BLECharacteristic *pCharacteristic) {
+    Logger::debug("[DeviceStateCallback::onRead()] called");
+    int deviceState = Guardian::isDeviceOk();
+    pCharacteristic->setValue(deviceState);
   }
 };

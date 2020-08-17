@@ -44,9 +44,6 @@
 #define LOCATION_LONGITUDE_CUUID "cca719aa-7cf0-45f2-b2b6-dba82e0d62ab"
 #define LOCATION_MANUALLY_CUUID "54ef86d9-e6b5-42ba-a4a2-518f93350eb2"
 
-// Device state - determines if all sensors are working
-#define DEVICE_STATE_CUUID "f363fc8f-92dd-4e0b-ae26-90e3e17e6560"
-
 // Connection state - determines if connection to internet services is ok
 #define CONNECTION_STATE_CUUID "ba71dcda-609f-4b3e-8095-11662afa4c5f"
 
@@ -61,6 +58,13 @@
 
 // BT chunker test
 #define TEST_CHUNK_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d1"
+
+// Registration state
+#define REGISTRATION_STATE_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54001"
+// Connection state
+#define CONNECTION_STATE_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54002"
+// Device state - determines if all sensors are working
+#define DEVICE_STATE_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54003"
 
 #define DEFAULT_BT_PERMISSION ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED
 
@@ -87,18 +91,19 @@ class Bluetooth {
   static BLECharacteristic *locationManualCharacteristic;
 
   static BLECharacteristic *devPasswordCharacteristic;
-  static BLECharacteristic *inetConnTypeCharacteristic;
-  static BLECharacteristic *registrationStateCharacteristic;
   static BLECharacteristic *ssidCharacteristic;
   static BLECharacteristic *wifiPassCharacteristic;
   static BLECharacteristic *registerTokenCharacteristic;
   static BLECharacteristic *apiUrlCharacteristic;
-  static BLECharacteristic *devStateCharacteristic;
   static BLECharacteristic *connStateCharacteristic;
   static BLECharacteristic *refreshDeviceCharacteristic;
   static BLECharacteristic *clearDataCharacteristic;
 
   static BluetoothChunker* chunkerTestCharacteristic;
+
+  static BLECharacteristic *registrationStateCharacteristic;
+  static BLECharacteristic *inetConnTypeCharacteristic;
+  static BLECharacteristic *deviceStateCharacteristic;
 
   static String lastOperatioinState;
 };
