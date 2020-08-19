@@ -4,127 +4,9 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 
-bool ApiClass::registerSensor(const char *type) {
-  String apiUrlBase = Config::getApiUrl();
-  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/sensors";
-
-  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
-  doc["type"] = type;
-  doc["id"] = type;
-  String body = "";
-  serializeJson(doc, body);
-
-  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
-
-  String debugText = String("Sensor add response code: ") + response.code + " payload: " + response.payload;
-  Logger::debug(debugText.c_str());
-
-  return response.code == 201;
-}
-
-bool ApiClass::updateAccessToken() {
-  if (this->accessToken.equals("") || (millis() - this->accessTokenMillis) > ACCESS_TOKEN_EXPIRATION_TIME) {
-    String registrationToken = Config::getRegistratonToken();
-    String apiUrlBase = Config::getApiUrl();
-    String url = apiUrlBase + "/auth/refresh-token";
-    String refreshToken = Config::getRefreshToken();
-
-    DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
-    doc["refreshToken"] = refreshToken.c_str();
-    String body = "";
-    serializeJson(doc, body);
-
-    Http::Response response = Internet::httpPost(url, body);
-
-    String debugText = String("Get token response code: ") + response.code + " payload: " + response.payload;
-    Logger::debug(debugText.c_str());
-    if (response.code == 200) {
-      DynamicJsonDocument doc(JSON_OBJECT_SIZE(1) + 2 * JSON_OBJECT_SIZE(2) + 280);
-      deserializeJson(doc, response.payload);
-      const char *token = doc["data"]["accessToken"]["token"];
-      this->accessToken = String(token);
-      this->accessTokenMillis = millis();
-      Logger::info("[ApiClass::updateAccessToken] Token refreshed successfully.");
-      return true;
-    }
-    Logger::info("[ApiClass::updateAccessToken] Unable to refresh token.");
-    return false;
-  } else {
-    return true;
-  }
-}
-
-bool ApiClass::publishName(const char *name) {
-  //TODO: when check auth? to correct
-  // if (!checkAuth()) return false;
-
-  String apiUrlBase = Config::getApiUrl();
-  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/name";
-
-  DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
-  doc["name"] = name;
-  String body = "";
-  serializeJson(doc, body);
-
-  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
-
-  String debugText = String("[ApiClass::publishName] Sensor set name response code: ") 
-    + response.code 
-    + " payload: " 
-    + response.payload;
-  Logger::debug(debugText.c_str());
-
-  return response.code == 200;
-}
-
-bool ApiClass::publishLocation(double latitude, double longitude) {
-  // if (!checkAuth()) return false;
-
-  String apiUrlBase = Config::getApiUrl();
-  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/location";
-
-  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
-  doc["latitude"] = latitude;
-  doc["longitude"] = longitude;
-  String body = "";
-  serializeJson(doc, body);
-
-  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
-
-  String debugText = String("Sensor set location response code: ") 
-    + response.code 
-    + " payload: " 
-    + response.payload;
-  Logger::debug(debugText.c_str());
-
-  return response.code == 200;
-}
-
-bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
-  // if (!checkAuth()) return false;
-
-  String apiUrlBase = Config::getApiUrl();
-  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/address";
-
-  DynamicJsonDocument doc(JSON_OBJECT_SIZE(4));
-  doc["country"] = country;
-  doc["city"] = city;
-  doc["street"] = street;
-  doc["number"] = number;
-  String body = "";
-  serializeJson(doc, body);
-
-  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
-
-  String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
-  Logger::debug(debugText.c_str());
-
-  return response.code == 200;
-}
-
 bool ApiClass::registerStation() {
-  this->accessToken = String("");
-  this->accessTokenMillis = 0;
+  accessToken = String("");
+  accessTokenMillis = 0;
   if (Config::getRegistratonToken().equals("")) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     Logger::debug("[ApiClass::registerStation()] Registration fail - no registration token");
@@ -279,6 +161,124 @@ bool ApiClass::isRegistered() {
   return Config::getRegistrationState() == Config::RegistrationState::REGISTERED;
 }
 
+bool ApiClass::registerSensor(const char *type) {
+  String apiUrlBase = Config::getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/sensors";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
+  doc["type"] = type;
+  doc["id"] = type;
+  String body = "";
+  serializeJson(doc, body);
+
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
+
+  String debugText = String("Sensor add response code: ") + response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 201;
+}
+
+bool ApiClass::updateAccessToken() {
+  if (accessToken.equals("") || (millis() - accessTokenMillis) > ACCESS_TOKEN_EXPIRATION_TIME) {
+    String registrationToken = Config::getRegistratonToken();
+    String apiUrlBase = Config::getApiUrl();
+    String url = apiUrlBase + "/auth/refresh-token";
+    String refreshToken = Config::getRefreshToken();
+
+    DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
+    doc["refreshToken"] = refreshToken.c_str();
+    String body = "";
+    serializeJson(doc, body);
+
+    Http::Response response = Internet::httpPost(url, body);
+
+    String debugText = String("Get token response code: ") + response.code + " payload: " + response.payload;
+    Logger::debug(debugText.c_str());
+    if (response.code == 200) {
+      DynamicJsonDocument doc(JSON_OBJECT_SIZE(1) + 2 * JSON_OBJECT_SIZE(2) + 280);
+      deserializeJson(doc, response.payload);
+      const char *token = doc["data"]["accessToken"]["token"];
+      accessToken = String(token);
+      accessTokenMillis = millis();
+      Logger::info("[ApiClass::updateAccessToken] Token refreshed successfully.");
+      return true;
+    }
+    Logger::info("[ApiClass::updateAccessToken] Unable to refresh token.");
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool ApiClass::publishName(const char *name) {
+  //TODO: when check auth? to correct
+  // if (!checkAuth()) return false;
+
+  String apiUrlBase = Config::getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/name";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(1));
+  doc["name"] = name;
+  String body = "";
+  serializeJson(doc, body);
+
+  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
+
+  String debugText = String("[ApiClass::publishName] Sensor set name response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 200;
+}
+
+bool ApiClass::publishLocation(double latitude, double longitude) {
+  // if (!checkAuth()) return false;
+
+  String apiUrlBase = Config::getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/location";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
+  doc["latitude"] = latitude;
+  doc["longitude"] = longitude;
+  String body = "";
+  serializeJson(doc, body);
+
+  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
+
+  String debugText = String("Sensor set location response code: ") 
+    + response.code 
+    + " payload: " 
+    + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 200;
+}
+
+bool ApiClass::publishAddress(const char *country, const char *city, const char *street, const char *number) {
+  // if (!checkAuth()) return false;
+
+  String apiUrlBase = Config::getApiUrl();
+  String url = String(apiUrlBase) + "/stations/" + Config::getApiStationId() + "/address";
+
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(4));
+  doc["country"] = country;
+  doc["city"] = city;
+  doc["street"] = street;
+  doc["number"] = number;
+  String body = "";
+  serializeJson(doc, body);
+
+  Http::Response response = Internet::httpPut(url, body, String("Bearer ") + accessToken);
+
+  String debugText = String("Sensor set location response code: ") + response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 200;
+}
+
 bool ApiClass::publishMeasurement(String sensor, double value) {
   if (!checkAuth()) {
     Logger::debug("[ApiClass::publishMeasurement()] Authorization failed, unable to send data");
@@ -305,8 +305,8 @@ bool ApiClass::publishMeasurement(String sensor, double value) {
 
 void ApiClass::configUpdated() {
   Logger::debug("[API::configUpdated] Config updated!");
-  if (!this->isRegistered()) {
-    this->registerStation();
+  if (!isRegistered()) {
+    registerStation();
     Config::save();
   } else {
     Logger::debug("[API::configUpdated] Already registered");
