@@ -31,7 +31,7 @@ public:
 	bool isActiveSending();
 
   void setCallback(BluetoothChunkerCallback* callback);
-  void setPermission(esp_gatt_perm_t perm);
+  void setAccessPermissions(esp_gatt_perm_t perm);
 
 	bool setValue(std::string value);
   std::string getValue();
