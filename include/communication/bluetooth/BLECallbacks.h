@@ -5,163 +5,221 @@
 #include "maintenance/Logger.h"
 #include "maintenance/Guardian.h"
 
-class WifiSsidCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[WifiSsidCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setWifiSsid(stringValue);
+class InetConnTypeCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[InetConnTypeCallback::afterReceive()] called");
+    Config::InternetConnectionType type = static_cast<Config::InternetConnectionType>(atoi(chunker->getValue().c_str()));
+    Config::setInternetConnectionType(type);
+  }
+
+  void beforeSend() {
+    Logger::debug("[InetConnTypeCallback::beforeSend()] called");
+    std::string type = "" + static_cast<int>(Config::getInternetConnectionType());
+    chunker->setValue(type);
   }
 };
 
-class LastActionStateCallback : public BLECharacteristicCallbacks {
-  void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LastActionStateCallback::onRead()] called");
-    pCharacteristic->setValue(Bluetooth::getLastOperationStatus().c_str());
+class WifiSsidCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[WifiSsidCallback::afterReceive()] called");
+    Config::setWifiSsid(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[WifiSsidCallback::beforeSend()] called");
+    chunker->setValue(Config::getWifiSsid().c_str());
   }
 };
 
-class WifiPasswordCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[WifiPasswordCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setWifiPassword(stringValue);
+class LastActionStateCallback : public BluetoothChunkerCallback {
+  void afterReceive() {}
+
+  void beforeSend() {
+    Logger::debug("[LastActionStateCallback::beforeSend()] called");
+    chunker->setValue(Bluetooth::getLastOperationStatus().c_str());
   }
 };
 
-class ApiUrlCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ApiUrlCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setApiUrl(stringValue);
-    Config::save();
+class WifiPasswordCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[WifiPasswordCallback::afterReceive()] called");
+    Config::setWifiPassword(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[WifiPasswordCallback::beforeSend()] called");
+    chunker->setValue(Config::getWifiPassword().c_str());
   }
 };
 
-class StationNameCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationNameCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setStationName(stringValue);
+class ApiUrlCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[ApiUrlCallback::afterReceive()] called");
+    Config::setApiUrl(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[ApiUrlCallback::beforeSend()] called");
+    chunker->setValue(Config::getApiUrl().c_str());
   }
 };
 
-class StationCountryCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationCountryCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressCountry(stringValue);
+class StationNameCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[StationNameCallback::afterReceive()] called");
+    Config::setStationName(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[StationNameCallback::beforeSend()] called");
+    chunker->setValue(Config::getStationName().c_str());
   }
 };
 
-class StationCityCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationCityCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressCity(stringValue);
+class StationCountryCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[StationCountryCallback::afterReceive()] called");
+    Config::setAddressCountry(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[StationCountryCallback::beforeSend()] called");
+    chunker->setValue(Config::getAddressCountry().c_str());
   }
 };
 
-class StationStreetCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationStreetCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressStreet(stringValue);
+class StationCityCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[StationCityCallback::afterReceive()] called");
+    Config::setAddressCity(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[StationCityCallback::beforeSend()] called");
+    chunker->setValue(Config::getAddressCity().c_str());
   }
 };
 
-class StationNumberCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[StationNumberCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setAddressNumber(stringValue);
+class StationStreetCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[StationCityCallback::afterReceive()] called");
+    Config::setAddressStreet(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[StationCityCallback::beforeSend()] called");
+    chunker->setValue(Config::getAddressStreet().c_str());
   }
 };
 
-class LatitudeCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LatitudeCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setLocationLatitude(stringValue);
+class StationNumberCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[StationNumberCallback::afterReceive()] called");
+    Config::setAddressNumber(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[StationNumberCallback::beforeSend()] called");
+    chunker->setValue(Config::getAddressNumber().c_str());
   }
 };
 
-class LongitudeCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LongitudeCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setLocationLongitude(stringValue);
+class LatitudeCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[LatitudeCallback::afterReceive()] called");
+    Config::setLocationLatitude(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[LatitudeCallback::beforeSend()] called");
+    chunker->setValue(Config::getLocationLatitude().c_str());
   }
 };
 
-class LocationManualCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[LocationManualCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    if (stringValue.charAt(0) == '1') {
+class LongitudeCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[LongitudeCallback::afterReceive()] called");
+    Config::setLocationLongitude(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[LongitudeCallback::beforeSend()] called");
+    chunker->setValue(Config::getLocationLongitude().c_str());
+  }
+};
+
+class LocationManualCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[LocationManualCallback::afterReceive()] called");
+    std::string message = chunker->getValue();
+    if (message.length() > 0 && message[0] == '1') {
       Config::setLocationManual(true);
     } else {
       Config::setLocationManual(false);
     }
   }
-};
 
-class RegistrationTokenCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[RegistrationTokenCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String stringValue = String(value.c_str());
-    Config::setRegistratonToken(stringValue);
+  void beforeSend() {
+    Logger::debug("[LocationManualCallback::beforeSend()] called");
+    chunker->setValue("" + Config::getLocationManual());
   }
 };
 
-class RefreshDeviceCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) { 
-    Logger::debug("[RefreshDeviceCallback::onWrite()] called");
-    std::string value = pCharacteristic->getValue();
-    String actionName(value.c_str());
-    Bluetooth::bluetoothHandler->deviceRefreshRequest(actionName); 
+class RegistrationTokenCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[RegistrationTokenCallback::afterReceive()] called");
+    Config::setRegistratonToken(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[RegistrationTokenCallback::beforeSend()] called");
+    chunker->setValue(Config::getRegistratonToken().c_str());
   }
 };
 
-class ClearDataCallback : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ClearDataCallback::onWrite()] called");
+class RefreshDeviceCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[RefreshDeviceCallback::afterReceive()] called");
+    String message = chunker->getValue().c_str();
+    Bluetooth::bluetoothHandler->deviceRefreshRequest(message); 
+  }
+
+  void beforeSend() {}
+};
+
+class ClearDataCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[ClearDataCallback::afterReceive()] called");
     Config::reset();
     Bluetooth::reloadValues();
   }
+
+  void beforeSend() {}
 };
 
-class RegistrationStateCallback : public BLECharacteristicCallbacks {
-  void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[RegistrationStateCallback::onRead()] called");
-    int state = Config::getRegistrationState();
-    pCharacteristic->setValue(state);
+class RegistrationStateCallback : public BluetoothChunkerCallback {
+  void afterReceive() {}
+
+  void beforeSend() {
+    Logger::debug("[RegistrationStateCallback::beforeSend()] called");
+    chunker->setValue("" + (int)Config::getRegistrationState());
   }
 };
 
-class InetConnectionStateCallback : public BLECharacteristicCallbacks {
-  void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[ConnectionStateCallback::onRead()] called");
-    int wifiState = WiFiConn::isConnected();
-    pCharacteristic->setValue(wifiState);
+class InetConnectionStateCallback : public BluetoothChunkerCallback {
+  void afterReceive() {}
+
+  void beforeSend() {
+    Logger::debug("[InetConnectionStateCallback::beforeSend()] called");
+    chunker->setValue("" + WiFiConn::isConnected());
   }
 };
 
-class DeviceStateCallback : public BLECharacteristicCallbacks {
-  void onRead(BLECharacteristic *pCharacteristic) {
-    Logger::debug("[DeviceStateCallback::onRead()] called");
-    int deviceState = Guardian::isDeviceOk();
-    pCharacteristic->setValue(deviceState);
+class DeviceStateCallback : public BluetoothChunkerCallback {
+  void afterReceive() {}
+
+  void beforeSend() {
+    Logger::debug("[DeviceStateCallback::beforeSend()] called");
+    chunker->setValue("" + Guardian::isDeviceOk());
   }
 };

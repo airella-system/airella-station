@@ -122,7 +122,7 @@ void BluetoothChunker::setCallback(BluetoothChunkerCallback* _callback) {
   callback->setChunker(this);
 }
 
-void BluetoothChunker::setPermission(esp_gatt_perm_t perm) {
+void BluetoothChunker::setAccessPermissions(esp_gatt_perm_t perm) {
   characteristic->setAccessPermissions(perm);
 }
 

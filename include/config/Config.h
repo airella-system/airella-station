@@ -11,7 +11,12 @@ class Config {
     GSM = 1,
   };
 
-  enum RegistrationState { NO_REGISTRATION = 0, REGISTERING = 1, REGISTRATION_ERROR = 2, REGISTERED = 3 };
+  enum RegistrationState { 
+    NO_REGISTRATION = 0, 
+    REGISTERING = 1, 
+    REGISTRATION_ERROR = 2, 
+    REGISTERED = 3 
+  };
 
   static void load(bool lock = true);
   static void save(bool lock = true);
@@ -34,8 +39,6 @@ class Config {
   static String getLocationLongitude(bool lock = true);
   static bool getLocationManual(bool lock = true);
 
-  static String getChunkerTest(bool lock = true);
-
   static RegistrationState getRegistrationState(bool lock = true);
 
   static void setDevicePassword(String devicePassword, bool lock = true);
@@ -51,12 +54,11 @@ class Config {
   static void setAddressCity(String city, bool lock = true);
   static void setAddressStreet(String street, bool lock = true);
   static void setAddressNumber(String number, bool lock = true);
-  static void setRegistrationState(RegistrationState registrationState, bool lock = true);
   static void setLocationLatitude(String latitude, bool lock = true);
   static void setLocationLongitude(String longitude, bool lock = true);
   static void setLocationManual(bool manual, bool lock = true);
 
-  static void setChunkerTest(String manual, bool lock = true);
+  static void setRegistrationState(RegistrationState registrationState, bool lock = true);
 
   static Preferences preferences;
  private:
@@ -81,8 +83,6 @@ class Config {
   static String locationLatitude;
   static String locationLongitude;
   static bool locationManual;
-
-  static String chunkerTest;
 
   static RegistrationState registrationState;
 };

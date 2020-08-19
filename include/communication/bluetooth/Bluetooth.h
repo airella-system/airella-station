@@ -75,29 +75,28 @@ class Bluetooth {
   static const uint32_t RW_PROPERTY;
 
  private:
-  static BLECharacteristic *stationNameCharacteristic;
-  static BLECharacteristic *stationCountryCharacteristic;
-  static BLECharacteristic *stationCityCharacteristic;
-  static BLECharacteristic *stationStreetCharacteristic;
-  static BLECharacteristic *stationNumberCharacteristic;
-  static BLECharacteristic *latitudeCharacteristic;
-  static BLECharacteristic *longitudeCharacteristic;
-  static BLECharacteristic *locationManualCharacteristic;
+  static BluetoothChunker *stationNameCharacteristic;
+  static BluetoothChunker *stationCountryCharacteristic;
+  static BluetoothChunker *stationCityCharacteristic;
+  static BluetoothChunker *stationStreetCharacteristic;
+  static BluetoothChunker *stationNumberCharacteristic;
+  static BluetoothChunker *latitudeCharacteristic;
+  static BluetoothChunker *longitudeCharacteristic;
+  static BluetoothChunker *locationManualCharacteristic;
+  static BluetoothChunker *inetConnTypeCharacteristic;
 
-  static BLECharacteristic *devPasswordCharacteristic;
-  static BLECharacteristic *ssidCharacteristic;
-  static BLECharacteristic *wifiPassCharacteristic;
-  static BLECharacteristic *registerTokenCharacteristic;
-  static BLECharacteristic *apiUrlCharacteristic;
-  static BLECharacteristic *connStateCharacteristic;
-  static BLECharacteristic *refreshDeviceCharacteristic;
-  static BLECharacteristic *clearDataCharacteristic;
+  static BluetoothChunker *devPasswordCharacteristic;
+  static BluetoothChunker *ssidCharacteristic;
+  static BluetoothChunker *wifiPassCharacteristic;
+  static BluetoothChunker *registerTokenCharacteristic;
+  static BluetoothChunker *apiUrlCharacteristic;
+  static BluetoothChunker *connStateCharacteristic;
+  static BluetoothChunker *refreshDeviceCharacteristic;
+  static BluetoothChunker *clearDataCharacteristic;
 
-  static BluetoothChunker* chunkerTestCharacteristic;
-
-  static BLECharacteristic *registrationStateCharacteristic;
-  static BLECharacteristic *inetConnTypeCharacteristic;
-  static BLECharacteristic *deviceStateCharacteristic;
+  static BluetoothChunker *registrationStateCharacteristic;
+  static BluetoothChunker *inetConnStateCharacteristic;
+  static BluetoothChunker *deviceStateCharacteristic;
 
   static String lastOperatioinState;
 };

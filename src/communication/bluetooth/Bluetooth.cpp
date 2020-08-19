@@ -9,29 +9,28 @@ const uint32_t Bluetooth::RW_PROPERTY = BLECharacteristic::PROPERTY_READ | BLECh
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 
-BLECharacteristic *Bluetooth::stationNameCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::stationCountryCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::stationCityCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::stationStreetCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::stationNumberCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::latitudeCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::longitudeCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::locationManualCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::stationCountryCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::stationNameCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::stationCityCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::stationStreetCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::stationNumberCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::latitudeCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::longitudeCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::locationManualCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::inetConnTypeCharacteristic = nullptr;
 
-BLECharacteristic *Bluetooth::devPasswordCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::ssidCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::wifiPassCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::registerTokenCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::apiUrlCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::connStateCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::refreshDeviceCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::clearDataCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::devPasswordCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::ssidCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::wifiPassCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::registerTokenCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::apiUrlCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::connStateCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::refreshDeviceCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::clearDataCharacteristic = nullptr;
 
-BluetoothChunker* Bluetooth::chunkerTestCharacteristic = nullptr;
-
-BLECharacteristic *Bluetooth::registrationStateCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::inetConnTypeCharacteristic = nullptr;
-BLECharacteristic *Bluetooth::deviceStateCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::registrationStateCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::inetConnStateCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::deviceStateCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
@@ -52,18 +51,6 @@ class MySecurity : public BLESecurityCallbacks {
 };
 #endif
 
-class ChunkerTestBallback : public BluetoothChunkerCallback {
-  void afterReceive() {
-    Logger::debug("[ChunkerTestBallback::afterReceive()] called");
-    Config::setChunkerTest(chunker->getValue().c_str());
-  }
-
-  void beforeSend() {
-    Logger::debug("[ChunkerTestBallback::beforeSend()] called");
-    chunker->setValue(Config::getChunkerTest().c_str());
-  }
-};
-
 void Bluetooth::reloadValues() {
   ssidCharacteristic->setValue(Config::getWifiSsid().c_str());
   wifiPassCharacteristic->setValue(Config::getWifiPassword().c_str());
@@ -77,8 +64,6 @@ void Bluetooth::reloadValues() {
   latitudeCharacteristic->setValue(Config::getLocationLatitude().c_str());
   longitudeCharacteristic->setValue(Config::getLocationLongitude().c_str());
   locationManualCharacteristic->setValue(Config::getLocationManual() ? "1" : "0");
-
-  chunkerTestCharacteristic->setValue(Config::getChunkerTest().c_str());
 }
 
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
@@ -92,69 +77,62 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(BLEUUID((const char *)SERVICE_UUID), 60);
-
-  devPasswordCharacteristic = pService->createCharacteristic(DEVICE_PASSWORD_CUUID, W_PROPERTY);
   
-  inetConnTypeCharacteristic = pService->createCharacteristic(INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
-  
-  registrationStateCharacteristic = pService->createCharacteristic(REGISTRATION_STATE_CUUID, R_PROPERTY);
-  registrationStateCharacteristic->setCallbacks(new LastActionStateCallback());
+  inetConnTypeCharacteristic = new BluetoothChunker(pService, INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
+  ssidCharacteristic->setCallback(new InetConnTypeCallback());
 
-  ssidCharacteristic = pService->createCharacteristic(SSID_CUUID, RW_PROPERTY);
-  ssidCharacteristic->setCallbacks(new WifiSsidCallback());
+  ssidCharacteristic = new BluetoothChunker(pService, SSID_CUUID, RW_PROPERTY);
+  ssidCharacteristic->setCallback(new WifiSsidCallback());
 
-  wifiPassCharacteristic = pService->createCharacteristic(WIFI_PASWORD_CUUID, W_PROPERTY);
-  wifiPassCharacteristic->setCallbacks(new WifiPasswordCallback());
+  wifiPassCharacteristic = new BluetoothChunker(pService, WIFI_PASWORD_CUUID, W_PROPERTY);
+  wifiPassCharacteristic->setCallback(new WifiPasswordCallback());
 
-  registerTokenCharacteristic = pService->createCharacteristic(REGISTRATION_TOKEN_CUUID, W_PROPERTY);
-  registerTokenCharacteristic->setCallbacks(new RegistrationTokenCallback());
+  registerTokenCharacteristic = new BluetoothChunker(pService, REGISTRATION_TOKEN_CUUID, W_PROPERTY);
+  registerTokenCharacteristic->setCallback(new RegistrationTokenCallback());
 
-  apiUrlCharacteristic = pService->createCharacteristic(API_URL_CUUID, RW_PROPERTY);
-  apiUrlCharacteristic->setCallbacks(new ApiUrlCallback());
+  apiUrlCharacteristic = new BluetoothChunker(pService, API_URL_CUUID, RW_PROPERTY);
+  apiUrlCharacteristic->setCallback(new ApiUrlCallback());
 
-  stationNameCharacteristic = pService->createCharacteristic(STATION_NAME_CUUID, RW_PROPERTY);
-  stationNameCharacteristic->setCallbacks(new StationNameCallback());
+  stationNameCharacteristic = new BluetoothChunker(pService, STATION_NAME_CUUID, RW_PROPERTY);
+  stationNameCharacteristic->setCallback(new StationNameCallback());
 
-  stationCountryCharacteristic = pService->createCharacteristic(STATION_COUNTRY_CUUID, RW_PROPERTY);
-  stationCountryCharacteristic->setCallbacks(new StationCountryCallback());
+  stationCountryCharacteristic = new BluetoothChunker(pService, STATION_COUNTRY_CUUID, RW_PROPERTY);
+  stationCountryCharacteristic->setCallback(new StationCountryCallback());
 
-  stationCityCharacteristic = pService->createCharacteristic(STATION_CITY_CUUID, RW_PROPERTY);
-  stationCityCharacteristic->setCallbacks(new StationCityCallback());
+  stationCityCharacteristic = new BluetoothChunker(pService, STATION_CITY_CUUID, RW_PROPERTY);
+  stationCityCharacteristic->setCallback(new StationCityCallback());
 
-  stationStreetCharacteristic = pService->createCharacteristic(STATION_STREET_CUUID, RW_PROPERTY);
-  stationStreetCharacteristic->setCallbacks(new StationStreetCallback());
+  stationStreetCharacteristic = new BluetoothChunker(pService, STATION_STREET_CUUID, RW_PROPERTY);
+  stationStreetCharacteristic->setCallback(new StationStreetCallback());
 
-  stationNumberCharacteristic = pService->createCharacteristic(STATION_NUMBER_CUUID, RW_PROPERTY);
-  stationNumberCharacteristic->setCallbacks(new StationNumberCallback());
+  stationNumberCharacteristic = new BluetoothChunker(pService, STATION_NUMBER_CUUID, RW_PROPERTY);
+  stationNumberCharacteristic->setCallback(new StationNumberCallback());
 
-  latitudeCharacteristic = pService->createCharacteristic(LOCATION_LATITUDE_CUUID, RW_PROPERTY);
-  latitudeCharacteristic->setCallbacks(new LatitudeCallback());
+  latitudeCharacteristic = new BluetoothChunker(pService, LOCATION_LATITUDE_CUUID, RW_PROPERTY);
+  latitudeCharacteristic->setCallback(new LatitudeCallback());
 
-  longitudeCharacteristic = pService->createCharacteristic(LOCATION_LONGITUDE_CUUID, RW_PROPERTY);
-  longitudeCharacteristic->setCallbacks(new LongitudeCallback());
+  longitudeCharacteristic = new BluetoothChunker(pService, LOCATION_LONGITUDE_CUUID, RW_PROPERTY);
+  longitudeCharacteristic->setCallback(new LongitudeCallback());
 
-  locationManualCharacteristic = pService->createCharacteristic(LOCATION_MANUALLY_CUUID, RW_PROPERTY);
-  locationManualCharacteristic->setCallbacks(new LocationManualCallback());
+  locationManualCharacteristic = new BluetoothChunker(pService, LOCATION_MANUALLY_CUUID, RW_PROPERTY);
+  locationManualCharacteristic->setCallback(new LocationManualCallback());
 
-  connStateCharacteristic = pService->createCharacteristic(CONNECTION_STATE_CUUID, R_PROPERTY);
+  connStateCharacteristic = new BluetoothChunker(pService, CONNECTION_STATE_CUUID, R_PROPERTY);
 
-  refreshDeviceCharacteristic = pService->createCharacteristic(REFRESH_DEVICE_CUUID, W_PROPERTY);
-  refreshDeviceCharacteristic->setCallbacks(new RefreshDeviceCallback());
+  refreshDeviceCharacteristic = new BluetoothChunker(pService, REFRESH_DEVICE_CUUID, W_PROPERTY);
+  refreshDeviceCharacteristic->setCallback(new RefreshDeviceCallback());
 
-  clearDataCharacteristic = pService->createCharacteristic(CLEAR_DATA_CUUID, W_PROPERTY);
-  clearDataCharacteristic->setCallbacks(new ClearDataCallback());
+  clearDataCharacteristic = new BluetoothChunker(pService, CLEAR_DATA_CUUID, W_PROPERTY);
+  clearDataCharacteristic->setCallback(new ClearDataCallback());
 
-  chunkerTestCharacteristic = new BluetoothChunker(pService, TEST_CHUNK_CUUID, RW_PROPERTY);
-  chunkerTestCharacteristic->setCallback(new ChunkerTestBallback());
+  registrationStateCharacteristic = new BluetoothChunker(pService, REGISTRATION_STATE_CUUID, R_PROPERTY);
+  registrationStateCharacteristic->setCallback(new RegistrationStateCallback());
 
-  registrationStateCharacteristic = pService->createCharacteristic(REGISTRATION_STATE_CUUID, R_PROPERTY);
-  registrationStateCharacteristic->setCallbacks(new RegistrationStateCallback());
+  inetConnStateCharacteristic = new BluetoothChunker(pService, CONNECTION_STATE_CUUID, R_PROPERTY);
+  inetConnStateCharacteristic->setCallback(new InetConnectionStateCallback());
 
-  inetConnTypeCharacteristic = pService->createCharacteristic(CONNECTION_STATE_CUUID, R_PROPERTY);
-  inetConnTypeCharacteristic->setCallbacks(new InetConnectionStateCallback());
-
-  deviceStateCharacteristic = pService->createCharacteristic(DEVICE_STATE_CUUID, R_PROPERTY);
-  deviceStateCharacteristic->setCallbacks(new DeviceStateCallback());
+  deviceStateCharacteristic = new BluetoothChunker(pService, DEVICE_STATE_CUUID, R_PROPERTY);
+  deviceStateCharacteristic->setCallback(new DeviceStateCallback());
 
   #ifdef BT_AUTH_ENABLE
   devPasswordCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
