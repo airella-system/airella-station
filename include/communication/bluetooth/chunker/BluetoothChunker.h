@@ -15,6 +15,7 @@
 #define BT_CHUNKER_HEADER_SIZE 1 // in bytes
 
 class BLEChunkerCallback;
+class BluetoothChunkerCallback;
 
 class BluetoothChunker {
 

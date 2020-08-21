@@ -85,12 +85,10 @@ class Bluetooth {
   static BluetoothChunker *locationManualCharacteristic;
   static BluetoothChunker *inetConnTypeCharacteristic;
 
-  static BluetoothChunker *devPasswordCharacteristic;
   static BluetoothChunker *ssidCharacteristic;
   static BluetoothChunker *wifiPassCharacteristic;
   static BluetoothChunker *registerTokenCharacteristic;
   static BluetoothChunker *apiUrlCharacteristic;
-  static BluetoothChunker *connStateCharacteristic;
   static BluetoothChunker *refreshDeviceCharacteristic;
   static BluetoothChunker *clearDataCharacteristic;
 
