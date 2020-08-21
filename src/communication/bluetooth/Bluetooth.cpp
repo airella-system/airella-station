@@ -19,12 +19,10 @@ BluetoothChunker *Bluetooth::longitudeCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::locationManualCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::inetConnTypeCharacteristic = nullptr;
 
-BluetoothChunker *Bluetooth::devPasswordCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::ssidCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::wifiPassCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::registerTokenCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::apiUrlCharacteristic = nullptr;
-BluetoothChunker *Bluetooth::connStateCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::refreshDeviceCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::clearDataCharacteristic = nullptr;
 
@@ -74,12 +72,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   BLEDevice::setEncryptionLevel(ESP_BLE_SEC_ENCRYPT);
   BLEDevice::setSecurityCallbacks(new MySecurity());
   #endif
-  
+
   BLEServer *pServer = BLEDevice::createServer();
-  BLEService *pService = pServer->createService(BLEUUID((const char *)SERVICE_UUID), 60);
-  
+  BLEService *pService = pServer->createService(BLEUUID((const char *)SERVICE_UUID), 100);
+
   inetConnTypeCharacteristic = new BluetoothChunker(pService, INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
-  ssidCharacteristic->setCallback(new InetConnTypeCallback());
+  inetConnTypeCharacteristic->setCallback(new InetConnTypeCallback());
 
   ssidCharacteristic = new BluetoothChunker(pService, SSID_CUUID, RW_PROPERTY);
   ssidCharacteristic->setCallback(new WifiSsidCallback());
@@ -117,8 +115,6 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   locationManualCharacteristic = new BluetoothChunker(pService, LOCATION_MANUALLY_CUUID, RW_PROPERTY);
   locationManualCharacteristic->setCallback(new LocationManualCallback());
 
-  connStateCharacteristic = new BluetoothChunker(pService, CONNECTION_STATE_CUUID, R_PROPERTY);
-
   refreshDeviceCharacteristic = new BluetoothChunker(pService, REFRESH_DEVICE_CUUID, W_PROPERTY);
   refreshDeviceCharacteristic->setCallback(new RefreshDeviceCallback());
 
@@ -135,12 +131,6 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   deviceStateCharacteristic->setCallback(new DeviceStateCallback());
 
   #ifdef BT_AUTH_ENABLE
-  devPasswordCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  ssidCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  wifiPassCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  registerTokenCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  apiUrlCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   stationNameCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   stationCountryCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   stationCityCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
@@ -149,11 +139,17 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   latitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   longitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   locationManualCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  connStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+
+  ssidCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  wifiPassCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  registerTokenCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  apiUrlCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   refreshDeviceCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   clearDataCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+
   registrationStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  inetConnStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   deviceStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   #endif
 
