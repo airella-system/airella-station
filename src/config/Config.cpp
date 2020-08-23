@@ -61,6 +61,7 @@ void Config::load(bool lock) {
 }
 
 void Config::save(bool lock) {
+  Logger::debug("[Config::save()] Saving config to flash");
   if (lock) Config::lock();
   Config::preferences.begin("prefs", false);
   Config::preferences.putString("device-password", Config::getDevicePassword());
@@ -80,6 +81,7 @@ void Config::save(bool lock) {
   Config::preferences.putBool("loc-manual", Config::getLocationManual());
   Config::preferences.end();
   if (lock) Config::unlock();
+  Logger::debug("[Config::save()] Config saved");
 }
 
 void Config::reset(bool lock) {

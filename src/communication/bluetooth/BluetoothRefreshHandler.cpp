@@ -2,32 +2,74 @@
 #include "communication/bluetooth/Bluetooth.h"
 
 void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
-    Logger::info(
-        (
-            String("[BluetoothRefreshHandler]: Receive config update request, action (") 
-            + actionName 
-            + ")"
-        ).c_str()
-    );
-    if(actionName.equals("wifi")) {
-        Bluetooth::setLastOperationStatus("wifi|setting_up");
-        Internet::stop();
-        Internet::start();
-        Config::save();
-        Bluetooth::setLastOperationStatus("wifi|ok");
-    }
-    else if(actionName.equals("address")) {
-        Bluetooth::setLastOperationStatus("address|ok");
-    }
-    else if(actionName.equals("location")) {
-        Bluetooth::setLastOperationStatus("location|ok");
-    }
-    else if(actionName.equals("register")) {
-        Bluetooth::setLastOperationStatus("register|setting_up");
-        Config::save();
-        Api.configUpdated();
-        Bluetooth::setLastOperationStatus("register|ok");
+  Logger::info(
+    (
+      String("[BluetoothRefreshHandler]: Receive config update request, action (") 
+      + actionName 
+      + ")"
+    ).c_str()
+  );
+  if(actionName.equals("wifi")) {
+    Bluetooth::setLastOperationStatus("wifi|setting_up");
+    Internet::stop();
+    Internet::start();
+    Config::save();
+    Bluetooth::setLastOperationStatus("wifi|ok");
+  }
+  else if(actionName.equals("address")) {
+    if(!Api.isRegistered()) {
+      Logger::debug("[BluetoothRefreshHandler::deviceRefreshRequest()] Unauthorized to publishAddress()");
+      Bluetooth::setLastOperationStatus("address|Unauthorized to publishAddress()");
+      return;
     }
 
-    Logger::info("[BluetoothRefreshHandler]: Config updated");
+    bool actionResult = Api.publishAddress(
+      Config::getAddressCountry().c_str(),
+      Config::getAddressCity().c_str(),
+      Config::getAddressStreet().c_str(), 
+      Config::getAddressNumber().c_str()
+    );
+
+    if (!actionResult) {
+      Logger::info("[BluetoothRefreshHandler::deviceRefreshRequest()] Unable to set address");
+      Bluetooth::setLastOperationStatus("address|Unable to set address");
+    }
+    else {
+      Logger::info("[BluetoothRefreshHandler::deviceRefreshRequest()] Set station address: ok");
+      Bluetooth::setLastOperationStatus("address|ok");
+    }
+  }
+  else if(actionName.equals("location")) {
+    if(!Api.isRegistered()) {
+      Logger::debug("[BluetoothRefreshHandler::deviceRefreshRequest()] Unauthorized to publishLocation()");
+      Bluetooth::setLastOperationStatus("address|Unauthorized to publishLocation()");
+      return;
+    }
+
+    bool actionResult = Api.publishLocation(
+      Config::getLocationLatitude().toDouble(),
+      Config::getLocationLongitude().toDouble()
+    );
+
+    if (!actionResult) {
+      Logger::info("[BluetoothRefreshHandler::deviceRefreshRequest()] Unable to set location");
+      Bluetooth::setLastOperationStatus("location|Unable to set location");
+    }
+    else {
+      Logger::info("[BluetoothRefreshHandler::deviceRefreshRequest()] Set station location: ok");
+      Bluetooth::setLastOperationStatus("location|ok");
+    }
+  }
+  else if(actionName.equals("register")) {
+    Bluetooth::setLastOperationStatus("register|setting_up");
+    Config::save();
+    RegistrationResult* result = Api.registerStation();
+
+    if(result->ok) Bluetooth::setLastOperationStatus("register|ok");
+    else Bluetooth::setLastOperationStatus(String("register|") + result->message);
+
+    delete result;
+  }
+
+  Logger::info("[BluetoothRefreshHandler]: Config updated");
 }
