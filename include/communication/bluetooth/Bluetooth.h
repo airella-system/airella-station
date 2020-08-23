@@ -6,6 +6,8 @@
 #include <BLEUtils.h>
 #include "communication/bluetooth/chunker/BluetoothChunker.h"
 #include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
+#include "esp_bt_main.h"
+#include "esp_bt_device.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
@@ -69,6 +71,7 @@ class Bluetooth {
   static BluetoothHandler *bluetoothHandler;
   static String getLastOperationStatus();
   static void setLastOperationStatus(String operationStatus);
+  static String getMAC();
 
   static const uint32_t W_PROPERTY;
   static const uint32_t R_PROPERTY;
