@@ -1,25 +1,40 @@
 #pragma once
 
 #include <Arduino.h>
+#include "communication/bluetooth/Bluetooth.h"
 #define ACCESS_TOKEN_EXPIRATION_TIME 600000  // 1000ms * 60 * 10 = 10 min
+
+struct RegistrationResult {
+  bool ok = true;
+  const char* message = "";
+};
 
 class ApiClass {
 public:
   ApiClass() {};
   ~ApiClass() {};
 
-  bool registerStation();
+  RegistrationResult* registerStation();
   bool isRegistered();
-  void configUpdated();
-  bool publishMeasurement(String sensor, double value);
-  bool publishName(const char *name);
-  bool publishLocation(double longitude, double latitude);
-  bool publishAddress(const char *country, const char *city, const char *street, const char *number);
+  bool isAuth();
+  bool publishMeasurement(String sensor, double value, bool authCheck = true);
+  bool publishName(const char *name, bool authCheck = true);
+  bool publishLocation(double longitude, double latitude, bool authCheck = true);
+  bool publishAddress(const char *country, const char *city, const char *street, const char *number, bool authCheck = true);
 
 private:
   bool updateAccessToken();
   bool registerSensor(const char *type);
-  bool checkAuth();
+  bool doRegister(RegistrationResult* result);
+  bool doStationName(RegistrationResult* result);
+  bool doStationAddress(RegistrationResult* result);
+  bool doStationLocation(RegistrationResult* result);
+  bool doTempSensor(RegistrationResult* result);
+  bool doHumiditySensor(RegistrationResult* result);
+  bool doPreasurreSensor(RegistrationResult* result);
+  bool doPM1Sensor(RegistrationResult* result);
+  bool doPM2_5Sensor(RegistrationResult* result);
+  bool doPM10Sensor(RegistrationResult* result);
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;

@@ -15,14 +15,23 @@ class Config {
     NO_REGISTRATION = 0, 
     REGISTERING = 1, 
     REGISTRATION_ERROR = 2, 
-    REGISTERED = 3 
+    REGISTERED = 3,
+    STATION_NAME = 4,
+    STATION_ADDRESS = 5,
+    STATION_LOCATION = 6,
+    TEMP_SENSOR = 7,
+    HUMIDITY_SENSOR = 8,
+    PREASSURE_SENSOR = 9,
+    PM1_SENSOR = 10,
+    PM2_5_SENSOR = 11,
+    PM10_SENSOR = 12,
+    REGISTERED_OK = 13
   };
 
   static void load(bool lock = true);
   static void save(bool lock = true);
   static void reset(bool lock = true);
 
-  static String getDevicePassword(bool lock = true);
   static InternetConnectionType getInternetConnectionType(bool lock = true);
   static String getWifiSsid(bool lock = true);
   static String getWifiPassword(bool lock = true);

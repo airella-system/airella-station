@@ -180,3 +180,15 @@ String Bluetooth::getLastOperationStatus() {
 void Bluetooth::setLastOperationStatus(String operationStatus) {
   lastOperatioinState = operationStatus;
 }
+
+String Bluetooth::getMAC() {
+  String mac;
+  const uint8_t* point = esp_bt_dev_get_address();
+  for (int i = 0; i < 6; i++) {
+    char chunk[3];
+    sprintf(chunk, "%02X", (int)point[i]);
+    mac += chunk;
+    if (i < 5) mac += ":";
+  }
+  return mac;
+}

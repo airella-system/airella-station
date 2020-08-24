@@ -45,7 +45,6 @@ void Core::setUp() {
   heater->run();
 
   #ifdef STATIC_CONFIG
-  Api.configUpdated();
   Api.publishName("Mleko");
   Api.publishAddress("Poland", "Slopnice", "Slopnice", "123");
   Api.publishLocation(49.713481, 20.339463);
@@ -61,9 +60,6 @@ void Core::main() {
   //   Logger::debug(&tmp);
   //   delay(1000);
   // }
-#ifdef STOP_MAIN_LOOP
-  while(true) delay(1000);
-#endif
 
   if(!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");
@@ -71,6 +67,10 @@ void Core::main() {
       delay(1000);
     }
   }
+  
+#ifdef STOP_MAIN_LOOP
+  while(true) delay(1000);
+#endif
   
   while(true) {
     if (abs(millis() - lastPublishMillis) > 10000) {

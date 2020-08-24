@@ -61,9 +61,9 @@ void Config::load(bool lock) {
 }
 
 void Config::save(bool lock) {
+  Logger::debug("[Config::save()] Saving config to flash");
   if (lock) Config::lock();
   Config::preferences.begin("prefs", false);
-  Config::preferences.putString("device-password", Config::getDevicePassword());
   Config::preferences.putString("wifi-ssid", Config::getWifiSsid());
   Config::preferences.putString("wifi-password", Config::getWifiPassword());
   Config::preferences.putString("register-token", Config::getRegistratonToken());
@@ -80,6 +80,7 @@ void Config::save(bool lock) {
   Config::preferences.putBool("loc-manual", Config::getLocationManual());
   Config::preferences.end();
   if (lock) Config::unlock();
+  Logger::debug("[Config::save()] Config saved");
 }
 
 void Config::reset(bool lock) {
@@ -89,10 +90,6 @@ void Config::reset(bool lock) {
   Config::preferences.end();
   Config::load(false);
   if (lock) Config::unlock();
-}
-
-String Config::getDevicePassword(bool lock) {
-  return Config::devicePassword;
 }
 
 Config::InternetConnectionType Config::getInternetConnectionType(bool lock) {
@@ -209,6 +206,9 @@ void Config::setApiStationId(String apiStationId, bool lock) {
 
 void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock) {
   if (lock) Config::lock();
+  Config::preferences.begin("prefs", false);
+  Config::preferences.putString("registration_state", String(static_cast<int>(registrationState)));
+  Config::preferences.end();
   Config::registrationState = registrationState;
   if (lock) Config::unlock();
 }
