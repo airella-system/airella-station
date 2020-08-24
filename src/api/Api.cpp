@@ -32,43 +32,43 @@ RegistrationResult* ApiClass::registerStation() {
   Config::RegistrationState currentRegistrationState = Config::getRegistrationState();
 
   if(currentRegistrationState < Config::RegistrationState::REGISTERED) {
-    if(!doRegister(result)) result;
+    if(!doRegister(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::STATION_NAME) {
-    if(!doStationName(result)) result;
+    if(!doStationName(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::STATION_ADDRESS) {
-    if(!doStationAddress(result)) result;
+    if(!doStationAddress(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::STATION_LOCATION) {
-    if(!doStationLocation(result)) result;
+    if(!doStationLocation(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::TEMP_SENSOR) {
-    if(!doTempSensor(result)) result;
+    if(!doTempSensor(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::HUMIDITY_SENSOR) {
-    if(!doHumiditySensor(result)) result;
+    if(!doHumiditySensor(result)) return result;
   }
   
   if(currentRegistrationState < Config::RegistrationState::PREASSURE_SENSOR) {
-    if(!doPreasurreSensor(result)) result;
+    if(!doPreasurreSensor(result)) return result;
   }
   
   if(currentRegistrationState < Config::RegistrationState::PM1_SENSOR) {
-    if(!doPM1Sensor(result)) result;
+    if(!doPM1Sensor(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::PM2_5_SENSOR) {
-    if(!doPM2_5Sensor(result)) result;
+    if(!doPM2_5Sensor(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::PM10_SENSOR) {
-    if(!doPM10Sensor(result)) result;
+    if(!doPM10Sensor(result)) return result;
   }
 
   Logger::info("[ApiClass::registerStation()] Registered successfull");
@@ -86,7 +86,7 @@ bool ApiClass::doRegister(RegistrationResult* result) {
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
   Logger::debug(registrationToken.c_str());
   doc["stationRegistrationToken"] = registrationToken.c_str();
-  doc["mac"] = Bluetooth::getMAC();
+  doc["macAddress"] = Bluetooth::getMAC();
   String body = "";
   serializeJson(doc, body);
   Http::Response response = Internet::httpPost(url, body);
