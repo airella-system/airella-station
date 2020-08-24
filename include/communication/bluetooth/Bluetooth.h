@@ -72,12 +72,17 @@ class Bluetooth {
   static String getLastOperationStatus();
   static void setLastOperationStatus(String operationStatus);
   static String getMAC();
+  static void removeBondDevices();
+  static BLEServer *getBleServer();
+  static void setDiscoverability(bool discoverability);
 
   static const uint32_t W_PROPERTY;
   static const uint32_t R_PROPERTY;
   static const uint32_t RW_PROPERTY;
 
  private:
+  static BLEServer *bleServer;
+  
   static BluetoothChunker *stationNameCharacteristic;
   static BluetoothChunker *stationCountryCharacteristic;
   static BluetoothChunker *stationCityCharacteristic;
