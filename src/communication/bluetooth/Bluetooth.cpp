@@ -1,13 +1,15 @@
 #include "communication/bluetooth/Bluetooth.h"
+#include "communication/bluetooth/BLECallbacks.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
-#include "communication/bluetooth/BLECallbacks.h"
 
 const uint32_t Bluetooth::W_PROPERTY = BLECharacteristic::PROPERTY_WRITE;
 const uint32_t Bluetooth::R_PROPERTY = BLECharacteristic::PROPERTY_READ;
 const uint32_t Bluetooth::RW_PROPERTY = BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE;
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
+
+BLEServer *Bluetooth::bleServer = nullptr;
 
 BluetoothChunker *Bluetooth::stationCountryCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::stationNameCharacteristic = nullptr;
@@ -32,22 +34,47 @@ BluetoothChunker *Bluetooth::deviceStateCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
-#ifdef BT_AUTH_ENABLE
-class MySecurity : public BLESecurityCallbacks {
-  uint32_t onPassKeyRequest() { return 123456; }
+class CustomBLESecurity : public BLESecurityCallbacks {
+  uint32_t onPassKeyRequest() { return 0; }
 
   void onPassKeyNotify(uint32_t pass_key) {}
 
-  bool onConfirmPIN(uint32_t pass_key) {
-    vTaskDelay(5000);
-    return true;
-  }
+  bool onConfirmPIN(uint32_t pass_key) { return true; }
 
   bool onSecurityRequest() { return true; }
 
-  void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) {}
+  void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) {
+    int bondDevicesNum = esp_ble_get_bond_device_num();
+    if (cmpl.success && bondDevicesNum > 1) {
+      Logger::debug("[Bluetooth::onAuthenticationComplete()] Already added device - removing bond request");
+      esp_ble_remove_bond_device(cmpl.bd_addr);
+    } else if (cmpl.success) {
+      Logger::debug("[Bluetooth::onAuthenticationComplete()] Added new device");
+      Bluetooth::setDiscoverability(false);
+    }
+  }
 };
-#endif
+
+BLEServer *Bluetooth::getBleServer() {
+  return bleServer;
+}
+
+void Bluetooth::removeBondDevices() {
+  int dev_num = esp_ble_get_bond_device_num();
+  if (dev_num > 0) {
+    esp_ble_bond_dev_t *dev_list = (esp_ble_bond_dev_t *)malloc(sizeof(esp_ble_bond_dev_t) * dev_num);
+    esp_ble_get_bond_device_list(&dev_num, dev_list);
+    for (int i = 0; i < dev_num; i++) {
+      esp_ble_remove_bond_device(dev_list[i].bd_addr);
+    }
+    free(dev_list);
+  }
+}
+
+void Bluetooth::setDiscoverability(bool discoverability) {
+  Logger::debug((String("[Bluetooth::setDiscoverability()] Setting discoverability to ") + String(discoverability)).c_str());
+  Bluetooth::getBleServer()->getAdvertising()->setScanFilter(!discoverability, false);
+}
 
 void Bluetooth::reloadValues() {
   ssidCharacteristic->setValue(Config::getWifiSsid().c_str());
@@ -68,13 +95,11 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   Bluetooth::bluetoothHandler = bluetoothHandler;
   BLEDevice::init("Airella Station");
 
-  #ifdef BT_AUTH_ENABLE
   BLEDevice::setEncryptionLevel(ESP_BLE_SEC_ENCRYPT);
-  BLEDevice::setSecurityCallbacks(new MySecurity());
-  #endif
+  BLEDevice::setSecurityCallbacks(new CustomBLESecurity());
 
-  BLEServer *pServer = BLEDevice::createServer();
-  BLEService *pService = pServer->createService(BLEUUID((const char *)SERVICE_UUID), 100);
+  bleServer = BLEDevice::createServer();
+  BLEService *pService = bleServer->createService(BLEUUID((const char *)SERVICE_UUID), 100);
 
   inetConnTypeCharacteristic = new BluetoothChunker(pService, INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
   inetConnTypeCharacteristic->setCallback(new InetConnTypeCallback());
@@ -130,7 +155,6 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   deviceStateCharacteristic = new BluetoothChunker(pService, DEVICE_STATE_CUUID, R_PROPERTY);
   deviceStateCharacteristic->setCallback(new DeviceStateCallback());
 
-  #ifdef BT_AUTH_ENABLE
   stationNameCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   stationCountryCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   stationCityCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
@@ -151,26 +175,22 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   registrationStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   inetConnStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   deviceStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  #endif
 
   reloadValues();
   pService->start();
-  BLEAdvertising *pAdvertising = pServer->getAdvertising();
+  BLEAdvertising *pAdvertising = bleServer->getAdvertising();
   pAdvertising->start();
 
-  #ifdef BT_AUTH_ENABLE
-  BLESecurity *pSecurity = new BLESecurity();
-  uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
-  uint32_t passkey = 234567;
-  uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_DISABLE;
-  esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
-  pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
-  pSecurity->setCapability(ESP_IO_CAP_OUT);
-  pSecurity->setKeySize(16);
-  esp_ble_gap_set_security_param(ESP_BLE_SM_ONLY_ACCEPT_SPECIFIED_SEC_AUTH, &auth_option, sizeof(uint8_t));
-  pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
-  esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
-  #endif
+  esp_ble_auth_req_t auth_req = ESP_LE_AUTH_BOND;
+  esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));
+
+  if (esp_ble_get_bond_device_num() > 0) {
+    Logger::debug("[Bluetooth::start()] One device is already bonded");
+    Bluetooth::setDiscoverability(false);
+  } else {
+    Logger::debug("[Bluetooth::start()] There are no bonded device");
+    Bluetooth::setDiscoverability(true);
+  }
 }
 
 String Bluetooth::getLastOperationStatus() {
@@ -183,7 +203,7 @@ void Bluetooth::setLastOperationStatus(String operationStatus) {
 
 String Bluetooth::getMAC() {
   String mac;
-  const uint8_t* point = esp_bt_dev_get_address();
+  const uint8_t *point = esp_bt_dev_get_address();
   for (int i = 0; i < 6; i++) {
     char chunk[3];
     sprintf(chunk, "%02X", (int)point[i]);
