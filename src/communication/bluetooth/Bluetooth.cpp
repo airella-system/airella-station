@@ -181,7 +181,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   BLEAdvertising *pAdvertising = bleServer->getAdvertising();
   pAdvertising->start();
 
-  esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND;
+  esp_ble_auth_req_t auth_req = ESP_LE_AUTH_BOND;
   esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));
 
   if (esp_ble_get_bond_device_num() > 0) {
