@@ -1,6 +1,5 @@
 #include "core/Core.h"
 
-// #define STATIC_CONFIG
 // #define STOP_MAIN_LOOP
 
 Core::Core() {
@@ -17,18 +16,6 @@ void Core::setUp() {
 
   Config::load();
   Logger::info("[Core]: Loaded preferences.");
-
-  #ifdef STATIC_CONFIG
-  Config::setWifiSsid("default");
-  Config::setApiUrl("http://airella.cyfrogen.com/api");
-  Config::setRegistratonToken("03cdfeca-ddb2-4856-b69e-0b0ceaf10113");
-  Config::setStationName("Mleko");
-  Config::setAddressCity("Slopnice");
-  Config::setAddressCountry("Poland");
-  Config::setAddressStreet("Slopnice");
-  Config::setAddressNumber("123");
-  Config::save();
-  #endif
 
   Bluetooth::start(new BluetoothRefreshHandler());
   Internet::setType(Internet::WIFI);
@@ -54,12 +41,6 @@ void Core::setUp() {
 }
 
 void Core::main() {
-  
-  // while(true) {
-  //   String tmp = timeProvider.getDataTime().toString();
-  //   Logger::debug(&tmp);
-  //   delay(1000);
-  // }
 
   if(!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");

@@ -61,6 +61,8 @@ void BluetoothChunker::endReceiving() {
   String message = "[BluetoothChunker::endReceiving()] Ended reveiving transaction: ";
   message += value.c_str();
   Logger::debug(message.c_str());
+  
+  callback->afterReceive();
 }
 
 bool BluetoothChunker::isActiveReceiving() {
@@ -73,6 +75,8 @@ std::string BluetoothChunker::startSending() {
     Logger::error("[BluetoothChunker::startSending()] Sending transaction already started");
     return "";
   }
+
+  callback->beforeSend();
 
   if(std::log2(value.length()) > BT_CHUNKER_HEADER_SIZE * 8) {
     Logger::error("[BluetoothChunker::startSending()] To loong message");

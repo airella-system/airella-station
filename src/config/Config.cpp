@@ -34,7 +34,6 @@ void Config::unlock() {
 void Config::load(bool lock) {
   if (lock) Config::lock();
   Config::preferences.begin("prefs", false);
-  Config::devicePassword = Config::preferences.getString("device-password", "");
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::wifiSsid = Config::preferences.getString("wifi-ssid", "");
@@ -51,11 +50,7 @@ void Config::load(bool lock) {
   Config::locationLatitude = Config::preferences.getString("loc-latitude", "");
   Config::locationLongitude = Config::preferences.getString("loc-longitude", "");
   Config::locationManual = Config::preferences.getBool("loc-manual", false);
-  if (!Config::getRefreshToken().equals("") && !Config::getApiStationId().equals("")) {
-    Config::registrationState = Config::RegistrationState::REGISTERED;
-  } else {
-    Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
-  }
+  Config::registrationState = static_cast<Config::RegistrationState>(Config::preferences.getInt("reg-state", 0));
   Config::preferences.end();
   if (lock) Config::unlock();
 }
@@ -78,6 +73,8 @@ void Config::save(bool lock) {
   Config::preferences.putString("loc-latitude", Config::getLocationLatitude());
   Config::preferences.putString("loc-longitude", Config::getLocationLongitude());
   Config::preferences.putBool("loc-manual", Config::getLocationManual());
+  Config::preferences.putString("reg-state", String(static_cast<int>(Config::getRegistrationState())));
+  Config::preferences.putString("inet-conn", String(static_cast<int>(Config::getInternetConnectionType())));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -207,7 +204,7 @@ void Config::setApiStationId(String apiStationId, bool lock) {
 void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock) {
   if (lock) Config::lock();
   Config::preferences.begin("prefs", false);
-  Config::preferences.putString("registration_state", String(static_cast<int>(registrationState)));
+  Config::preferences.putString("reg-state", String(static_cast<int>(registrationState)));
   Config::preferences.end();
   Config::registrationState = registrationState;
   if (lock) Config::unlock();
