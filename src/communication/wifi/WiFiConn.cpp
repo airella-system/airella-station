@@ -3,6 +3,7 @@
 #include <WiFi.h>
 #include "config/Config.h"
 #include "maintenance/Logger.h"
+#include "maintenance/Guardian.h"
 
 static HTTPClient http;
 bool WiFiConn::connected = false;
@@ -48,9 +49,12 @@ bool WiFiConn::isConnected() {
   return WiFiConn::connected;
 }
 
-Http::Response WiFiConn::httpGet(String url, String authorization) {}
+Http::Response WiFiConn::httpGet(String url, String authorization) {
+  Guardian::checkWiFiConnection();
+}
 
 Http::Response WiFiConn::httpPost(String url, String body, String authorization) {
+  Guardian::checkWiFiConnection();
   Logger::debug(("POST Request to url: " + url + " with body: " + body).c_str());
 
   http.begin(url);
@@ -67,6 +71,7 @@ Http::Response WiFiConn::httpPost(String url, String body, String authorization)
 }
 
 Http::Response WiFiConn::httpPut(String url, String json, String authorization) {
+  Guardian::checkWiFiConnection();
   Logger::debug(("PUT Request to url: " + url + " with body: " + json).c_str());
 
   http.begin(url);
