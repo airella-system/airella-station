@@ -73,8 +73,8 @@ void Config::save(bool lock) {
   Config::preferences.putString("loc-latitude", Config::getLocationLatitude());
   Config::preferences.putString("loc-longitude", Config::getLocationLongitude());
   Config::preferences.putBool("loc-manual", Config::getLocationManual());
-  Config::preferences.putString("reg-state", String(static_cast<int>(Config::getRegistrationState())));
-  Config::preferences.putString("inet-conn", String(static_cast<int>(Config::getInternetConnectionType())));
+  Config::preferences.putInt("reg-state", static_cast<int>(Config::getRegistrationState()));
+  Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType()));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -204,7 +204,7 @@ void Config::setApiStationId(String apiStationId, bool lock) {
 void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock) {
   if (lock) Config::lock();
   Config::preferences.begin("prefs", false);
-  Config::preferences.putString("reg-state", String(static_cast<int>(registrationState)));
+  Config::preferences.putInt("reg-state", static_cast<int>(registrationState));
   Config::preferences.end();
   Config::registrationState = registrationState;
   if (lock) Config::unlock();

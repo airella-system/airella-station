@@ -1,6 +1,6 @@
 #include "core/Core.h"
 
-// #define STOP_MAIN_LOOP
+#define STOP_MAIN_LOOP
 
 Core::Core() {
   Logger::setUp();
@@ -30,12 +30,6 @@ void Core::setUp() {
   weatherSensor = new WeatherSensor();
   heater = new Heater(*weatherSensor);
   heater->run();
-
-  #ifdef STATIC_CONFIG
-  Api.publishName("Mleko");
-  Api.publishAddress("Poland", "Slopnice", "Slopnice", "123");
-  Api.publishLocation(49.713481, 20.339463);
-  #endif
 
   Logger::info("[Core]: Setting up ended");
 }
