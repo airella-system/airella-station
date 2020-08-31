@@ -93,7 +93,6 @@ bool ApiClass::doRegister(RegistrationResult* result) {
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
   doc["stationRegistrationToken"] = registrationToken.c_str();
-  doc["macAddress"] = Bluetooth::getMAC().c_str();
   String body = "";
   serializeJson(doc, body);
   Http::Response response = Internet::httpPost(url, body);
