@@ -458,7 +458,7 @@ bool ApiClass::addBtMacValue() {
   Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
   logRequest("[ApiClass::addBtMacValue()] Send MAC: ", response);
 
-  if (response.code != 201) {
+  if (response.code != 200) {
     Logger::debug(String("[ApiClass::addBtMacValue()] Sending statisctic fail - error: " + response.code).c_str());
     return false;
   }
