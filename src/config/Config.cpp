@@ -186,6 +186,9 @@ void Config::setRegistratonToken(String registratonToken, bool lock) {
 void Config::setRefreshToken(String refreshToken, bool lock) {
   if (lock) Config::lock();
   Config::refreshToken = refreshToken;
+  Config::preferences.begin("prefs", false);
+  Config::preferences.putString("refresh-token", refreshToken);
+  Config::preferences.end();
   if (lock) Config::unlock();
 }
 
@@ -198,6 +201,9 @@ void Config::setApiUrl(String apiUrl, bool lock) {
 void Config::setApiStationId(String apiStationId, bool lock) {
   if (lock) Config::lock();
   Config::apiStationId = apiStationId;
+  Config::preferences.begin("prefs", false);
+  Config::preferences.putString("api-station-id", apiStationId);
+  Config::preferences.end();
   if (lock) Config::unlock();
 }
 

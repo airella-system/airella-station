@@ -71,6 +71,14 @@ RegistrationResult* ApiClass::registerStation() {
     if(!doPM10Sensor(result)) return result;
   }
 
+  if(currentRegistrationState < Config::RegistrationState::MAC_STATISTIC) {
+    if(!doBtMacStatistic(result)) return result;
+  }
+
+  if(currentRegistrationState < Config::RegistrationState::MAC_VALUE) {
+    if(!doBtMacValue(result)) return result;
+  }
+
   Logger::info("[ApiClass::registerStation()] Registered successfull");
   Config::setRegistrationState(Config::RegistrationState::REGISTERED_OK);
   Config::save();
@@ -85,7 +93,6 @@ bool ApiClass::doRegister(RegistrationResult* result) {
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
   doc["stationRegistrationToken"] = registrationToken.c_str();
-  doc["macAddress"] = Bluetooth::getMAC().c_str();
   String body = "";
   serializeJson(doc, body);
   Http::Response response = Internet::httpPost(url, body);
@@ -113,11 +120,7 @@ bool ApiClass::doRegister(RegistrationResult* result) {
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
 
   if (!updateAccessToken()) {
-    Logger::debug("[ApiClass::registerStation()] Unable to update token");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to update token";
-    result->ok = false;
-    return false;
+    return logRegistrationFail("Unable to update token", result);
   }
 
   return true;
@@ -125,19 +128,16 @@ bool ApiClass::doRegister(RegistrationResult* result) {
 
 bool ApiClass::doStationName(RegistrationResult* result) {
   String name = Config::getStationName();
-  if (!name.equals("")) {
-    if (!publishName(name.c_str(), false)) {
-      Logger::debug("[ApiClass::registerStation()] Unable to set station name");
-      Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-      result->message = "Unable to set station name";
-      result->ok = false;
-      return false;
-    }
-    else {
-      Logger::debug("[ApiClass::registerStation()] Set station name");
-      Config::setRegistrationState(Config::RegistrationState::STATION_NAME);
-    }
+  if (name.equals("")) return true;
+
+  if (publishName(name.c_str(), false)) {
+    Logger::debug("[ApiClass::registerStation()] Set station name");
+    Config::setRegistrationState(Config::RegistrationState::STATION_NAME);
   }
+  else {
+    return logRegistrationFail("Unable to set station name", result);
+  }
+
   return true;
 }
 
@@ -151,16 +151,12 @@ bool ApiClass::doStationAddress(RegistrationResult* result) {
     false
   );
 
-  if (!actionResult) {
-    Logger::debug("[ApiClass::registerStation()] Unable to set address");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to set address";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (actionResult) {
     Logger::info("[ApiClass::registerStation()] Set station address");
     Config::setRegistrationState(Config::RegistrationState::STATION_ADDRESS);
+  }
+  else {
+    return logRegistrationFail("Unable to set address", result);
   }
   return true;
 }
@@ -172,106 +168,100 @@ bool ApiClass::doStationLocation(RegistrationResult* result) {
     false
   );
 
-  if (!actionResult) {
-    Logger::debug("[ApiClass::registerStation()] Unable to set location");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to set location";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (actionResult) {
     Logger::info("[ApiClass::registerStation()] Set station location");
     Config::setRegistrationState(Config::RegistrationState::STATION_LOCATION);
+  }
+  else {
+    return logRegistrationFail("Unable to set location", result);
   }
   return true;
 }
 
 bool ApiClass::doTempSensor(RegistrationResult* result) {
-  if (!registerSensor("temperature")) {
-    Logger::debug("[ApiClass::registerStation()] Unable to register remperature sensor");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to register remperature sensor";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (registerSensor("temperature")) {
     Logger::info("[ApiClass::registerStation()] Registered remperature sensor");
     Config::setRegistrationState(Config::RegistrationState::TEMP_SENSOR);
+  }
+  else {
+    return logRegistrationFail("Unable to register remperature sensor", result);
   }
   return true;
 }
 
 bool ApiClass::doHumiditySensor(RegistrationResult* result) {
-  if (!registerSensor("humidity")) {
-    Logger::debug("[ApiClass::registerStation()] Unable to register humidity sensor");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to register humidity sensor";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (registerSensor("humidity")) {
     Logger::info("[ApiClass::registerStation()] Registered humidity sensor");
     Config::setRegistrationState(Config::RegistrationState::HUMIDITY_SENSOR);
+  }
+  else {
+    return logRegistrationFail("Unable to register humidity sensor", result);
   }
   return true;
 }
 
 bool ApiClass::doPreasurreSensor(RegistrationResult* result) {
-  if (!registerSensor("pressure")) {
-    Logger::debug("[ApiClass::registerStation()] Unable to register pressure sensor");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to register pressure sensor";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (registerSensor("pressure")) {
     Logger::info("[ApiClass::registerStation()] Registered pressure sensor");
     Config::setRegistrationState(Config::RegistrationState::PREASSURE_SENSOR);
+  }
+  else {
+    return logRegistrationFail("Unable to register pressure sensor", result);
   }
   return true;
 }
 
 bool ApiClass::doPM1Sensor(RegistrationResult* result) {
-  if (!registerSensor("pm1")) {
-    Logger::debug("[ApiClass::registerStation()] Unable to register pm1 sensor");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to register pm1 sensor";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (registerSensor("pm1")) {
     Logger::info("[ApiClass::registerStation()] Registered pm1 sensor");
     Config::setRegistrationState(Config::RegistrationState::PM1_SENSOR);
+  }
+  else {
+    return logRegistrationFail("Unable to register pm1 sensor", result);
   }
   return true;
 }
 
 bool ApiClass::doPM2_5Sensor(RegistrationResult* result) {
-  if (!registerSensor("pm2_5")) {
-    Logger::debug("[ApiClass::registerStation()] Unable to register pm2_5 sensor");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to register pm2_5 sensor";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (registerSensor("pm2_5")) {
     Logger::info("[ApiClass::registerStation()] Registered pm2_5 sensor");
     Config::setRegistrationState(Config::RegistrationState::PM2_5_SENSOR);
+  }
+  else {
+    return logRegistrationFail("Unable to register pm2_5 sensor", result);
   }
   return true;
 }
 
 bool ApiClass::doPM10Sensor(RegistrationResult* result) {
-  if (!registerSensor("pm10")) {
-    Logger::debug("[ApiClass::registerStation()] Unable to register pm10 sensor");
-    Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
-    result->message = "Unable to register pm10 sensor";
-    result->ok = false;
-    return false;
-  }
-  else {
+  if (registerSensor("pm10")) {
     Logger::info("[ApiClass::registerStation()] Registered pm10 sensor");
     Config::setRegistrationState(Config::RegistrationState::PM10_SENSOR);
+  }
+  else {
+    return logRegistrationFail("Unable to register pm10 sensor", result);
+  }
+  return true;
+}
+
+bool ApiClass::doBtMacStatistic(RegistrationResult* result) {
+  if (addBtMacStatistic()) {
+    Logger::info("[ApiClass::doBtMacStatistic()] Created Bluetooth MAC statistic");
+    Config::setRegistrationState(Config::RegistrationState::MAC_STATISTIC);
+  }
+  else {
+    return logRegistrationFail("Unable to create Bluetooth MAC statistic", result);
+  }
+  return true;
+}
+
+bool ApiClass::doBtMacValue(RegistrationResult* result) {
+  if (addBtMacValue()) {
+    Logger::info("[ApiClass::doBtMacValue()] Sent Bluetooth MAC");
+    Config::setRegistrationState(Config::RegistrationState::MAC_STATISTIC);
+  }
+  else {
+    return logRegistrationFail("Unable to send Bluetooth MAC", result);
   }
   return true;
 }
@@ -431,6 +421,65 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
 
 bool ApiClass::isAuth() {
   return isRegistered() && updateAccessToken();
+}
+
+bool ApiClass::addBtMacStatistic() {
+  String url = Config::getApiUrl() 
+    + "/stations/" 
+    + Config::getApiStationId()
+    + "/statistics";
+
+  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(3));
+  statisticDoc["privacyMode"] = "private";
+  statisticDoc["type"] = "one_string_value";
+  statisticDoc["id"] = "btMacAddress";
+  String body = "";
+  serializeJson(statisticDoc, body);
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
+  logRequest("[ApiClass::addBtMacStatistic()] Create statisctic: ", response);
+
+  if (response.code != 201) {
+    Logger::debug(String("[ApiClass::addBtMacStatistic()] Create statisctic fail - error: " + response.code).c_str());
+    return false;
+  }
+  return true;
+}
+
+bool ApiClass::addBtMacValue() {
+  String url = Config::getApiUrl() 
+    + "/stations/" 
+    + Config::getApiStationId()
+    + "/statistics"
+    + "/btMacAddress/values";
+  DynamicJsonDocument macDoc(JSON_OBJECT_SIZE(1));
+  macDoc["value"] = Bluetooth::getMAC().c_str();
+  String body = "";
+  serializeJson(macDoc, body);
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
+  logRequest("[ApiClass::addBtMacValue()] Send MAC: ", response);
+
+  if (response.code != 200) {
+    Logger::debug(String("[ApiClass::addBtMacValue()] Sending statisctic fail - error: " + response.code).c_str());
+    return false;
+  }
+  return true;
+}
+
+void ApiClass::logRequest(const char* name, Http::Response& response) {
+  String logText = name;
+  logText += response.code;
+  logText += " payload: ";
+  logText += response.payload;
+  Logger::debug(&logText);
+}
+
+bool ApiClass::logRegistrationFail(const char* message, RegistrationResult* result) {
+  String logMessage = "[ApiClass::registerStation()] ";
+  logMessage += message;
+  Logger::debug(&logMessage);
+  result->message = message;
+  result->ok = false;
+  return false;
 }
 
 ApiClass Api;
