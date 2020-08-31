@@ -1,6 +1,6 @@
 #include "core/Core.h"
 
-#define STOP_MAIN_LOOP
+// #define STOP_MAIN_LOOP
 
 Core::Core() {
   Logger::setUp();
@@ -21,8 +21,11 @@ void Core::setUp() {
   Internet::setType(Internet::WIFI);
   Internet::start();
 
-  timeProvider.connect();
-  timeProvider.update();
+  if(WiFi.status() == WL_CONNECTED) {
+    // crash while internet is not connected
+    timeProvider.connect();
+    timeProvider.update();
+  }
 
   airSensor = new AirSensor();
   airSensor->powerOn();
@@ -44,7 +47,9 @@ void Core::main() {
   }
   
 #ifdef STOP_MAIN_LOOP
-  while(true) delay(1000);
+  while(true) {
+    delay(1000);
+  }
 #endif
   
   while(true) {
