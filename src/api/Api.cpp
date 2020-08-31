@@ -430,7 +430,7 @@ bool ApiClass::addBtMacStatistic() {
     + "/statistics";
 
   DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(3));
-  statisticDoc["statisticPrivacyMode"] = "private";
+  statisticDoc["privacyMode"] = "private";
   statisticDoc["type"] = "one_string_value";
   statisticDoc["id"] = "btMacAddress";
   String body = "";
