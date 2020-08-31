@@ -84,9 +84,8 @@ bool ApiClass::doRegister(RegistrationResult* result) {
   String url = apiUrlBase + "/auth/register-station";
 
   DynamicJsonDocument doc(JSON_OBJECT_SIZE(2));
-  Logger::debug(registrationToken.c_str());
   doc["stationRegistrationToken"] = registrationToken.c_str();
-  doc["macAddress"] = Bluetooth::getMAC();
+  doc["macAddress"] = Bluetooth::getMAC().c_str();
   String body = "";
   serializeJson(doc, body);
   Http::Response response = Internet::httpPost(url, body);
@@ -418,7 +417,6 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
 
   const size_t capacity = JSON_OBJECT_SIZE(1);
   DynamicJsonDocument doc(capacity);
-  Logger::debug(String(value).c_str());
   doc["value"] = value;
   String body = "";
   serializeJson(doc, body);

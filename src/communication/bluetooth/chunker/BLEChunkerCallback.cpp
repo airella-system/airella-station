@@ -20,6 +20,6 @@ void BLEChunkerCallback::onWrite(BLECharacteristic *pCharacteristic) {
   if(!chunker->isActiveReceiving()) {
     chunker->startReceiving(chunk);
   }
-  chunker->addChunk(chunk);
   Logger::debug("[BT Chunker] Received chunk");
+  chunker->addChunk(chunk);
 }
