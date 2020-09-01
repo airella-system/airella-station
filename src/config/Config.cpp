@@ -4,7 +4,6 @@
 Preferences Config::preferences = Preferences();
 SemaphoreHandle_t Config::mux = xSemaphoreCreateMutex();
 
-String Config::devicePassword = String();
 Config::InternetConnectionType Config::internetConnectionType = Config::InternetConnectionType::WIFI;
 String Config::wifiSsid = String();
 String Config::wifiPassword = String();
@@ -90,6 +89,22 @@ void Config::reset(bool lock /* = true */) {
   if (lock) Config::unlock();
 }
 
+String Config::getAtomicString(String* var, bool lock) {
+  if (lock) Config::lock();
+  String value = String(*var);
+  if (lock) Config::unlock();
+  return value;
+}
+
+void Config::syncValueWithFlash(String* newValue, String* configValue, const char* prefsName, bool lock) {
+  if (lock) Config::lock();
+  *configValue = String(*newValue);
+  Config::preferences.begin("prefs", false);
+  Config::preferences.putString(prefsName, *newValue);
+  Config::preferences.end();
+  if (lock) Config::unlock();
+}
+
 Config::InternetConnectionType Config::getInternetConnectionType(bool lock /* = true */) {
   if (lock) Config::lock();
   InternetConnectionType value = Config::internetConnectionType;
@@ -98,45 +113,27 @@ Config::InternetConnectionType Config::getInternetConnectionType(bool lock /* = 
 }
 
 String Config::getWifiSsid(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::wifiSsid;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::wifiSsid, lock);
 }
 
 String Config::getWifiPassword(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::wifiPassword;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::wifiPassword, lock);
 }
 
 String Config::getRegistratonToken(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::registratonToken;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::registratonToken, lock);
 }
 
 String Config::getRefreshToken(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::refreshToken;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::refreshToken, lock);
 }
 
 String Config::getApiUrl(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::apiUrl;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::apiUrl, lock);
 }
 
 String Config::getApiStationId(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::apiStationId;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::apiStationId, lock);
 }
 
 Config::RegistrationState Config::getRegistrationState(bool lock /* = true */) {
@@ -147,52 +144,31 @@ Config::RegistrationState Config::getRegistrationState(bool lock /* = true */) {
 }
 
 String Config::getStationName(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::stationName;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::stationName, lock);
 }
 
 String Config::getAddressCountry(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::addressCountry;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::addressCountry, lock);
 }
 
 String Config::getAddressCity(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::addressCity;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::addressCity, lock);
 }
 
 String Config::getAddressStreet(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::addressStreet;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::addressStreet, lock);
 }
 
 String Config::getAddressNumber(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::addressNumber;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::addressNumber, lock);
 }
 
 String Config::getLocationLatitude(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::locationLatitude;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::locationLatitude, lock);
 }
 
 String Config::getLocationLongitude(bool lock /* = true */) {
-  if (lock) Config::lock();
-  String value = Config::locationLongitude;
-  if (lock) Config::unlock();
-  return value;
+  return getAtomicString(&Config::locationLongitude, lock);
 }
 
 bool Config::getLocationManual(bool lock /* = true */) {
@@ -202,58 +178,36 @@ bool Config::getLocationManual(bool lock /* = true */) {
   return value;
 }
 
-void Config::setDevicePassword(String devicePassword, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::devicePassword = devicePassword;
-  if (lock) Config::unlock();
-}
-
 void Config::setInternetConnectionType(Config::InternetConnectionType internetConnectionType, bool lock /* = true */) {
-  if (lock) Config::lock();
   Config::internetConnectionType = internetConnectionType;
+  Config::preferences.begin("prefs", false);
+  Config::preferences.putInt("inet-conn", static_cast<int>(internetConnectionType));
+  Config::preferences.end();
   if (lock) Config::unlock();
 }
 
 void Config::setWifiSsid(String wifiSsid, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::wifiSsid = wifiSsid;
-  if (lock) Config::unlock();
+  syncValueWithFlash(&wifiSsid, &Config::wifiSsid, "wifi-ssid", lock);
 }
 
 void Config::setWifiPassword(String wifiPassword, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::wifiPassword = wifiPassword;
-  if (lock) Config::unlock();
+  syncValueWithFlash(&wifiPassword, &Config::wifiPassword, "wifi-password", lock);
 }
 
 void Config::setRegistratonToken(String registratonToken, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::registratonToken = registratonToken;
-  if (lock) Config::unlock();
+  syncValueWithFlash(&registratonToken, &Config::registratonToken, "register-token", lock);
 }
 
 void Config::setRefreshToken(String refreshToken, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::refreshToken = refreshToken;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("refresh-token", refreshToken);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&refreshToken, &Config::refreshToken, "refresh-token", lock);
 }
 
 void Config::setApiUrl(String apiUrl, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::apiUrl = apiUrl;
-  if (lock) Config::unlock();
+  syncValueWithFlash(&apiUrl, &Config::apiUrl, "api-url", lock);
 }
 
 void Config::setApiStationId(String apiStationId, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::apiStationId = apiStationId;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("api-station-id", apiStationId);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&apiStationId, &Config::apiStationId, "api-station-id", lock);
 }
 
 void Config::setRegistrationState(Config::RegistrationState registrationState, bool lock /* = true */) {
@@ -266,66 +220,31 @@ void Config::setRegistrationState(Config::RegistrationState registrationState, b
 }
 
 void Config::setStationName(String stationName, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::stationName = stationName;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("station-name", stationName);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&stationName, &Config::stationName, "station-name", lock);
 }
 
 void Config::setAddressCountry(String addressCountry, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::addressCountry = addressCountry;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("address-country", addressCountry);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&addressCountry, &Config::addressCountry, "address-country", lock);
 }
 
 void Config::setAddressCity(String addressCity, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::addressCity = addressCity;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("address-city", addressCity);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&addressCity, &Config::addressCity, "address-city", lock);
 }
 
 void Config::setAddressStreet(String addressStreet, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::addressStreet = addressStreet;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("address-street", addressStreet);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&addressStreet, &Config::addressStreet, "address-street", lock);
 }
 
 void Config::setAddressNumber(String addressNumber, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::addressNumber = addressNumber;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("address-number", addressNumber);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&addressNumber, &Config::addressNumber, "address-number", lock);
 }
 
 void Config::setLocationLatitude(String latitude, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::locationLatitude = latitude;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("loc-latitude", latitude);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&latitude, &Config::locationLatitude, "loc-latitude", lock);
 }
 
 void Config::setLocationLongitude(String longitude, bool lock /* = true */) {
-  if (lock) Config::lock();
-  Config::locationLongitude = longitude;
-  Config::preferences.begin("prefs", false);
-  Config::preferences.putString("loc-longitude", longitude);
-  Config::preferences.end();
-  if (lock) Config::unlock();
+  syncValueWithFlash(&longitude, &Config::locationLongitude, "loc-longitude", lock);
 }
 
 void Config::setLocationManual(bool manual, bool lock /* = true */) {
