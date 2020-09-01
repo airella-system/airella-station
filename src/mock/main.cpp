@@ -13,7 +13,6 @@ unsigned long lastPublishMillis = 0;
 
 void setup() {
   Config::load();
-  Config::save();
   Bluetooth::start(new BluetoothRefreshHandler());
   Internet::setType(Internet::WIFI);
   Internet::start();

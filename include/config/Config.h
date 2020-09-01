@@ -52,7 +52,6 @@ class Config {
 
   static RegistrationState getRegistrationState(bool lock = true);
 
-  static void setDevicePassword(String devicePassword, bool lock = true);
   static void setInternetConnectionType(InternetConnectionType internetConnectionType, bool lock = true);
   static void setWifiSsid(String wifiSsid, bool lock = true);
   static void setWifiPassword(String wifiPassword, bool lock = true);
@@ -77,8 +76,9 @@ class Config {
 
   static void lock();
   static void unlock();
+  static String getAtomicString(String* value, bool lock);
+  static void syncValueWithFlash(String* newValue, String* configValue, const char* prefsName, bool lock);
 
-  static String devicePassword;
   static InternetConnectionType internetConnectionType;
   static String wifiSsid;
   static String wifiPassword;

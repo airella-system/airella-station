@@ -81,7 +81,6 @@ RegistrationResult* ApiClass::registerStation() {
 
   Logger::info("[ApiClass::registerStation()] Registered successfull");
   Config::setRegistrationState(Config::RegistrationState::REGISTERED_OK);
-  Config::save();
 
   return result;
 }
