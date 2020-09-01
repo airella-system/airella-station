@@ -13,7 +13,6 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
     Bluetooth::setLastOperationStatus("wifi|setting_up");
     Internet::stop();
     Internet::start();
-    Config::save();
     Bluetooth::setLastOperationStatus("wifi|ok");
   }
   else if(actionName.equals("address")) {
@@ -62,7 +61,6 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
   }
   else if(actionName.equals("register")) {
     Bluetooth::setLastOperationStatus("register|setting_up");
-    Config::save();
     RegistrationResult* result = Api.registerStation();
 
     if(result->ok) Bluetooth::setLastOperationStatus("register|ok");
