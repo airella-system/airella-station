@@ -112,6 +112,10 @@ Config::InternetConnectionType Config::getInternetConnectionType(bool lock /* = 
   return value;
 }
 
+/**
+ * getters
+*/
+
 String Config::getWifiSsid(bool lock /* = true */) {
   return getAtomicString(&Config::wifiSsid, lock);
 }
@@ -177,6 +181,14 @@ bool Config::getLocationManual(bool lock /* = true */) {
   if (lock) Config::unlock();
   return value;
 }
+
+String Config::getaccessToken(bool lock = true) {
+  //todo
+}
+
+/**
+ * setters
+*/
 
 void Config::setInternetConnectionType(Config::InternetConnectionType internetConnectionType, bool lock /* = true */) {
   Config::internetConnectionType = internetConnectionType;
@@ -254,4 +266,8 @@ void Config::setLocationManual(bool manual, bool lock /* = true */) {
   Config::preferences.putBool("loc-manual", manual);
   Config::preferences.end();
   if (lock) Config::unlock();
+}
+
+void Config::setaccessToken(String accessToken, bool lock = true) {
+  //todo
 }

@@ -49,8 +49,8 @@ class Config {
   static String getLocationLatitude(bool lock = true);
   static String getLocationLongitude(bool lock = true);
   static bool getLocationManual(bool lock = true);
-
   static RegistrationState getRegistrationState(bool lock = true);
+  static String getaccessToken(bool lock = true);
 
   static void setInternetConnectionType(InternetConnectionType internetConnectionType, bool lock = true);
   static void setWifiSsid(String wifiSsid, bool lock = true);
@@ -67,8 +67,8 @@ class Config {
   static void setLocationLatitude(String latitude, bool lock = true);
   static void setLocationLongitude(String longitude, bool lock = true);
   static void setLocationManual(bool manual, bool lock = true);
-
   static void setRegistrationState(RegistrationState registrationState, bool lock = true);
+  static void setaccessToken(String accessToken, bool lock = true);
 
   static Preferences preferences;
  private:
@@ -94,6 +94,7 @@ class Config {
   static String locationLatitude;
   static String locationLongitude;
   static bool locationManual;
+  static String accessToken;
 
   static RegistrationState registrationState;
 };
