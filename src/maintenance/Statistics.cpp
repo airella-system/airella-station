@@ -15,12 +15,13 @@ bool StatisticsClass::createStatistic(StatisticEntity statistic) {
   statisticDoc["id"] = statistic.id;
   String body = "";
   serializeJson(statisticDoc, body);
-  Http::Response response = Internet::httpPost(getUrl(), body, String("Bearer ") + accessToken);
+  Http::Response response = Internet::httpPost(getUrl(), body);
 
   if (response.code != 201) {
     Logger::debug(String("[StatisticsClass::createStatistic()] Create statisctic fail - error: " + response.code).c_str());
     return false;
   }
+  Logger::debug("[StatisticsClass::createStatistic()] Create statisctic new staatistic");
   return true;
 }
 

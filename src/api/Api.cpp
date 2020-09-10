@@ -308,6 +308,7 @@ bool ApiClass::updateAccessToken() {
       deserializeJson(doc, response.payload);
       const char *token = doc["data"]["accessToken"]["token"];
       accessToken = String(token);
+      Config::setAccessToken(accessToken);
       accessTokenMillis = millis();
       Logger::info("[ApiClass::updateAccessToken] Token refreshed successfully.");
       return true;

@@ -15,8 +15,12 @@ Http::Response Internet::httpGet(String& url, String authorization) {
                                           : GsmConn::httpGet(url, authorization);
 }
 
+Http::Response Internet::httpPost(const String& url, String& body) {
+  return Internet::httpPost(url, body);
+}
+
 Http::Response Internet::httpPost(String& url, String& body) {
-  String authorization = String("Bearer ") + Config::getRefreshToken();
+  String authorization = String("Bearer ") + Config::getAccessToken();
   return Internet::httpPost(url, body, authorization);
 }
 

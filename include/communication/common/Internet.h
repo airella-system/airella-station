@@ -15,6 +15,7 @@ class Internet {
   static void stop();
   static bool isConnected();
   static Http::Response httpGet(String& url, String authorization = "");
+  static Http::Response httpPost(const String& url, String& body);
   static Http::Response httpPost(String& url, String& body);
   static Http::Response httpPost(String& url, String& body, String& authorization);
   static Http::Response httpPut(String& url, String& body, String authorization = "");
