@@ -25,9 +25,9 @@ class Config {
     PM1_SENSOR = 10,
     PM2_5_SENSOR = 11,
     PM10_SENSOR = 12,
-    MAC_STATISTIC = 13,
+    STATISTICS = 13,
     MAC_VALUE = 14,
-    REGISTERED_OK = 15
+    REGISTERED_OK = 16
   };
 
   static void load(bool lock = true);

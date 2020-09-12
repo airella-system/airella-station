@@ -20,6 +20,7 @@ enum StatisticType {
 
 class StatisticEntity {
 public:
+StatisticEntity() {}
   StatisticEntity(StatisticPrivacyMode _privacyMode, StatisticType _type, const char* _id) 
   : privacyMode(_privacyMode), type(_type), id(_id) {};
   ~StatisticEntity() {};
@@ -61,16 +62,11 @@ public:
 
 class StatisticsClass {
 public:
-  StatisticsClass();
-  ~StatisticsClass() {};
-
   void reportBootUp();
-
+  bool createStatistic(StatisticEntity& statistic);
+  bool sendStatistic(const char* statisticId, const char* value);
 private:
-  bool createStatistic(StatisticEntity statistic);
-  bool sendStatistic(); // todo
-  String getUrl();
-
+  String getUrl() const;
 };
 
 extern StatisticsClass Statistics;

@@ -71,8 +71,8 @@ RegistrationResult* ApiClass::registerStation() {
     if(!doPM10Sensor(result)) return result;
   }
 
-  if(currentRegistrationState < Config::RegistrationState::MAC_STATISTIC) {
-    if(!doBtMacStatistic(result)) return result;
+  if(currentRegistrationState < Config::RegistrationState::STATISTICS) {
+    if(!addStatistics(result)) return result;
   }
 
   if(currentRegistrationState < Config::RegistrationState::MAC_VALUE) {
@@ -243,21 +243,10 @@ bool ApiClass::doPM10Sensor(RegistrationResult* result) {
   return true;
 }
 
-bool ApiClass::doBtMacStatistic(RegistrationResult* result) {
-  if (addBtMacStatistic()) {
-    Logger::info("[ApiClass::doBtMacStatistic()] Created Bluetooth MAC statistic");
-    Config::setRegistrationState(Config::RegistrationState::MAC_STATISTIC);
-  }
-  else {
-    return logRegistrationFail("Unable to create Bluetooth MAC statistic", result);
-  }
-  return true;
-}
-
 bool ApiClass::doBtMacValue(RegistrationResult* result) {
   if (addBtMacValue()) {
     Logger::info("[ApiClass::doBtMacValue()] Sent Bluetooth MAC");
-    Config::setRegistrationState(Config::RegistrationState::MAC_STATISTIC);
+    Config::setRegistrationState(Config::RegistrationState::MAC_VALUE);
   }
   else {
     return logRegistrationFail("Unable to send Bluetooth MAC", result);
@@ -423,25 +412,34 @@ bool ApiClass::isAuth() {
   return isRegistered() && updateAccessToken();
 }
 
-bool ApiClass::addBtMacStatistic() {
-  String url = Config::getApiUrl() 
-    + "/stations/" 
-    + Config::getApiStationId()
-    + "/statistics";
+bool ApiClass::addStatistics(RegistrationResult* result) {
+  const String ids[] = {
+    "btMacAddress",
+    "powerInfo",
+    "bootUp",
+    "upTime",
+    "pm",
+    "weatcher",
+    "heaterState",
+    "heaterTemp",
+    "connectionType",
+    "deviceStatus",
+    "heartbeat",
+    "errorsReport"
+  };
 
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(3));
-  statisticDoc["privacyMode"] = "private";
-  statisticDoc["type"] = "one_string_value";
-  statisticDoc["id"] = "btMacAddress";
-  String body = "";
-  serializeJson(statisticDoc, body);
-  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
-  logRequest("[ApiClass::addBtMacStatistic()] Create statisctic: ", response);
-
-  if (response.code != 201) {
-    Logger::debug(String("[ApiClass::addBtMacStatistic()] Create statisctic fail - error: " + response.code).c_str());
-    return false;
+  StatisticEntity statisticEntity;
+  statisticEntity.privacyMode = StatisticPrivacyMode::privateMode;
+  statisticEntity.type = StatisticType::oneStringValue;
+  for(String id : ids) {
+    statisticEntity.id = id.c_str();
+    if(!Statistics.createStatistic(statisticEntity)) {
+      return logRegistrationFail("Unable to create all statistics", result);
+    }
   }
+
+  Logger::info("[ApiClass::addStatistics()] Created all statistics");
+  Config::setRegistrationState(Config::RegistrationState::STATISTICS);
   return true;
 }
 
