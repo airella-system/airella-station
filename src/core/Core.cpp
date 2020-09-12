@@ -21,15 +21,13 @@ void Core::setUp() {
   Internet::setType(Internet::WIFI);
   Internet::start();
 
-  if(WiFi.status() == WL_CONNECTED) {
+  if (WiFi.status() == WL_CONNECTED) {
     // crash while internet is not connected
     timeProvider.connect();
     timeProvider.update();
   }
 
-  airSensor = new AirSensor();
-  airSensor->powerOn();
-  airSensor->calibrate();
+  airAndGpsSensorStrategy = new AirAndGpsSensorStrategy();
   weatherSensor = new WeatherSensor();
   heater = new Heater(*weatherSensor);
   heater->run();
@@ -38,35 +36,48 @@ void Core::setUp() {
 }
 
 void Core::main() {
-
-  if(!Api.isRegistered()) {
+  if (!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");
-    while(!Api.isRegistered()) {
+    while (!Api.isRegistered()) {
       delay(1000);
     }
   }
-  
+
 #ifdef STOP_MAIN_LOOP
-  while(true) {
+  while (true) {
     delay(1000);
   }
 #endif
-  
-  while(true) {
+
+  while (true) {
     if (abs(millis() - lastPublishMillis) > 10000) {
       Logger::info("[Core]: Start measurement");
 
       Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
       Api.publishMeasurement(measurementType.humidity, weatherSensor->getHumidity());
       Api.publishMeasurement(measurementType.pressure, weatherSensor->getPressure());
-      airSensor->measurement();
-      Api.publishMeasurement(measurementType.pm1, airSensor->getPM1());
-      Api.publishMeasurement(measurementType.pm2_5, airSensor->getPM2_5());
-      Api.publishMeasurement(measurementType.pm10, airSensor->getPM10());
+      airAndGpsSensorStrategy->getAirSensor()->measurement();
+      Api.publishMeasurement(measurementType.pm1, airAndGpsSensorStrategy->getAirSensor()->getPM1());
+      Api.publishMeasurement(measurementType.pm2_5, airAndGpsSensorStrategy->getAirSensor()->getPM2_5());
+      Api.publishMeasurement(measurementType.pm10, airAndGpsSensorStrategy->getAirSensor()->getPM10());
 
       lastPublishMillis = millis();
     }
-    delay(10000);
+
+    if (abs(millis() - lastGpsUpdateMillis) > 60000) {
+      Logger::info("[Core]: Start switch to GPS");
+      airAndGpsSensorStrategy->switchToGpsSensor();
+
+      if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
+        Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
+                            airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
+      }
+      airAndGpsSensorStrategy->switchToAirSensor();
+
+      lastGpsUpdateMillis = millis();
+      Logger::info("[Core]: End switch to GPS");
+    }
+    delay(1000);
   }
 }
 
