@@ -25,8 +25,8 @@ void StatisticsClass::reportHeartbeat() {
 }
 
 void StatisticsClass::reportConnectionState() {
-  //todo: to decide
-  //sendStatistic("connectionState", timeProvider.getDataTime().toString().c_str());
+  const char* strValue = Internet::isOk() ? "ok" : "error";
+  sendStatistic("connectionState", strValue);
 }
 
 void StatisticsClass::reportPower() {
