@@ -1,5 +1,7 @@
 #include "maintenance/Guardian.h"
 
+unsigned long Guardian::lastStatisticTimestamp = 0;
+
 bool Guardian::isDeviceOk() {
   //todo: it will be implemented with troubleshooting and error control.
   return true;
@@ -25,4 +27,19 @@ bool Guardian::reconectWiFi() {
 
   Logger::info("[Guardian::reconectWiFi()] Unable to reconnect WiFi connection");
   return false;
+}
+
+void Guardian::statistics() {
+  // if (abs(millis() - lastStatisticTimestamp) > 1000 * 60 * 10) {
+  if (abs(millis() - lastStatisticTimestamp) > 1000 * 60 * 0.5) { // just for debug
+      Logger::info("[Guardian::statistics]: Sending stats");
+
+      Statistics.reportHeartbeat();
+      Statistics.reportConnectionState();
+      Statistics.reportPower();
+      Statistics.reportPm();
+      Statistics.reportWeather();
+
+      lastStatisticTimestamp = millis();
+    }
 }

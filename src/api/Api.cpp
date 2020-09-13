@@ -415,17 +415,17 @@ bool ApiClass::isAuth() {
 bool ApiClass::addStatistics(RegistrationResult* result) {
   const String ids[] = {
     "btMacAddress",
-    "powerInfo",
     "bootUp",
     "upTime",
-    "pm",
-    "weatcher",
+    "powerInfo",
+    "pmInfo",
+    "weatcherInfo",
     "heaterState",
     "heaterTemp",
     "connectionType",
+    "connectionState",
     "deviceStatus",
-    "heartbeat",
-    "errorsReport"
+    "heartbeat"
   };
 
   StatisticEntity statisticEntity;

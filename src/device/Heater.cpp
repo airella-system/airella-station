@@ -94,6 +94,7 @@ void Heater::threadFunction(void *pvParameters) {
   unsigned int intervalMax = 1000 * 10; // 10s
   unsigned int interval = intervalMax;
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
+  bool heaterLastState = !heaterIsOn;
   int counter = 0;
 
   while (true) {
@@ -137,6 +138,11 @@ void Heater::threadFunction(void *pvParameters) {
         message += heaterIsOn;
         Logger::debug(&message);
         counter = 1;
+        Statistics.reportHeaterTemp(message);
+        if(heaterLastState != heaterIsOn) {
+          heaterLastState = heaterIsOn;
+          Statistics.reportHeaterState(heaterIsOn);
+        }
       }
 
     } else {

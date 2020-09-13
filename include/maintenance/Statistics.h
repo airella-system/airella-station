@@ -3,7 +3,9 @@
 #include <ArduinoJson.h>
 #include "config/Config.h"
 #include "maintenance/Logger.h"
+#include "time/Time.h"
 #include "communication/common/Internet.h"
+#include "device/DeviceContainer.h"
 
 enum StatisticPrivacyMode {
   publicMode,
@@ -63,6 +65,15 @@ StatisticEntity() {}
 class StatisticsClass {
 public:
   void reportBootUp();
+  void reportConnectioniType();
+  void reportHeaterState(bool value);
+  void reportHeaterTemp(String& value);
+  void reportHeartbeat();
+  void reportConnectionState();
+  void reportPower();
+  void reportPm();
+  void reportWeather();
+
   bool createStatistic(StatisticEntity& statistic);
   bool sendStatistic(const char* statisticId, const char* value);
 private:

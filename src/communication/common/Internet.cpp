@@ -3,6 +3,7 @@
 Internet::Type Internet::type = Internet::WIFI;
 
 int Internet::start() {
+  Internet::type = (Type)Config::getInternetConnectionType();
   return Internet::type == Internet::WIFI ? WiFiConn::start() : GsmConn::start();
 }
 
@@ -39,6 +40,12 @@ bool Internet::isConnected() {
   return Internet::type == Internet::WIFI ? WiFiConn::isConnected() : GsmConn::isConnected();
 }
 
+bool Internet::isOk() {
+  return Internet::type == Internet::WIFI ? WiFiConn::isOk() : GsmConn::isOk();
+}
+
 void Internet::setType(Type type) {
   Internet::type = type;
+  Statistics.reportConnectioniType();
+  //todo: add logic to switch device connection, ex. active gsm | todo with gsm
 }

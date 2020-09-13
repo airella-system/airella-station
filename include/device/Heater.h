@@ -4,6 +4,7 @@
 #include <analogWrite.h>
 #include "device/Sensor.h"
 #include "device/WeatherSensor.h"
+#include "maintenance/Statistics.h"
 
 #define ONE_WIRE_MAX_DEV 2
 #define MAX_POWER 255

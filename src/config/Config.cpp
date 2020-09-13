@@ -198,6 +198,7 @@ void Config::setInternetConnectionType(Config::InternetConnectionType internetCo
   Config::preferences.begin("prefs", false);
   Config::preferences.putInt("inet-conn", static_cast<int>(internetConnectionType));
   Config::preferences.end();
+  Internet::setType(static_cast<Internet::Type>(internetConnectionType));
   if (lock) Config::unlock();
 }
 

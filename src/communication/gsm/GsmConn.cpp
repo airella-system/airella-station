@@ -8,6 +8,10 @@ bool GsmConn::isConnected() {
   return false;
 }
 
+bool GsmConn::isOk() {
+  return false;
+}
+
 Http::Response GsmConn::httpGet(const String& url, String& authorization) {}
 
 Http::Response GsmConn::httpPost(const String& url, String& body, String& authorization) {}

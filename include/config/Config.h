@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 #include "config/Defines.h"
+#include "communication/common/Internet.h"
 
 class Config {
  public:

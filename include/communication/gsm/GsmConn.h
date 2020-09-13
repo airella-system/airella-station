@@ -12,4 +12,5 @@ class GsmConn {
   static Http::Response httpPut(const String& url, String& body, String& authorization);
   static void setAuthorizationHeader(String& value);
   static bool isConnected();
+  static bool isOk();
 };

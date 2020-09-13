@@ -49,6 +49,15 @@ bool WiFiConn::isConnected() {
   return WiFiConn::connected;
 }
 
+
+bool WiFiConn::isOk() {
+  if(!WiFiConn::connected) return false;
+  if(WiFi.status() != WL_CONNECTED) {
+    return false;
+  }
+  return Ping.ping("www.google.com");
+}
+
 Http::Response WiFiConn::httpGet(const String& url, String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("GET Request to url: " + url).c_str());
