@@ -7,12 +7,19 @@ struct WeatherSensorConfig {
   const unsigned char clockLinePin = 22;
 };
 
-class AirSensorConfig {
-public:
-  static const unsigned char serialNumber = 1;
-  static const unsigned char powerPin = 26;
+class AirAndGpsSensorStrategyConfig {
+ public:
+  static const unsigned char uartNum = 1;
   static const unsigned char uartRx = 2;
   static const unsigned char uartTx = 13;
+  static const unsigned char airSensorOrGpsMultiplexerPin = 12;
+  static const unsigned char airSensorMultiplexerLogicValue = 0;
+  static const unsigned char gpsMultiplexerLogicValue = 1;
+};
+
+class AirSensorConfig {
+ public:
+  static const unsigned char powerPin = 26;
 };
 
 struct PowerSensorConfig {

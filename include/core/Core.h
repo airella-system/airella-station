@@ -10,12 +10,15 @@
 #include "config/Config.h"
 #include "config/MeasurementType.h"
 #include "device/AirSensor.h"
+#include "device/GpsSensor.h"
+#include "core/AirAndGpsSensorStrategy.h"
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
 #include "device/WeatherSensor.h"
 #include "maintenance/Logger.h"
 #include "time/Time.h"
+#include "config/HardwareConfig.h"
 
 class Core {
 public:
@@ -24,14 +27,15 @@ public:
   void main();
 
 private:
-  AirSensor *airSensor = NULL;
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
   Storage *storage = NULL;
+  AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;
   unsigned long lastPublishMillis = 0;
+  unsigned long lastGpsUpdateMillis = 0;
 };
 
 extern Core core;
