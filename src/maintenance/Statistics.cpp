@@ -131,4 +131,18 @@ String StatisticsClass::getUrl() const {
     + "/statistics";
 }
 
+bool StatisticsClass::isEmpty() {
+  return bufferSize == 0;
+}
+
+void StatisticsClass::push(const char* value) {
+  // if(bufferSize >= MAX_BUFFER_SIZE) return;
+  //todo
+}
+
+const char* StatisticsClass::pop() {
+  //todo
+  return "";
+}
+
 StatisticsClass Statistics;

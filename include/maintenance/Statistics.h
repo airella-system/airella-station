@@ -7,6 +7,8 @@
 #include "communication/common/Internet.h"
 #include "device/DeviceContainer.h"
 
+#define MAX_BUFFER_SIZE 30
+
 enum StatisticPrivacyMode {
   publicMode,
   privateMode
@@ -78,6 +80,11 @@ public:
   bool sendStatistic(const char* statisticId, const char* value);
 private:
   String getUrl() const;
+  const char** buffer;
+  unsigned char bufferSize = 0;
+  bool isEmpty();
+  void push(const char* value);
+  const char* pop();
 };
 
 extern StatisticsClass Statistics;
