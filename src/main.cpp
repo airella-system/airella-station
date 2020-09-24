@@ -48,31 +48,9 @@
 float tempDev[ONE_WIRE_MAX_DEV]; //Saving the last measurement of temperature
 
 HardwareSerial HWSerial0(0);
-HardwareSerial HWSerial1(1);
 HardwareSerial HWSerial2(2);
 
 int incomingByte = 0;
-int heater = 10;
-
-
-OneWire oneWire(OW1);
-DallasTemperature DS18B20(&oneWire);
-int numberOfDevices; //Number of temperature devices found
-DeviceAddress devAddr[ONE_WIRE_MAX_DEV];  //An array device temperature sensors
-
-//ina219 vars
-float shuntvoltage = 0;
-float busvoltage = 0;
-float current_mA = 0;
-float loadvoltage = 0;
-float power_mW = 0;
-
-
-Adafruit_INA219 ina(0x40);
-Adafruit_BME280 bme; // I2C
-TwoWire I2C_INA219 = TwoWire(0);
-TwoWire I2C_BME280 = TwoWire(1);
-
 
 void setup() {
   // put your setup code here, to run once:
@@ -85,143 +63,100 @@ void setup() {
   digitalWrite(PMS7K_ON,LOW);
   
   analogWriteFrequency(HEATER_ON, 1000);
-  analogWrite(HEATER_ON,heater);
   
   //void HardwareSerial::begin(unsigned long baud, uint32_t config, int8_t rxPin, int8_t txPin, bool invert, unsigned long timeout_ms)
   HWSerial0.begin(115200,SERIAL_8N1,U0RX,U0TX,false,1000);  //console
-  HWSerial1.begin(9600,SERIAL_8N1,U1RX,U1TX,false,1000);    //PMS7003
   HWSerial2.begin(115200,SERIAL_8N1,U2RX,U2TX,false,1000);  //G510
 
-  HWSerial0.println("Ininitializing SD...");
-
-  if(!SD.begin()){
-        HWSerial0.println("Card Mount Failed");
-    }
-    else
-    {
-      HWSerial0.println("Card Mount OK");
-    }
-
-  delay(1000);
-  
-  HWSerial0.println("initalizing sensors...");
-  //bool begin(int sda=-1, int scl=-1, uint32_t frequency=0);
-  if( I2C_BME280.begin(BME_SDA,BME_SCL,100000) == false ) HWSerial0.println("I2C_BME280.begin returned false"); else HWSerial0.println("I2C_BME280.begin returned true");
-  if( I2C_INA219.begin(INA_SDA,INA_SCL,100000) == false ) HWSerial0.println("I2C_INA219.begin returned false"); else HWSerial0.println("I2C_INA219.begin returned true");
-  
-  unsigned status;
-  
-  status = bme.begin(0x76, &I2C_BME280);  //try 0x77 or 0x76
-  if (!status) {
-      HWSerial0.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
-      HWSerial0.print("SensorID was: 0x"); HWSerial0.println(bme.sensorID(),16);
-      while (1) delay(10);
-  }
-  else
-  {
-    HWSerial0.println("bme.begin returned true");
-  }
-
-    ina.begin(&I2C_INA219);
-  
 }
 
 
 int rxedAnything = 0;
 
+bool comandReady = false;
+int currentChar = 0;
+String cmd;
+String cmdChunk;
+
 void loop() {
-  
-  if (HWSerial1.available() > 0) {
-    incomingByte = HWSerial1.read();
-    rxedAnything = 1;
+
+  if((HWSerial0.available() > 0)) {
+    currentChar = HWSerial0.read();
+    if(currentChar == 13) {
+      comandReady = true;
+      cmd = cmdChunk;
+      cmdChunk = "";
+      HWSerial0.print("\n");
+    }
+    else {
+      cmdChunk += (char)currentChar;
+      HWSerial0.print(String((char)currentChar));
+    }
   }
   
-  if (HWSerial0.available() > 0) {
-    rxedAnything = 1;
-    incomingByte = HWSerial0.read();
+  if(comandReady) {
     HWSerial0.flush();
-    // HWSerial0.printf("Serial0 received: %c = %d \n",incomingByte,incomingByte);
-    
-    if(incomingByte == 'G') {
+    if(cmd == "G") {
       HWSerial0.printf("G510 Power ON signal...");
       digitalWrite(nG510_PWR,LOW);
       delay(900); //min 800ms
       digitalWrite(nG510_PWR,HIGH);
       HWSerial0.printf("done\n");
     }
-    if(incomingByte == 'g') {
+    else if(cmd == "g") {
       HWSerial0.printf("G510 Power OFF signal...");
       digitalWrite(nG510_PWR,LOW);
       delay(3500); //min 3s
       digitalWrite(nG510_PWR,HIGH);
       HWSerial0.printf("done\n");
     }
-    if(incomingByte == 'a') {
+    else if(cmd == "a") {
       HWSerial0.printf("@at");
       HWSerial2.printf("at\r\n");
     }
-    if(incomingByte == 'c') {
+    else if(cmd == "c") {
       HWSerial0.printf("@cmd");
       HWSerial2.printf("AT+CGSN\r\n");
     }
-    if(incomingByte == '1') {
+    else if(cmd == "1") {
       HWSerial0.printf("@1");
       HWSerial2.printf("AT+MIPCALL=1,\"internet\",\"internet\",\"internet\"\r\n");
     }
-    if(incomingByte == '2') {
+    else if(cmd == "2") {
       HWSerial0.printf("@2");
-      HWSerial2.printf("AT+HTTPSET=\"URL\",\"http://airella.cyfrogen.com/api/stations/1\"\r\n");
+      HWSerial2.printf("AT+HTTPSET=\"URL\",\"https://smarthome.cyfrogen.com/\"\r\n");
     }
-    if(incomingByte == '3') {
-      HWSerial0.printf("@3");
-      HWSerial2.printf("AT+HTTPSET=\"UAGENT\",\"airella\"\r\n");
-    }
-    if(incomingByte == '4') {
-      HWSerial0.printf("@4");
-      HWSerial2.printf("AT+HTTPDATA=30\r\n");
-    }
-    if(incomingByte == '5') {
+    else if(cmd == "3") {
       HWSerial0.printf("@5");
-      HWSerial2.printf("AT+HTTPACT=1,30\r\n");
+      HWSerial2.printf("AT+HTTPACT=0\r\n");
     }
-    if(incomingByte == '6') {
+    else if(cmd == "4") {
       HWSerial0.printf("@6");
-      HWSerial2.printf("AT+HTTPREAD=0,30\r\n");
+      HWSerial2.printf("AT+HTTPREAD=0,100\r\n");
     }
-    if(incomingByte == '7') {
+    else if(cmd == "5") {
       HWSerial0.printf("@6");
-      HWSerial2.printf("AT+HTTPREAD=0,30\r\n");
+      HWSerial2.printf("AT+HTTPREAD=100,200\r\n");
     }
-    if(incomingByte == '8') {
-      HWSerial0.printf("@8");
-      HWSerial2.printf("AT+HTTPREAD=0,50\r\n");
+    else {
+      HWSerial0.printf((String("@") + cmd).c_str());
+      HWSerial2.printf((cmd + String("\r\n")).c_str());
     }
+    comandReady = false;
   }
 
   if (HWSerial2.available() > 0) {
-    rxedAnything = 1;
-    HWSerial0.printf("Data from HWSerial2: ");
+    HWSerial0.printf("HWSerial2: ");
     while(HWSerial2.available() > 0)
     {
       incomingByte = HWSerial2.read();
       HWSerial0.printf("%c",incomingByte);
     }
-    HWSerial0.printf("\nend\n");
-  }
+  } 
+}
 
-  digitalWrite(LED1, !digitalRead(LED1));
+void sendSyncCmd() {
 
-
-  if(rxedAnything)
-  {
-    delay(1);
-    rxedAnything = 0;
-  }
-  else
-  {
-    delay(1000);
-  }
-  
 }
 
 // void setup() {
