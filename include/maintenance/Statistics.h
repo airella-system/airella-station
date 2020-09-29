@@ -1,84 +1,50 @@
 #pragma once
 
 #include <ArduinoJson.h>
+#include "communication/common/Internet.h"
 #include "config/Config.h"
+#include "device/DeviceContainer.h"
 #include "maintenance/Logger.h"
 #include "time/Time.h"
-#include "communication/common/Internet.h"
-#include "device/DeviceContainer.h"
 
 #define MAX_BUFFER_SIZE 30
 
-enum StatisticPrivacyMode {
-  publicMode,
-  privateMode
+struct StatisticEnumDefinition {
+  String id;
+  String name;
 };
 
-enum StatisticType {
-  oneStringValue,
-  oneDoubleValue, 
-  multiStringValue, 
-  multiDoubleAggregatableValue, 
-  multiDoubleValue
-};
+enum StatisticPrivacyMode { publicMode, privateMode };
 
-class StatisticEntity {
-public:
-StatisticEntity() {}
-  StatisticEntity(StatisticPrivacyMode _privacyMode, StatisticType _type, const char* _id) 
-  : privacyMode(_privacyMode), type(_type), id(_id) {};
-  ~StatisticEntity() {};
+enum StatisticType { ONE_STRING, MULTIPLE_FLOATS, MULTIPLE_ENUMS };
 
-  StatisticPrivacyMode privacyMode;
-  StatisticType type;
-  const char* id;
-
-  const char* getPrivacyMode() {
-    if(privacyMode == StatisticPrivacyMode::publicMode) {
-      return "public";
-    }
-    else if(privacyMode == StatisticPrivacyMode::privateMode) {
-      return "private";
-    }
-    else return "";
-  }
-
-  const char* getStatisticType() {
-    if(type == StatisticType::oneStringValue) {
-      return "one_string_value";
-    }
-    else if(type == StatisticType::oneDoubleValue) {
-      return "one_double_value";
-    }
-    else if(type == StatisticType::multiStringValue) {
-      return "multi_string_value";
-    }
-    else if(type == StatisticType::multiDoubleAggregatableValue) {
-      return "multi_double_aggregatable_value";
-    }
-    else if(type == StatisticType::multiDoubleValue) {
-      return "multi_double_value";
-    }
-    else return "";
-  }
-
-};
+enum StatisticGraphMode { SCATTER, LINE };
 
 class StatisticsClass {
-public:
+ public:
   void reportBootUp();
   void reportConnectioniType();
   void reportHeaterState(bool value);
-  void reportHeaterTemp(String& value);
+  void reportHeater(double temperature, double humidity, double dewPoint, double power, bool isOn);
   void reportHeartbeat();
   void reportConnectionState();
   void reportPower();
   void reportPm();
   void reportWeather();
 
-  bool createStatistic(StatisticEntity& statistic);
-  bool sendStatistic(const char* statisticId, const char* value);
-private:
+  bool createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode, const String& metric,
+                                     const String& chartType);
+  bool createMultipleEnumsStatistic(const String& id, const String& name, const String& privacyMode,
+                                    StatisticEnumDefinition enumDefinitions[], int enumDefinitionsNum,
+                                    const String& chartType);
+  bool createStringStatistic(const String& id, const String& name, const String& privacyMode);
+  bool createStatistic(DynamicJsonDocument statisticDoc);
+  
+  bool sendFloatStatistic(const char* statisticId, double value);
+  bool sendStringStatistic(const char* statisticId, const char* value);
+  bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc);
+
+ private:
   String getUrl() const;
   const char** buffer;
   unsigned char bufferSize = 0;

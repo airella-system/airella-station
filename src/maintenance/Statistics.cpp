@@ -1,120 +1,125 @@
 #include "maintenance/Statistics.h"
 
 void StatisticsClass::reportBootUp() {
-  sendStatistic("bootUp", timeProvider.getDataTime().toString().c_str());
+  sendStringStatistic("boot", "BOOT");
 }
 
 void StatisticsClass::reportConnectioniType() {
-  const char* typeName = 
-    Config::getInternetConnectionType() == Config::InternetConnectionType::WIFI 
-    ? "wifi" : "gsm";
-  sendStatistic("connectionType", typeName);
+  const char* typeName = Config::getInternetConnectionType() == Config::InternetConnectionType::WIFI ? "WIFI" : "GSM";
+  sendStringStatistic("connectionType", typeName);
 }
 
-void StatisticsClass::reportHeaterState(bool value) {
-  const char* strValue = value ? "on" : "off";
-  sendStatistic("heaterTemp", strValue);
+void StatisticsClass::reportHeaterState(bool isOn) {
+  const char* strValue = isOn ? "ON" : "OFF";
+  sendStringStatistic("heaterState", strValue);
 }
 
-void StatisticsClass::reportHeaterTemp(String& value) {
-  sendStatistic("heaterTemp", value.c_str());
+void StatisticsClass::reportHeater(double temperature, double humidity, double dewPoint, double power, bool isOn) {
+  sendFloatStatistic("heaterTemp", temperature);
+  sendFloatStatistic("heaterHum", humidity);
+  sendFloatStatistic("heaterDewPoint", dewPoint);
+  sendFloatStatistic("heaterPower", power);
+  const char* strValue = isOn ? "ON" : "OFF";
+  sendStringStatistic("heaterState", strValue);
 }
 
 void StatisticsClass::reportHeartbeat() {
-  sendStatistic("heartbeat", timeProvider.getDataTime().toString().c_str());
+  sendStringStatistic("heartbeat", "HEARTBEAT");
 }
 
 void StatisticsClass::reportConnectionState() {
-  const char* strValue = Internet::isOk() ? "ok" : "error";
-  sendStatistic("connectionState", strValue);
+  const char* strValue = Internet::isOk() ? "OK" : "ERROR";
+  sendStringStatistic("connectionState", strValue);
 }
 
 void StatisticsClass::reportPower() {
   PowerInfo powerInfo = DeviceContainer.powerSensor->getPowerInfo();
-  String value;
-  value += "bv:";
-  value += powerInfo.busVoltage;
-  value += ",c:";
-  value += powerInfo.current;
-  value += ",lv:";
-  value += powerInfo.loadVoltage;
-  value += ",p:";
-  value += powerInfo.power;
-  value += ",sv:";
-  value += powerInfo.shounVoltage;
-  sendStatistic("powerInfo", value.c_str());
+  sendFloatStatistic("busVoltage", powerInfo.busVoltage);
+  sendFloatStatistic("current", powerInfo.current);
+  sendFloatStatistic("loadVoltage", powerInfo.loadVoltage);
+  sendFloatStatistic("power", powerInfo.power);
+  sendFloatStatistic("shounVoltage", powerInfo.shounVoltage);
 }
 
-void StatisticsClass::reportPm() {
-  String value;
-  value += "mp1:";
-  value += DeviceContainer.airSensor->getPM1();
-  value += ",mp2_5:";
-  value += DeviceContainer.airSensor->getPM2_5();
-  value += ",mp10:";
-  value += DeviceContainer.airSensor->getPM10();
-  sendStatistic("pmInfo", value.c_str());
+bool StatisticsClass::createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode,
+                                                    const String& metric, const String& chartType) {
+  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(6) + 1024);
+  statisticDoc["privacyMode"] = privacyMode;
+  statisticDoc["id"] = id;
+  statisticDoc["name"] = name;
+  statisticDoc["type"] = "MULTIPLE_FLOATS";
+  statisticDoc["metric"] = metric;
+  statisticDoc["chartType"] = chartType;
+  return createStatistic(statisticDoc);
 }
 
-void StatisticsClass::reportWeather() {
-  String value;
-  value += "h:";
-  value += DeviceContainer.weatherSensor->getHumidity();
-  value += ",p:";
-  value += DeviceContainer.weatherSensor->getPressure();
-  value += ",t:";
-  value += DeviceContainer.weatherSensor->getTemperature();
-  sendStatistic("weatcherInfo", value.c_str());
+bool StatisticsClass::createMultipleEnumsStatistic(const String& id, const String& name, const String& privacyMode,
+                                                   StatisticEnumDefinition enumDefinitions[], int enumDefinitionsNum,
+                                                   const String& chartType) {
+  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(5) + enumDefinitionsNum * JSON_OBJECT_SIZE(2) +
+                                   JSON_ARRAY_SIZE(enumDefinitionsNum) + 1024);
+  statisticDoc["privacyMode"] = privacyMode;
+  statisticDoc["id"] = id;
+  statisticDoc["name"] = name;
+  statisticDoc["type"] = "MULTIPLE_ENUMS";
+  statisticDoc["chartType"] = chartType;
+
+  JsonArray enumDefs = statisticDoc.createNestedArray("enumDefinitions");
+  for (int i = 0; i < enumDefinitionsNum; i++) {
+    JsonObject enumDef = enumDefs.createNestedObject();
+    enumDef["id"] = enumDefinitions[i].id;
+    enumDef["name"] = enumDefinitions[i].name;
+  }
+  return createStatistic(statisticDoc);
 }
 
-bool StatisticsClass::createStatistic(StatisticEntity& statistic) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(3));
-  statisticDoc["privacyMode"] = statistic.getPrivacyMode();
-  statisticDoc["type"] = statistic.getStatisticType();
-  statisticDoc["id"] = statistic.id;
+bool StatisticsClass::createStringStatistic(const String& id, const String& name, const String& privacyMode) {
+  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(4) + 1024);
+  statisticDoc["privacyMode"] = privacyMode;
+  statisticDoc["id"] = id;
+  statisticDoc["name"] = name;
+  statisticDoc["type"] = "ONE_STRING";
+  return createStatistic(statisticDoc);
+}
+
+bool StatisticsClass::createStatistic(DynamicJsonDocument statisticDoc) {
   String body;
   serializeJson(statisticDoc, body);
   Http::Response response;
 
-  response = Internet::httpGet(getUrl());
-  if (response.code != 404) {
-    Logger::debug(
-      String("[StatisticsClass::createStatistic()] Already exists statistic: ") 
-      + statistic.id
-    );
-    return false;
-  }
-
   response = Internet::httpPost(getUrl(), body);
   if (response.code != 201) {
-    Logger::debug(String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") 
-      + response.code + " , statistic " + statistic.id);
+    Logger::debug((String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") + String(response.code)).c_str());
     return false;
   }
-  Logger::debug(
-    String("[StatisticsClass::createStatistic()] Create statistic new statistic: ") 
-    + statistic.id
-  );
+  Logger::debug(String("[StatisticsClass::createStatistic()] Created new statistic"));
   return true;
 }
 
-bool StatisticsClass::sendStatistic(const char* statisticId, const char* value) {
-  String url = Config::getApiUrl() 
-    + "/stations/" 
-    + Config::getApiStationId()
-    + "/statistics/"
-    + statisticId
-    + "/values";
-
+bool StatisticsClass::sendFloatStatistic(const char* statisticId, double value) {
   DynamicJsonDocument data(JSON_OBJECT_SIZE(1));
   data["value"] = value;
+  return sendStatistic(statisticId, data);
+}
+
+bool StatisticsClass::sendStringStatistic(const char* statisticId, const char* value) {
+  DynamicJsonDocument data(JSON_OBJECT_SIZE(1));
+  data["value"] = value;
+  return sendStatistic(statisticId, data);
+}
+
+bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) {
+  String url =
+      Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/statistics/" + statisticId + "/values";
+
   String body;
-  serializeJson(data, body);
+  serializeJson(statisticDoc, body);
   Http::Response response = Internet::httpPost(url, body);
 
-  if (response.code != 201) {
-    Logger::debug(String("[StatisticsClass::sendStatistic()] Sending statisctic fail - error: "
-      + response.code).c_str());
+  if (response.code != 200) {
+    Logger::debug(
+        (String("[StatisticsClass::sendStatistic()] Sending statisctic fail - error: ") + String(response.code) + String(" ") + String(response.payload))
+            .c_str());
     return false;
   }
   String message = "[StatisticsClass::sendStatistic()] Send statistic '";
@@ -125,10 +130,7 @@ bool StatisticsClass::sendStatistic(const char* statisticId, const char* value) 
 }
 
 String StatisticsClass::getUrl() const {
-  return Config::getApiUrl() 
-    + "/stations/" 
-    + Config::getApiStationId()
-    + "/statistics";
+  return Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/statistics";
 }
 
 bool StatisticsClass::isEmpty() {
@@ -137,11 +139,11 @@ bool StatisticsClass::isEmpty() {
 
 void StatisticsClass::push(const char* value) {
   // if(bufferSize >= MAX_BUFFER_SIZE) return;
-  //todo
+  // todo
 }
 
 const char* StatisticsClass::pop() {
-  //todo
+  // todo
   return "";
 }
 

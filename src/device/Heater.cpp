@@ -138,7 +138,7 @@ void Heater::threadFunction(void *pvParameters) {
         message += heaterIsOn;
         Logger::debug(&message);
         counter = 1;
-        Statistics.reportHeaterTemp(message);
+        Statistics.reportHeater(temperature, humidity, dewPoint, heater->getCurrentPower(), heaterIsOn);
         if(heaterLastState != heaterIsOn) {
           heaterLastState = heaterIsOn;
           Statistics.reportHeaterState(heaterIsOn);

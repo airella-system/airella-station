@@ -8,6 +8,8 @@
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
 
+class Heater;
+
 class DeviceContainerClass {
 public:
   friend class Core;
