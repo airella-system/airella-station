@@ -98,9 +98,9 @@ void loop() {
     HWSerial0.flush();
     if(cmd == "G") {
       HWSerial0.printf("G510 Power ON signal...");
-      digitalWrite(nG510_PWR,LOW);
+      digitalWrite(nG510_PWR, LOW);
       delay(900); //min 800ms
-      digitalWrite(nG510_PWR,HIGH);
+      digitalWrite(nG510_PWR, HIGH);
       HWSerial0.printf("done\n");
     }
     else if(cmd == "g") {
