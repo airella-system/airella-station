@@ -40,7 +40,7 @@ union AirSensorBuffer {
 
 class AirSensor : public Sensor {
  public:
-  AirSensor();
+  AirSensor(HardwareSerial* serial);
   ~AirSensor();
   void powerOn();
   void powerOff();
@@ -62,10 +62,11 @@ class AirSensor : public Sensor {
   uint16_t getRawGreaterThan_10_0() const;
   uint8_t getHWVersion() const;
   uint8_t getErrorCode() const;
+  void setupSerial() const;
 
  private:
   bool isPowerOn;
-  HardwareSerial serial;
+  HardwareSerial *serial;
   AirSensorBuffer sensorBuffer;
   AirSensorConfig config;
   bool dataReady;

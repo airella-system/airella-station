@@ -1,6 +1,6 @@
 #include "device/AirSensor.h"
 
-AirSensor::AirSensor() : serial(AirSensorConfig::serialNumber) {
+AirSensor::AirSensor(HardwareSerial *serial) {
   Logger::info("[AirSensor] Initalizing ...");
   isPowerOn = false;
   dataReady = false;
@@ -10,13 +10,13 @@ AirSensor::AirSensor() : serial(AirSensorConfig::serialNumber) {
 
   pinMode(config.powerPin, OUTPUT);
   digitalWrite(config.powerPin, LOW);
-  serial.begin(9600, SERIAL_8N1, config.uartRx, config.uartTx, false, 1000);
+  this->serial = serial;
   initialized = true;
   Logger::info("[AirSensor] Air sensor is active.");
 }
 
+
 AirSensor::~AirSensor() {
-  serial.end();
   Logger::info("[AirSensor] Air sensor is close.");
 }
 
@@ -104,8 +104,8 @@ void AirSensor::singleMeasurement(bool logging = true) {
 
 void AirSensor::updateBuffer() {
   dataReady = false;
-  if (serial.available()) {
-    nextByte = serial.read();
+  if (serial->available()) {
+    nextByte = serial->read();
 
     if (nextByte == 0x4d && lastByte == 0x42) {
       sensorBuffer.bytes[0] = 0x42;
@@ -228,4 +228,8 @@ uint8_t AirSensor::getHWVersion() const {
 
 uint8_t AirSensor::getErrorCode() const {
   return sensorBuffer.values.error_code;
+}
+
+void AirSensor::setupSerial() const {
+  this->serial->updateBaudRate(9600);   
 }
