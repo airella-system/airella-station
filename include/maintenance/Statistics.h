@@ -6,31 +6,61 @@
 #include "device/DeviceContainer.h"
 #include "maintenance/Logger.h"
 #include "time/Time.h"
+#include "api/Api.h"
 
 #define MAX_BUFFER_SIZE 30
+
+
+enum StatisticPrivacyMode { PUBLIC, PRIVATE };
+
+enum StatisticGraphType{ SCATTER, LINE };
+
+struct StatisticOneStringDefinition {
+  String id;
+  String name;
+  StatisticPrivacyMode privacyMode;
+};
+
+struct StatisticMultipleFloatsDefinition {
+  String id;
+  String name;
+  StatisticPrivacyMode privacyMode;
+  String metric;
+  StatisticGraphType chartType;
+};
 
 struct StatisticEnumDefinition {
   String id;
   String name;
 };
 
-enum StatisticPrivacyMode { publicMode, privateMode };
+struct StatisticMultipleEnumsDefinition {
+  String id;
+  String name;
+  StatisticPrivacyMode privacyMode;
+  StatisticEnumDefinition enumDefinitions[];
+  int enumDefinitionsNum;
+  StatisticGraphType chartType;
+};
 
-enum StatisticType { ONE_STRING, MULTIPLE_FLOATS, MULTIPLE_ENUMS };
 
-enum StatisticGraphMode { SCATTER, LINE };
+
 
 class StatisticsClass {
- public:
+public:
+//   StatisticOneStringDefinition BT_MAC_STATISTIC = {"", "", PUBLIC};
+
+//   StatisticMultipleEnumsDefinition essa = {"", "", PUBLIC,  {{"BOOT", "Boot"}}, 1, LINE};
+
+
+
+
   void reportBootUp();
-  void reportConnectioniType();
-  void reportHeaterState(bool value);
-  void reportHeater(double temperature, double humidity, double dewPoint, double power, bool isOn);
+  void reportConnectionType();
+  void reportHeater();
   void reportHeartbeat();
   void reportConnectionState();
   void reportPower();
-  void reportPm();
-  void reportWeather();
 
   bool createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode, const String& metric,
                                      const String& chartType);

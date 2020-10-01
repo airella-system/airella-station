@@ -36,7 +36,9 @@ void Guardian::statistics() {
 
       Statistics.reportHeartbeat();
       Statistics.reportConnectionState();
+      Statistics.reportConnectionType();
       Statistics.reportPower();
+      Statistics.reportHeater();
 
       lastStatisticTimestamp = millis();
     }

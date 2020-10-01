@@ -4,22 +4,18 @@ void StatisticsClass::reportBootUp() {
   sendStringStatistic("boot", "BOOT");
 }
 
-void StatisticsClass::reportConnectioniType() {
+void StatisticsClass::reportConnectionType() {
   const char* typeName = Config::getInternetConnectionType() == Config::InternetConnectionType::WIFI ? "WIFI" : "GSM";
   sendStringStatistic("connectionType", typeName);
 }
 
-void StatisticsClass::reportHeaterState(bool isOn) {
-  const char* strValue = isOn ? "ON" : "OFF";
-  sendStringStatistic("heaterState", strValue);
-}
-
-void StatisticsClass::reportHeater(double temperature, double humidity, double dewPoint, double power, bool isOn) {
-  sendFloatStatistic("heaterTemp", temperature);
-  sendFloatStatistic("heaterHum", humidity);
-  sendFloatStatistic("heaterDewPoint", dewPoint);
-  sendFloatStatistic("heaterPower", power);
-  const char* strValue = isOn ? "ON" : "OFF";
+void StatisticsClass::reportHeater() {
+  HeaterReport heaterReport = DeviceContainer.heater->getReport();
+  sendFloatStatistic("heaterTemp", heaterReport.temperature);
+  sendFloatStatistic("heaterHum", heaterReport.humidity);
+  sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
+  sendFloatStatistic("heaterPower", heaterReport.currentPower);
+  const char* strValue = heaterReport.isOn ? "ON" : "OFF";
   sendStringStatistic("heaterState", strValue);
 }
 
@@ -109,6 +105,11 @@ bool StatisticsClass::sendStringStatistic(const char* statisticId, const char* v
 }
 
 bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) {
+  if (!Api.isAuth()) {
+    Logger::debug("[Statistics::sendStatistic()] Authorization failed");
+    return false;
+  }
+  
   String url =
       Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/statistics/" + statisticId + "/values";
 

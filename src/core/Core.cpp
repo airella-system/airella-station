@@ -3,17 +3,19 @@
 // #define STOP_MAIN_LOOP
 
 Core::Core() {
+
+}
+
+void Core::setUp() {
   Logger::setUp();
-  Logger::info("[Core]: Iniatlizing...");
+  Logger::info("[Core]: Setting up started");
   powerSensor = new PowerSensor();
+  powerSensor->begin();
   // storage = new Storage();
   DeviceContainer.powerSensor = powerSensor;
 
   Logger::info("[Core]: Iniatlized OK");
-}
 
-void Core::setUp() {
-  Logger::info("[Core]: Setting up started");
 
   Config::load();
   Logger::info("[Core]: Loaded preferences.");

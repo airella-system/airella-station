@@ -46,6 +46,5 @@ bool Internet::isOk() {
 
 void Internet::setType(Type type) {
   Internet::type = type;
-  Statistics.reportConnectioniType();
   //todo: add logic to switch device connection, ex. active gsm | todo with gsm
 }
