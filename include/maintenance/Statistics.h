@@ -10,51 +10,13 @@
 
 #define MAX_BUFFER_SIZE 30
 
-
-enum StatisticPrivacyMode { PUBLIC, PRIVATE };
-
-enum StatisticGraphType{ SCATTER, LINE };
-
-struct StatisticOneStringDefinition {
-  String id;
-  String name;
-  StatisticPrivacyMode privacyMode;
-};
-
-struct StatisticMultipleFloatsDefinition {
-  String id;
-  String name;
-  StatisticPrivacyMode privacyMode;
-  String metric;
-  StatisticGraphType chartType;
-};
-
 struct StatisticEnumDefinition {
   String id;
   String name;
 };
 
-struct StatisticMultipleEnumsDefinition {
-  String id;
-  String name;
-  StatisticPrivacyMode privacyMode;
-  StatisticEnumDefinition enumDefinitions[];
-  int enumDefinitionsNum;
-  StatisticGraphType chartType;
-};
-
-
-
-
 class StatisticsClass {
 public:
-//   StatisticOneStringDefinition BT_MAC_STATISTIC = {"", "", PUBLIC};
-
-//   StatisticMultipleEnumsDefinition essa = {"", "", PUBLIC,  {{"BOOT", "Boot"}}, 1, LINE};
-
-
-
-
   void reportBootUp();
   void reportConnectionType();
   void reportHeater();

@@ -403,10 +403,6 @@ bool ApiClass::addStatistics(RegistrationResult* result) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("uptime", "Uptime", "PUBLIC", "s", "LINE")) {
-    return logRegistrationFail("Unable to create all statistics", result);
-  }
-
   if (!Statistics.createMultipleFloatsStatistic("heaterTemp", "Heater temperature", "PUBLIC", "°C", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
