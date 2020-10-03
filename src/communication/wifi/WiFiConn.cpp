@@ -49,11 +49,32 @@ bool WiFiConn::isConnected() {
   return WiFiConn::connected;
 }
 
-Http::Response WiFiConn::httpGet(String url, String authorization) {
-  Guardian::checkWiFiConnection();
+
+bool WiFiConn::isOk() {
+  if(!WiFiConn::connected) return false;
+  if(WiFi.status() != WL_CONNECTED) {
+    return false;
+  }
+  return Ping.ping("www.google.com");
 }
 
-Http::Response WiFiConn::httpPost(String url, String body, String authorization) {
+Http::Response WiFiConn::httpGet(const String& url, String& authorization) {
+  Guardian::checkWiFiConnection();
+  Logger::debug(("GET Request to url: " + url).c_str());
+
+  http.begin(url);
+  if (!authorization.equals("")) {
+    http.addHeader("Authorization", authorization);
+  }
+
+  Http::Response response;
+  response.code = http.GET();
+  response.payload = http.getString();
+  http.end();
+  return response;
+}
+
+Http::Response WiFiConn::httpPost(const String& url, String& body, String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("POST Request to url: " + url + " with body: " + body).c_str());
 
@@ -70,7 +91,7 @@ Http::Response WiFiConn::httpPost(String url, String body, String authorization)
   return response;
 }
 
-Http::Response WiFiConn::httpPut(String url, String json, String authorization) {
+Http::Response WiFiConn::httpPut(const String& url, String& json, String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("PUT Request to url: " + url + " with body: " + json).c_str());
 

@@ -19,6 +19,7 @@ String Config::addressNumber = String();
 String Config::locationLatitude = String();
 String Config::locationLongitude = String();
 bool Config::locationManual = false;
+String Config::accessToken = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
@@ -50,6 +51,7 @@ void Config::load(bool lock /* = true */) {
   Config::registrationState = static_cast<Config::RegistrationState>(Config::preferences.getInt("reg-state", 0));
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
+  Config::accessToken = Config::preferences.getString("access-token", "");
   Config::preferences.end();
   if (lock) Config::unlock();
   save();
@@ -75,6 +77,7 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putBool("loc-manual", Config::getLocationManual(false));
   Config::preferences.putInt("reg-state", static_cast<int>(Config::getRegistrationState(false)));
   Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType(false)));
+  Config::preferences.putString("access-token", Config::getAccessToken(false));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -111,6 +114,10 @@ Config::InternetConnectionType Config::getInternetConnectionType(bool lock /* = 
   if (lock) Config::unlock();
   return value;
 }
+
+/**
+ * getters
+*/
 
 String Config::getWifiSsid(bool lock /* = true */) {
   return getAtomicString(&Config::wifiSsid, lock);
@@ -178,11 +185,20 @@ bool Config::getLocationManual(bool lock /* = true */) {
   return value;
 }
 
+String Config::getAccessToken(bool lock /* = true */) {
+  return getAtomicString(&Config::accessToken, lock);
+}
+
+/**
+ * setters
+*/
+
 void Config::setInternetConnectionType(Config::InternetConnectionType internetConnectionType, bool lock /* = true */) {
   Config::internetConnectionType = internetConnectionType;
   Config::preferences.begin("prefs", false);
   Config::preferences.putInt("inet-conn", static_cast<int>(internetConnectionType));
   Config::preferences.end();
+  Internet::setType(static_cast<Internet::Type>(internetConnectionType));
   if (lock) Config::unlock();
 }
 
@@ -254,4 +270,8 @@ void Config::setLocationManual(bool manual, bool lock /* = true */) {
   Config::preferences.putBool("loc-manual", manual);
   Config::preferences.end();
   if (lock) Config::unlock();
+}
+
+void Config::setAccessToken(String accessToken, bool lock /* = true */) {
+  syncValueWithFlash(&accessToken, &Config::accessToken, "access-token", lock);
 }

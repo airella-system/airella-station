@@ -18,6 +18,9 @@
 #include "device/WeatherSensor.h"
 #include "maintenance/Logger.h"
 #include "time/Time.h"
+#include "maintenance/Statistics.h"
+#include "maintenance/Guardian.h"
+#include "device/DeviceContainer.h"
 #include "config/HardwareConfig.h"
 
 class Core {

@@ -10,4 +10,7 @@ public:
   static bool isDeviceOk();
   static void checkWiFiConnection();
   static bool reconectWiFi();
+  static void statistics();
+private:
+  static unsigned long lastStatisticTimestamp;
 };

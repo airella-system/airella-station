@@ -3,16 +3,19 @@
 // #define STOP_MAIN_LOOP
 
 Core::Core() {
-  Logger::setUp();
-  Logger::info("[Core]: Iniatlizing...");
-  // powerSensor = new PowerSensor();
-  // storage = new Storage();
 
-  Logger::info("[Core]: Iniatlized OK");
 }
 
 void Core::setUp() {
+  Logger::setUp();
   Logger::info("[Core]: Setting up started");
+  powerSensor = new PowerSensor();
+  powerSensor->begin();
+  // storage = new Storage();
+  DeviceContainer.powerSensor = powerSensor;
+
+  Logger::info("[Core]: Iniatlized OK");
+
 
   Config::load();
   Logger::info("[Core]: Loaded preferences.");
@@ -32,6 +35,10 @@ void Core::setUp() {
   heater = new Heater(*weatherSensor);
   heater->run();
 
+  DeviceContainer.airSensor = airAndGpsSensorStrategy->getAirSensor();
+  DeviceContainer.weatherSensor = weatherSensor;
+  DeviceContainer.heater = heater;
+
   Logger::info("[Core]: Setting up ended");
 }
 
@@ -41,6 +48,8 @@ void Core::main() {
     while (!Api.isRegistered()) {
       delay(1000);
     }
+  } else {
+    Statistics.reportBootUp();
   }
 
 #ifdef STOP_MAIN_LOOP
@@ -48,8 +57,10 @@ void Core::main() {
     delay(1000);
   }
 #endif
-
-  while (true) {
+  
+  while(true) {
+    Guardian::statistics();
+    
     if (abs(millis() - lastPublishMillis) > 10000) {
       Logger::info("[Core]: Start measurement");
 
