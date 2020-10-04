@@ -80,6 +80,7 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putString("access-token", Config::getAccessToken(false));
   Config::preferences.end();
   if (lock) Config::unlock();
+  Logger::debug("[Config::save()] Config saved");
 }
 
 void Config::reset(bool lock /* = true */) {
