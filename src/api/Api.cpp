@@ -389,73 +389,68 @@ bool ApiClass::isAuth() {
 }
 
 bool ApiClass::addStatistics(RegistrationResult* result) {
-  if (!isAuth()) {
-    Logger::debug("[ApiClass::addStatistics()] Authorization failed");
-    return false;
-  }
-
-  if (!Statistics.createStringStatistic("btMacAddress", "Bluetooth MAC Address", "PUBLIC")) {
+  if (!Statistics.createStringStatistic("btMacAddress", "Bluetooth MAC Address", "PRIVATE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
   StatisticEnumDefinition bootEnums[] = {{"BOOT", "Boot"}};
-  if (!Statistics.createMultipleEnumsStatistic("boot", "Boot", "PUBLIC", bootEnums, 1, "SCATTER")) {
+  if (!Statistics.createMultipleEnumsStatistic("boot", "Boot", "PRIVATE", bootEnums, 1, "SCATTER")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("heaterTemp", "Heater temperature", "PUBLIC", "°C", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("heaterTemp", "Heater temperature", "PRIVATE", "°C", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("heaterHum", "Heater humidity", "PUBLIC", "%", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("heaterHum", "Heater humidity", "PRIVATE", "%", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("heaterDewPoint", "Heater dew point", "PUBLIC", "°C", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("heaterDewPoint", "Heater dew point", "PRIVATE", "°C", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("heaterPower", "Heater power", "PUBLIC", "W", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("heaterPower", "Heater power", "PRIVATE", "W", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
   StatisticEnumDefinition heaterStateEnums[] = {{"ON", "On"}, {"OFF", "Off"}};
-  if (!Statistics.createMultipleEnumsStatistic("heaterState", "Heater state", "PUBLIC", heaterStateEnums, 2, "LINE")) {
+  if (!Statistics.createMultipleEnumsStatistic("heaterState", "Heater state", "PRIVATE", heaterStateEnums, 2, "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
   
   StatisticEnumDefinition heartbeatEnums[] = {{"HEARTBEAT", "Heartbeat"}};
-  if (!Statistics.createMultipleEnumsStatistic("heartbeat", "Heartbeat", "PUBLIC", heartbeatEnums, 1, "SCATTER")) {
+  if (!Statistics.createMultipleEnumsStatistic("heartbeat", "Heartbeat", "PRIVATE", heartbeatEnums, 1, "SCATTER")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
   StatisticEnumDefinition connectionTypeEnums[] = {{"WIFI", "WiFi"}, {"GSM", "GSM"}};
-  if (!Statistics.createMultipleEnumsStatistic("connectionType", "Connection type", "PUBLIC", connectionTypeEnums, 2, "LINE")) {
+  if (!Statistics.createMultipleEnumsStatistic("connectionType", "Connection type", "PRIVATE", connectionTypeEnums, 2, "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
   StatisticEnumDefinition connectionStateEnums[] = {{"OK", "Connected"}, {"ERROR", "Error"}};
-  if (!Statistics.createMultipleEnumsStatistic("connectionState", "Connection state", "PUBLIC", connectionStateEnums, 2, "LINE")) {
+  if (!Statistics.createMultipleEnumsStatistic("connectionState", "Connection state", "PRIVATE", connectionStateEnums, 2, "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("busVoltage", "Bus voltage", "PUBLIC", "V", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("busVoltage", "Bus voltage", "PRIVATE", "V", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("shounVoltage", "Shoun voltage", "PUBLIC", "mV", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("shounVoltage", "Shoun voltage", "PRIVATE", "mV", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("loadVoltage", "Load voltage", "PUBLIC", "V", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("loadVoltage", "Load voltage", "PRIVATE", "V", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("current", "Current", "PUBLIC", "mA", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("current", "Current", "PRIVATE", "mA", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("power", "Power", "PUBLIC", "mW", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("power", "Power", "PRIVATE", "mW", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 

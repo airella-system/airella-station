@@ -53,8 +53,8 @@ void Config::load(bool lock /* = true */) {
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
   Config::preferences.end();
+  save(false);
   if (lock) Config::unlock();
-  save();
 }
 
 void Config::save(bool lock /* = true */) {
@@ -80,7 +80,6 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putString("access-token", Config::getAccessToken(false));
   Config::preferences.end();
   if (lock) Config::unlock();
-  Logger::debug("[Config::save()] Config saved");
 }
 
 void Config::reset(bool lock /* = true */) {
