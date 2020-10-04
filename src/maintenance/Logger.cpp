@@ -3,7 +3,7 @@
 HardwareSerial Logger::serial = HardwareSerial(0);
 
 void Logger::setUp() {
-  serial.begin(115200,SERIAL_8N1,3,1,false,1000); 
+  serial.begin(115200, SERIAL_8N1, 3, 1, false, 1000); 
 }
 
 void Logger::log(const char *type, const char *message) {

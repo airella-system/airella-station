@@ -7,6 +7,7 @@
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/bluetooth/BluetoothRefreshHandler.h"
 #include "communication/common/Internet.h"
+#include "communication/gsm/GSM.h"
 #include "config/Config.h"
 #include "config/MeasurementType.h"
 #include "device/AirSensor.h"
@@ -31,6 +32,7 @@ private:
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
   Storage *storage = NULL;
+  GSM *gsm = NULL;
   AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;

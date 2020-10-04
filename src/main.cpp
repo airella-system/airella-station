@@ -77,6 +77,7 @@ bool comandReady = false;
 int currentChar = 0;
 String cmd;
 String cmdChunk;
+bool justNum = false;
 
 void loop() {
 
@@ -124,7 +125,7 @@ void loop() {
     }
     else if(cmd == "2") {
       HWSerial0.printf("@2");
-      HWSerial2.printf("AT+HTTPSET=\"URL\",\"https://smarthome.cyfrogen.com/\"\r\n");
+      HWSerial2.printf("AT+HTTPSET=\"URL\",\"http://airella.cyfrogen.com/api/stations\"\r\n");
     }
     else if(cmd == "3") {
       HWSerial0.printf("@5");
@@ -138,15 +139,24 @@ void loop() {
       HWSerial0.printf("@6");
       HWSerial2.printf("AT+HTTPREAD=100,200\r\n");
     }
+    else if(cmd == "x") {
+      HWSerial0.printf("@x");
+      justNum = true;
+    }
     else {
-      HWSerial0.printf((String("@") + cmd).c_str());
-      HWSerial2.printf((cmd + String("\r\n")).c_str());
+      if(justNum) {
+        HWSerial0.printf((String("@read=") + cmd).c_str());
+        HWSerial2.printf((String("AT+HTTPREAD=") + cmd + String("\r\n")).c_str());
+      }
+      else {
+        HWSerial0.printf((String("@") + cmd).c_str());
+        HWSerial2.printf((cmd + String("\r\n")).c_str());
+      }
     }
     comandReady = false;
   }
 
   if (HWSerial2.available() > 0) {
-    HWSerial0.printf("HWSerial2: ");
     while(HWSerial2.available() > 0)
     {
       incomingByte = HWSerial2.read();
@@ -155,39 +165,16 @@ void loop() {
   } 
 }
 
-void sendSyncCmd() {
 
-}
+// #include "maintenance/Logger.h"
+// #include "core/Core.h"
 
 // void setup() {
-//   pinMode(LED1,OUTPUT);
-//   pinMode(nG510_PWR,OUTPUT);
-//   pinMode(SELGPS,OUTPUT);
-//   pinMode(PMS7K_ON,OUTPUT);
-//   digitalWrite(nG510_PWR,HIGH);
-//   digitalWrite(SELGPS,LOW);
-//   digitalWrite(PMS7K_ON,LOW);
-
-//   //Configure software serial
-//   HWSerial2.begin(115200,SERIAL_8N1,U2RX,U2TX,false,1000);
-//   //Configure Arduino serial
-//   HWSerial0.begin(115200,SERIAL_8N1,U0RX,U0TX,false,1000);
-//   //Indicate start:
-//   HWSerial0.println("-----");
-//   delay(5000);
-//   digitalWrite(nG510_PWR,LOW);
-//   delay(900); //min 800ms
-//   digitalWrite(nG510_PWR,HIGH);
-//   delay(5000);
+//   core.setUp();
 // }
- 
+
 // void loop() {
-//   //Send AT command to G510; AT commands must finish with \r\n
-//   HWSerial2.println("AT");
-//   //get output form the chip
-//   while(HWSerial2.available()){
-//     HWSerial0.print( (char)HWSerial2.read() );
-//   }
-//   //Wait 1s
-//   delay(1000);
+//   Logger::info("[Core]: Start main");
+//   core.main();
+//   Logger::error("[Core]: Escape from main loop");
 // }
