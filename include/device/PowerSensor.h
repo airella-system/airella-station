@@ -15,6 +15,7 @@ struct PowerInfo {
 class PowerSensor : public Sensor {
  public:
   PowerSensor();
+  void begin();
   float getBusVoltage();
   float getCurrent();
   float getPower();

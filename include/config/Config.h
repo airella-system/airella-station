@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 #include "config/Defines.h"
+#include "communication/common/Internet.h"
 
 class Config {
  public:
@@ -25,9 +26,9 @@ class Config {
     PM1_SENSOR = 10,
     PM2_5_SENSOR = 11,
     PM10_SENSOR = 12,
-    MAC_STATISTIC = 13,
+    STATISTICS = 13,
     MAC_VALUE = 14,
-    REGISTERED_OK = 15
+    REGISTERED_OK = 16
   };
 
   static void load(bool lock = true);
@@ -49,8 +50,8 @@ class Config {
   static String getLocationLatitude(bool lock = true);
   static String getLocationLongitude(bool lock = true);
   static bool getLocationManual(bool lock = true);
-
   static RegistrationState getRegistrationState(bool lock = true);
+  static String getAccessToken(bool lock = true);
 
   static void setInternetConnectionType(InternetConnectionType internetConnectionType, bool lock = true);
   static void setWifiSsid(String wifiSsid, bool lock = true);
@@ -67,8 +68,8 @@ class Config {
   static void setLocationLatitude(String latitude, bool lock = true);
   static void setLocationLongitude(String longitude, bool lock = true);
   static void setLocationManual(bool manual, bool lock = true);
-
   static void setRegistrationState(RegistrationState registrationState, bool lock = true);
+  static void setAccessToken(String accessToken, bool lock = true);
 
   static Preferences preferences;
  private:
@@ -94,6 +95,7 @@ class Config {
   static String locationLatitude;
   static String locationLongitude;
   static bool locationManual;
+  static String accessToken;
 
   static RegistrationState registrationState;
 };

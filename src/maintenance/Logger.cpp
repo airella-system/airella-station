@@ -95,3 +95,19 @@ void Logger::error(String& message) {
 void Logger::debug(String& message) {
   Logger::log("DEBUG", message);
 }
+
+void Logger::info(String& message) {
+  Logger::log("LOG", message);
+}
+
+void Logger::warning(String& message) {
+  Logger::log("WARNING", message);
+}
+
+void Logger::error(String& message) {
+  Logger::log("ERROR", message);
+}
+
+void Logger::debug(String& message) {
+  Logger::log("DEBUG", message);
+}

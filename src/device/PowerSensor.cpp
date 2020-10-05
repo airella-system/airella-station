@@ -1,16 +1,18 @@
 #include "device/PowerSensor.h"
 
-PowerSensor::PowerSensor() : inaDevice(config.sensorAddress), i2cBus(config.i2cBusNum) {
+PowerSensor::PowerSensor() : inaDevice(config.sensorAddress), i2cBus(config.i2cBusNum) {}
+
+void PowerSensor::begin() {
   Logger::info("[PowerSensor] Initalizing ...");
 
-  if (i2cBus.begin(config.dataLinePin, config.clockLinePin, 100000)) {
+  if (i2cBus.begin(config.clockLinePin, config.dataLinePin, 100000)) {
     Logger::info("[PowerSensor] Initialized I2C bus: OK.");
   } else {
     Logger::error("[PowerSensor] Unable to initialize I2C bus.");
     return;
   }
 
-  if (!inaDevice.begin(&i2cBus)) {
+  if (inaDevice.begin(&i2cBus)) {
     Logger::info("[PowerSensor] Initialized INA device: OK.");
   } else {
     Logger::error("[PowerSensor] Unable to find INA device.");

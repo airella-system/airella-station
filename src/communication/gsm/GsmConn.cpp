@@ -8,10 +8,14 @@ bool GsmConn::isConnected() {
   return false;
 }
 
-Http::Response GsmConn::httpGet(String url, String authorization) {}
+bool GsmConn::isOk() {
+  return false;
+}
 
-Http::Response GsmConn::httpPost(String url, String body, String authorization) {}
+Http::Response GsmConn::httpGet(const String& url, String& authorization) {}
 
-Http::Response GsmConn::httpPut(String url, String body, String authorization) {}
+Http::Response GsmConn::httpPost(const String& url, String& body, String& authorization) {}
 
-void GsmConn::setAuthorizationHeader(String value) {}
+Http::Response GsmConn::httpPut(const String& url, String& body, String& authorization) {}
+
+void GsmConn::setAuthorizationHeader(String& value) {}

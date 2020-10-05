@@ -4,6 +4,8 @@
 #include "communication/common/Http.h"
 #include "communication/gsm/GsmConn.h"
 #include "communication/wifi/WiFiConn.h"
+#include "config/Config.h"
+#include "maintenance/Statistics.h"
 
 class Internet {
  public:
@@ -13,9 +15,12 @@ class Internet {
   static int start();
   static void stop();
   static bool isConnected();
-  static Http::Response httpGet(String url, String authorization = "");
-  static Http::Response httpPost(String url, String body, String authorization = "");
-  static Http::Response httpPut(String url, String body, String authorization = "");
+  static bool isOk();
+  static Http::Response httpGet(const String& url);
+  static Http::Response httpGet(const String& url, String& authorization);
+  static Http::Response httpPost(const String& url, String& body);
+  static Http::Response httpPost(const String& url, String& body, String& authorization);
+  static Http::Response httpPut(const String& url, String& body, String& authorization);
 
  private:
   static Type type;

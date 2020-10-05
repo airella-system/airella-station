@@ -1,10 +1,10 @@
 #include "device/Heater.h"
 
-Heater::Heater(WeatherSensor &_weatherSensor) 
-  : communicationBus(config.oneWirePin), weatherSensor(_weatherSensor) {
+Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWirePin), weatherSensor(_weatherSensor) {
   Logger::info("[Heater] Initalizing ...");
-  
-  if(!weatherSensor.isInit()) {
+  this->mux = xSemaphoreCreateMutex();
+
+  if (!weatherSensor.isInit()) {
     Logger::error("[Heater] Weather sensor is uninitialized or null.");
     return;
   }
@@ -14,12 +14,13 @@ Heater::Heater(WeatherSensor &_weatherSensor)
   analogWrite(config.analogPin, 0);
   heaterStatus.heaterIsOn = false;
   heaterStatus.threadIsRunning = false;
+  setPower(0);
 
   thermometer = DallasTemperature(&communicationBus);
   /*
-  * This section is a little strange, but i haven't idea why this does not work with single begin
-  * TODO: debug this and correct
-  */
+   * This section is a little strange, but i haven't idea why this does not work with single begin
+   * TODO: debug this and correct
+   */
   thermometer.begin();
   delay(2000);
   thermometer.begin();
@@ -90,10 +91,11 @@ void Heater::run() {
 #ifdef CALCULATE_DEWPOINT
 void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
-  unsigned long lastTimestamp = millis();
-  unsigned int intervalMax = 1000 * 10; // 10s
+  unsigned int intervalMax = 1000 * 10;  // 10s
   unsigned int interval = intervalMax;
+  unsigned long lastTimestamp = millis() -  2 * interval; // make first interation instant
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
+  bool heaterLastState = !heaterIsOn;
   int counter = 0;
 
   while (true) {
@@ -105,25 +107,26 @@ void Heater::threadFunction(void *pvParameters) {
       float dewPoint = heater->calculateDewPoint(humidity, temperature);
       float temperatureLevel = dewPoint + 5;
 
-      if (!heaterIsOn && temperature < temperatureLevel - 0.5 ) {
+      if (!heaterIsOn && temperature < temperatureLevel - 0.5) {
         heater->setPower(MAX_POWER);
         heaterIsOn = true;
         Logger::info("[Heater] Power is ON");
         interval = intervalMax;
-      }
-      else if(heaterIsOn && abs(temperatureLevel - temperature) <= 0.5) {
+      } else if (heaterIsOn && abs(temperatureLevel - temperature) <= 0.5) {
         int power = MAX_POWER * (temperatureLevel + 0.5 - temperature);
         heater->setPower(power);
         interval = intervalMax / 5;
-      }
-      else if (heaterIsOn && temperature > temperatureLevel + 0.5) {
+      } else if (heaterIsOn && temperature > temperatureLevel + 0.5) {
+        heater->setPower(0);
         heater->off();
         heaterIsOn = false;
         interval = intervalMax;
       }
+      
+      heater->setReport(temperature, humidity, dewPoint, heater->getCurrentPower(), heaterIsOn);
 
       counter++;
-      if(counter % 10 == 0) {
+      if (counter % 10 == 0) {
         String message = "[Heater]: ";
         message += "T: ";
         message += temperature;
@@ -137,6 +140,9 @@ void Heater::threadFunction(void *pvParameters) {
         message += heaterIsOn;
         Logger::debug(&message);
         counter = 1;
+        if (heaterLastState != heaterIsOn) {
+          heaterLastState = heaterIsOn;
+        }
       }
 
     } else {
@@ -148,7 +154,7 @@ void Heater::threadFunction(void *pvParameters) {
 void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned long lastTimestamp = millis();
-  unsigned int interval = 1000 * 10; // 10s
+  unsigned int interval = 1000 * 10;  // 10s
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
   float currentTemperature = 0;
   int counter = 0;
@@ -169,11 +175,11 @@ void Heater::threadFunction(void *pvParameters) {
         heaterIsOn = false;
       }
     } else {
-      delay(interval/2);
+      delay(interval / 2);
     }
 
     counter++;
-    if(counter % 10 == 0) {
+    if (counter % 10 == 0) {
       String message = "[Heater]: ";
       message += "T: ";
       message += heater->getTemperature();
@@ -209,8 +215,8 @@ HeaterStatus Heater::getHeaterState() const {
 
 String Heater::deviceAddressToString(DeviceAddress deviceAddress) const {
   String str = "";
-  for (uint8_t i = 0; i < 8; i++){
-    if( deviceAddress[i] < 16 ) str += String(0, HEX);
+  for (uint8_t i = 0; i < 8; i++) {
+    if (deviceAddress[i] < 16) str += String(0, HEX);
     str += String(deviceAddress[i], HEX);
   }
   return str;
@@ -222,13 +228,43 @@ float Heater::getHumidity() {
 
 float Heater::calculateDewPoint(float humidity, float temperature) const {
   /*
-  * Equations courtesy of Brian McNoldy from http://andrew.rsmas.miami.edu
-  * Based on https://github.com/finitespace/BME280/blob/master/src/EnvironmentCalculations.cpp
-  */
-  return 243.04 * (log(humidity / 100.0) + ((17.625 * temperature) / (243.04 + temperature))) 
-         / (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)));
+   * Equations courtesy of Brian McNoldy from http://andrew.rsmas.miami.edu
+   * Based on https://github.com/finitespace/BME280/blob/master/src/EnvironmentCalculations.cpp
+   */
+  return 243.04 * (log(humidity / 100.0) + ((17.625 * temperature) / (243.04 + temperature))) /
+         (17.625 - log(humidity / 100.0) - ((17.625 * temperature) / (243.04 + temperature)));
 }
 
 unsigned int Heater::getCurrentPower() const {
   return currentPower;
+}
+
+void Heater::lock() const {
+  xSemaphoreTake(Heater::mux, portMAX_DELAY);
+}
+
+void Heater::unlock() const {
+  xSemaphoreGive(Heater::mux);
+}
+
+void Heater::setReport(float temperature, float humidity, float dewPoint, float currentPower, bool isOn) {
+  lock();
+  lastReport.temperature = temperature;
+  lastReport.humidity = humidity;
+  lastReport.dewPoint = dewPoint;
+  lastReport.currentPower = currentPower;
+  lastReport.isOn = isOn;
+  unlock();
+}
+
+HeaterReport Heater::getReport() const {
+  lock();
+  HeaterReport report;
+  report.temperature = lastReport.temperature;
+  report.humidity = lastReport.humidity;
+  report.dewPoint = lastReport.dewPoint;
+  report.currentPower = lastReport.currentPower;
+  report.isOn = lastReport.isOn;
+  unlock();
+  return report;
 }

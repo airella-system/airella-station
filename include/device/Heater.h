@@ -14,8 +14,16 @@ struct HeaterStatus {
   bool threadIsRunning;
 };
 
+struct HeaterReport {
+  float temperature;
+  float humidity;
+  float dewPoint;
+  float currentPower;
+  bool isOn;
+};
+
 class Heater : public Sensor {
-public:
+ public:
   Heater(WeatherSensor &_weatherSensor);
   ~Heater();
   void on();
@@ -28,11 +36,12 @@ public:
   float calculateDewPoint(float humidity, float temperature) const;
   unsigned int getCurrentPower() const;
   HeaterStatus getHeaterState() const;
+  HeaterReport getReport() const;
   HeaterStatus heaterStatus;
   const float temperatureTrashold = 1;
   const float temperatureLevel = 20;
 
-private:
+ private:
   HeaterConfig config;
   float temperatureDevice[ONE_WIRE_MAX_DEV];
   DeviceAddress deviceAddress[ONE_WIRE_MAX_DEV];
@@ -41,11 +50,16 @@ private:
   DallasTemperature thermometer;
   TaskHandle_t termoThreadHandler;
   WeatherSensor weatherSensor;
+  HeaterReport lastReport;
+
   String deviceAddressToString(DeviceAddress deviceAddress) const;
   bool shouldTurnOn() const;
   bool shouldTurnOff() const;
   unsigned int currentPower;
+  void setReport(float temperature, float humidity, float dewPoint, float currentPower, bool isOn);
+  void lock() const;
+  void unlock() const;
+  SemaphoreHandle_t mux;
 
-  static void threadFunction(void * pvParameters);
-
+  static void threadFunction(void *pvParameters);
 };

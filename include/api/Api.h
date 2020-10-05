@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 #include "communication/bluetooth/Bluetooth.h"
+#include "maintenance/Statistics.h"
+
 #define ACCESS_TOKEN_EXPIRATION_TIME 600000  // 1000ms * 60 * 10 = 10 min
 
 struct RegistrationResult {
@@ -35,9 +37,8 @@ private:
   bool doPM1Sensor(RegistrationResult* result);
   bool doPM2_5Sensor(RegistrationResult* result);
   bool doPM10Sensor(RegistrationResult* result);
-  bool doBtMacStatistic(RegistrationResult* result);
+  bool addStatistics(RegistrationResult* result);
   bool doBtMacValue(RegistrationResult* result);
-  bool addBtMacStatistic();
   bool addBtMacValue();
   void logRequest(const char* name, Http::Response& response);
   bool logRegistrationFail(const char* message, RegistrationResult* result);
