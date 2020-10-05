@@ -60,16 +60,16 @@ Http::Response GSM::httpGetRequest(String& url) {
     return httpResponse;
   }
   GSM::ParsedRequestInfo info = parseRequestInfo(gsmResponse.data);
-  gsmResponse = readRequestData(info.dataSize);
+  httpResponse.code = info.httpCode;
   
+  /*gsmResponse = readRequestData(info.dataSize);
   if(!gsmResponse.success) {
     httpResponse.code = 400;
     httpResponse.payload = "Unable to get response data";
     return httpResponse;
   }
+  httpResponse.payload = gsmResponse.data;*/
 
-  httpResponse.code = info.httpCode;
-  httpResponse.payload = gsmResponse.data;
   serial.flush();
   return httpResponse;
 }
@@ -99,22 +99,18 @@ Http::Response GSM::httpPostRequest(String& url, String& data) {
     return httpResponse;
   }
   GSM::ParsedRequestInfo info = parseRequestInfo(gsmResponse.data);
-  gsmResponse = readRequestData(info.dataSize);
+  httpResponse.code = info.httpCode;
   
+  /*gsmResponse = readRequestData(info.dataSize);
   if(!gsmResponse.success) {
     httpResponse.code = 400;
     httpResponse.payload = "Unable to get response data";
     return httpResponse;
   }
+  httpResponse.payload = gsmResponse.data;*/
 
-  httpResponse.code = info.httpCode;
-  httpResponse.payload = gsmResponse.data;
   serial.flush();
   return httpResponse;
-}
-
-void GSM::sendSMS() {
-  
 }
 
 void GSM::commandAsync(String& comand) {
@@ -144,8 +140,6 @@ void GSM::commandSync(const char* command, const char* expectedResponse, unsigne
 
     while(serial.available() > 0) {
       receivedChar = serial.read();
-      // Logger::debug(String(receivedChar));
-      // Logger::debug(String((int)receivedChar));
       if(toIgnoreChars > 0) {
         --toIgnoreChars;
       }
@@ -155,20 +149,6 @@ void GSM::commandSync(const char* command, const char* expectedResponse, unsigne
       if(response == expectedResponse) {
         Logger::debug("[GSM::commandSync] Receive AT response: " + response);
         return;
-      }
-      else {
-        if(strlen(response.c_str()) < strlen(expectedResponse) + 5) {
-          Logger::debug("--------------");
-          for(char tmp : response) {
-            Logger::serial.print((int)tmp);
-          }
-          Logger::serial.print('\n');
-          Logger::debug("---");
-          for(char tmp : String(expectedResponse)) {
-            Logger::serial.print((int)tmp);
-          }
-          Logger::serial.print('\n');
-        }
       }
     }
   }
@@ -190,7 +170,6 @@ GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) 
     
     while(serial.available() > 0) {
       receivedChar = serial.read();
-      // Logger::debug(String(receivedChar));
       if(receivedChar != '\n' && receivedChar != '\r') {
         receivedData += receivedChar;
         nextCommanReady = true;
@@ -243,7 +222,6 @@ GSM::Response GSM::listenForBytes(unsigned long size, unsigned long timeout /* =
     Logger::serial.flush();
     while(serial.available() > 0) {
       receivedChar = serial.read();
-      // Logger::debug(String(receivedChar));
       receivedData[readIndex++] = receivedChar;
       if(size == readIndex) {
         Logger::debug("[GSM::listenForBytes] Received all bytes.");

@@ -35,7 +35,6 @@ public:
   ~GSM() {}
   Http::Response httpGetRequest(String& url);
   Http::Response httpPostRequest(String& url, String& data);
-  void sendSMS();
   void powerOn();
   void powerOff();
 private:
@@ -50,6 +49,5 @@ private:
   ParsedRequestInfo parseRequestInfo(String& data);
   unsigned long calculateInterval(unsigned long timestamp);
   Response readRequestData(unsigned long dataSize, unsigned long timeout = DEFAULT_TIMEOUT);
-
   bool sendData(String& data, unsigned long timeout = DEFAULT_TIMEOUT);
 };

@@ -38,13 +38,15 @@ void Core::setUp() {
   gsm->powerOff();
   delay(1000);
   gsm->powerOn();
-  delay(10000);
+  delay(1000);
   // String url = "http://airella.cyfrogen.com/api/map/at?latitude=50.0680472&longitude=19.9104095";
   // String url = "http://www.piaskowy.ayz.pl/";
   String url = "http://airella.cyfrogen.com/api/stations";
-  Http::Response response = gsm->httpGetRequest(url);
-  Logger::debug(String(response.code));
-  Logger::debug(response.payload);
+  // Http::Response response = gsm->httpGetRequest(url);
+  String mleko = "mleko";
+  Http::Response response = gsm->httpPostRequest(url, mleko);
+  // Logger::debug(String(response.code));
+  // Logger::debug(response.payload);
 
   // gsm->sendSMS("+48668762235", "To JA, TWOJA STACJA, PISZĘ DO CIEBIE!: Elo Elo, 320, Twoja stacja kręci się jak bęben w pralce!");
 }
