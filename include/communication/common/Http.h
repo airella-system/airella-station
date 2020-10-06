@@ -8,4 +8,10 @@ class Http {
     int code;
     String payload;
   };
+
+  enum Method {
+    GET,
+    POST,
+    PUT
+  };
 };

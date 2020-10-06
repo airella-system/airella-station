@@ -36,10 +36,22 @@ void GSM::powerOff() {
   Logger::info("[GSM::powerOff] Power OFF: end");
 }
 
-Http::Response GSM::httpGetRequest(String& url) {
+bool GSM::isConnected() {
+  //todo
+  return true;
+}
+
+bool GSM::isOk() {
+  //todo
+  return true;
+}
+
+Http::Response GSM::httpGetRequest() {
   Http::Response httpResponse;
   GSM::Response gsmResponse;
-  commandSync("AT+HTTPSET=\"URL\",\"" + url + "\"", "OK");
+  commandSync("AT+HTTPSET=\"URL\",\"" + Config::getGsmExtenderUrl() + "\"", "OK");
+  commandSync("AT+HTTPSET=\"UAGENT\",\"Airella\"", "OK");
+  commandSync("AT+HTTPSET=\"CONTYPE\",\"application-json\"", "OK");
   commandSync("AT+HTTPACT=0", "OK");
   gsmResponse = listenForData();
   if(!gsmResponse.success) {
@@ -74,10 +86,12 @@ Http::Response GSM::httpGetRequest(String& url) {
   return httpResponse;
 }
 
-Http::Response GSM::httpPostRequest(String& url, String& data) {
+Http::Response GSM::httpPostRequest(String& data) {
   Http::Response httpResponse;
   GSM::Response gsmResponse;
-  commandSync("AT+HTTPSET=\"URL\",\"" + url + "\"", "OK");
+  commandSync("AT+HTTPSET=\"URL\",\"" + Config::getGsmExtenderUrl() + "\"", "OK");
+  commandSync("AT+HTTPSET=\"UAGENT\",\"Airella\"", "OK");
+  commandSync("AT+HTTPSET=\"CONTYPE\",\"application-json\"", "OK");
   commandSync("AT+HTTPACT=1", "OK");
   sendData(data);
   gsmResponse = listenForData();

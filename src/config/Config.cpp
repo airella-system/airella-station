@@ -52,8 +52,8 @@ void Config::load(bool lock /* = true */) {
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
+  Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "");
   Config::preferences.end();
-  save(false);
   if (lock) Config::unlock();
 }
 
@@ -78,6 +78,7 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putInt("reg-state", static_cast<int>(Config::getRegistrationState(false)));
   Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType(false)));
   Config::preferences.putString("access-token", Config::getAccessToken(false));
+  Config::preferences.putString("gsmExtenderUrl", Config::getGsmExtenderUrl(false));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -189,6 +190,10 @@ String Config::getAccessToken(bool lock /* = true */) {
   return getAtomicString(&Config::accessToken, lock);
 }
 
+String Config::getGsmExtenderUrl(bool lock /* = true */) {
+  return getAtomicString(&Config::gsmExtenderUrl, lock);
+}
+
 /**
  * setters
 */
@@ -274,4 +279,8 @@ void Config::setLocationManual(bool manual, bool lock /* = true */) {
 
 void Config::setAccessToken(String accessToken, bool lock /* = true */) {
   syncValueWithFlash(&accessToken, &Config::accessToken, "access-token", lock);
+}
+
+void Config::setGsmExtenderUrl(String gsmExtenderUrl, bool lock = true) {
+  syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsmExtenderUrl", lock);
 }

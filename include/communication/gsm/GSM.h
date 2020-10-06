@@ -33,21 +33,23 @@ public:
 
   GSM();
   ~GSM() {}
-  Http::Response httpGetRequest(String& url);
-  Http::Response httpPostRequest(String& url, String& data);
+  Http::Response httpGetRequest();
+  Http::Response httpPostRequest(String& data);
   void powerOn();
   void powerOff();
+  bool isConnected();
+  bool isOk();
 private:
   GSMConfig config;
   HardwareSerial serial;
   void commandAsync(String& comand);
   void commandSync(String& comand, const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
   void commandSync(const char* comand, const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
-  Response listenForData(unsigned long timeout = DEFAULT_TIMEOUT);
+  GSM::Response listenForData(unsigned long timeout = DEFAULT_TIMEOUT);
   bool waitForResponse(const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
-  Response listenForBytes(unsigned long size, unsigned long timeout = DEFAULT_TIMEOUT);
+  GSM::Response listenForBytes(unsigned long size, unsigned long timeout = DEFAULT_TIMEOUT);
   ParsedRequestInfo parseRequestInfo(String& data);
   unsigned long calculateInterval(unsigned long timestamp);
-  Response readRequestData(unsigned long dataSize, unsigned long timeout = DEFAULT_TIMEOUT);
+  GSM::Response readRequestData(unsigned long dataSize, unsigned long timeout = DEFAULT_TIMEOUT);
   bool sendData(String& data, unsigned long timeout = DEFAULT_TIMEOUT);
 };
