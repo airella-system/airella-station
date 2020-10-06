@@ -20,6 +20,7 @@ String Config::locationLatitude = String();
 String Config::locationLongitude = String();
 bool Config::locationManual = false;
 String Config::accessToken = String();
+String Config::gsmExtenderUrl = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
@@ -52,7 +53,7 @@ void Config::load(bool lock /* = true */) {
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
-  Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "");
+  Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://gsm-extender.airella.cyfrogen.com/");
   Config::preferences.end();
   if (lock) Config::unlock();
 }
@@ -281,6 +282,6 @@ void Config::setAccessToken(String accessToken, bool lock /* = true */) {
   syncValueWithFlash(&accessToken, &Config::accessToken, "access-token", lock);
 }
 
-void Config::setGsmExtenderUrl(String gsmExtenderUrl, bool lock = true) {
+void Config::setGsmExtenderUrl(String gsmExtenderUrl, bool lock /* = true */) {
   syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsmExtenderUrl", lock);
 }

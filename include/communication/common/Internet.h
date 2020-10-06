@@ -9,7 +9,7 @@
 
 class Internet {
  public:
-  enum Type { WIFI = 0, GSM = 1 };
+  enum Type { None = -1, WIFI = 0, GSM = 1 };
 
   static void setType(Type type);
   static int start();
@@ -24,4 +24,5 @@ class Internet {
 
  private:
   static Type type;
+  static Type* lastType;
 };

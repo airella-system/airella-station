@@ -4,6 +4,7 @@ GSM GsmConn::gsm = GSM();
 
 int GsmConn::start() {
   gsm.powerOn();
+  return 0;
 }
 
 void GsmConn::stop() {
@@ -30,7 +31,7 @@ Http::Response GsmConn::httpPut(const String& url, String body, String& authoriz
   return buildRequest(url, Http::Method::PUT, authorization, &body);
 }
 
-Http::Response GsmConn::buildRequest(const String& url, Http::Method method, String& authorization, String* body = NULL) {
+Http::Response GsmConn::buildRequest(const String& url, Http::Method method, String& authorization, String* body /* = NULL */) {
   DynamicJsonDocument doc(2*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + 1024);
   switch (method) {
     case Http::Method::GET: {

@@ -1,5 +1,4 @@
 #include "communication/gsm/GSM.h"
-#include "communication/common/Http.h"
 
 GSM::GSM() : serial(config.serialLine) {
   Logger::info("[GSM] Initalizing ...");

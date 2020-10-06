@@ -12,8 +12,8 @@
 #define SERIAL_BUFFER_SIZE 1024
 
 class GSM : public Sensor {
-public:
 
+public:
   struct Response {
     bool success = true;
     int code = 0;
@@ -27,10 +27,6 @@ public:
     bool success = true;
   };
 
-  struct ProxyPayload {
-
-  };
-
   GSM();
   ~GSM() {}
   Http::Response httpGetRequest();
@@ -39,6 +35,7 @@ public:
   void powerOff();
   bool isConnected();
   bool isOk();
+
 private:
   GSMConfig config;
   HardwareSerial serial;
@@ -52,4 +49,5 @@ private:
   unsigned long calculateInterval(unsigned long timestamp);
   GSM::Response readRequestData(unsigned long dataSize, unsigned long timeout = DEFAULT_TIMEOUT);
   bool sendData(String& data, unsigned long timeout = DEFAULT_TIMEOUT);
+
 };
