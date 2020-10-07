@@ -2,9 +2,7 @@
 
 // #define STOP_MAIN_LOOP
 
-Core::Core() {
-
-}
+Core::Core() {}
 
 void Core::setUp() {
   Logger::setUp();
@@ -15,7 +13,6 @@ void Core::setUp() {
   DeviceContainer.powerSensor = powerSensor;
 
   Logger::info("[Core]: Iniatlized OK");
-
 
   Config::load();
   Logger::info("[Core]: Loaded preferences.");
@@ -36,6 +33,7 @@ void Core::setUp() {
   heater->run();
 
   DeviceContainer.airSensor = airAndGpsSensorStrategy->getAirSensor();
+  DeviceContainer.gpsSensor = airAndGpsSensorStrategy->getGpsSensor();
   DeviceContainer.weatherSensor = weatherSensor;
   DeviceContainer.heater = heater;
 
@@ -52,25 +50,37 @@ void Core::main() {
     Statistics.reportBootUp();
   }
 
+  error = false;
+
 #ifdef STOP_MAIN_LOOP
   while (true) {
     delay(1000);
   }
 #endif
-  
-  while(true) {
+
+  while (true) {
+    bool notErrorInIteration = true;
     Guardian::statistics();
-    
+
+    if (error) {
+      if (abs(millis() - lastErrorMillis) > 60000) {
+        error = false;
+      }
+    }
+
     if (abs(millis() - lastPublishMillis) > 10000) {
       Logger::info("[Core]: Start measurement");
 
-      Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
-      Api.publishMeasurement(measurementType.humidity, weatherSensor->getHumidity());
-      Api.publishMeasurement(measurementType.pressure, weatherSensor->getPressure());
+      notErrorInIteration &= Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
+      notErrorInIteration &= Api.publishMeasurement(measurementType.humidity, weatherSensor->getHumidity());
+      notErrorInIteration &= Api.publishMeasurement(measurementType.pressure, weatherSensor->getPressure());
       airAndGpsSensorStrategy->getAirSensor()->measurement();
-      Api.publishMeasurement(measurementType.pm1, airAndGpsSensorStrategy->getAirSensor()->getPM1());
-      Api.publishMeasurement(measurementType.pm2_5, airAndGpsSensorStrategy->getAirSensor()->getPM2_5());
-      Api.publishMeasurement(measurementType.pm10, airAndGpsSensorStrategy->getAirSensor()->getPM10());
+      notErrorInIteration &=
+          Api.publishMeasurement(measurementType.pm1, airAndGpsSensorStrategy->getAirSensor()->getPM1());
+      notErrorInIteration &=
+          Api.publishMeasurement(measurementType.pm2_5, airAndGpsSensorStrategy->getAirSensor()->getPM2_5());
+      notErrorInIteration &=
+          Api.publishMeasurement(measurementType.pm10, airAndGpsSensorStrategy->getAirSensor()->getPM10());
 
       lastPublishMillis = millis();
     }
@@ -80,16 +90,25 @@ void Core::main() {
       airAndGpsSensorStrategy->switchToGpsSensor();
 
       if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
-        Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
-                            airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
+        notErrorInIteration &= Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
+                                                   airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
       }
       airAndGpsSensorStrategy->switchToAirSensor();
 
       lastGpsUpdateMillis = millis();
       Logger::info("[Core]: End switch to GPS");
     }
+
+    if (!notErrorInIteration) {
+      lastErrorMillis = millis();
+      error = true;
+    }
     delay(1000);
   }
+}
+
+bool Core::isError() {
+  return this->error;
 }
 
 Core core;

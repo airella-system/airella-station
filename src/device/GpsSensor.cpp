@@ -2,6 +2,7 @@
 
 GpsSensor::GpsSensor(HardwareSerial* serial) {
   Logger::info("[GpsSensor] Initalizing ...");
+  setTextState("GPS|INIT");
   this->serial = serial;
   initialized = true;
   Logger::info("[GpsSensor] GPS is active.");
@@ -21,6 +22,7 @@ bool GpsSensor::fetchLocation() {
       return true;
     }
   }
+  setTextState("GPS|ERROR");
   return false;
 }
 

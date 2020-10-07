@@ -41,6 +41,7 @@ int WiFiConn::start() {
 
 void WiFiConn::stop() {
   WiFi.disconnect();
+  connected = false;
   delay(500);
   Logger::info("[WiFiConn::stop()] WiFi - disconnected");
 }

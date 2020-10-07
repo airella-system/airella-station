@@ -220,6 +220,6 @@ class DeviceStateCallback : public BluetoothChunkerCallback {
 
   void beforeSend() {
     Logger::debug("[DeviceStateCallback::beforeSend()] called");
-    chunker->setValue("" + Guardian::isDeviceOk());
+    chunker->setValue(Guardian::getDeviceState().c_str());
   }
 };
