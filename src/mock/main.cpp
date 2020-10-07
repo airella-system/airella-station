@@ -12,6 +12,7 @@ bool refreshRequested = false;
 unsigned long lastPublishMillis = 0;
 
 void setup() {
+  Logger::setUp();
   Config::load();
   Bluetooth::start(new BluetoothRefreshHandler());
   Internet::setType(Internet::WIFI);
