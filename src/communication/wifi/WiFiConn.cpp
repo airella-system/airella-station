@@ -80,6 +80,7 @@ Http::Response WiFiConn::httpPost(const String& url, String& body, String& autho
 
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("User-Agent", "Airella");
   if (!authorization.equals("")) {
     http.addHeader("Authorization", authorization);
   }
@@ -97,6 +98,7 @@ Http::Response WiFiConn::httpPut(const String& url, String& json, String& author
 
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("User-Agent", "Airella");
   if (!authorization.equals("")) {
     http.addHeader("Authorization", authorization);
   }

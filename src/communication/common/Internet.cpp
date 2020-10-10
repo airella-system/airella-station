@@ -23,6 +23,7 @@ Http::Response Internet::httpGet(const String& url, String& authorization) {
 
 Http::Response Internet::httpPost(const String& url, String& body) {
   String authorization = String("Bearer ") + Config::getAccessToken();
+  Logger::debug(authorization);
   return Internet::httpPost(url, body, authorization);
 }
 
