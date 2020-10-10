@@ -10,6 +10,7 @@ GSM::GSM() : serial(config.serialLine) {
 }
 
 void GSM::powerOn() {
+  //commandAsync("AT+MRST");
   delay(1000);
   Logger::info("[GSM::powerOn] Power ON: start");
   digitalWrite(config.powerPin, LOW);
@@ -17,13 +18,22 @@ void GSM::powerOn() {
   digitalWrite(config.powerPin, HIGH);
   delay(1000);
   Logger::info("[GSM::powerOn] Waiting for SIM card registration");
-  if(waitForResponse("+SIM READY", 30 * 1000)) {
+  serial.flush();
+  if(waitForResponse("+SIM READY", 10 * 1000)) {
     Logger::info("[GSM::powerOn] SIM card registred");
   }
   else {
     Logger::info("[GSM::powerOn] Unable to register SIM card");
   }
-  commandSync("AT+MIPCALL=1,\"internet\",\"internet\",\"internet\"", "OK");
+  delay(1000);
+  char tryCount = 5;
+  while (
+    !commandSync("AT+MIPCALL=1,\"internet\",\"internet\",\"internet\"", "OK", 30 * 1000)
+    && tryCount > 0
+  ) {
+    tryCount--;
+  }
+  
   Logger::info("[GSM::powerOn] Power ON: end");
 }
 
@@ -51,7 +61,11 @@ Http::Response GSM::httpGetRequest() {
   commandSync("AT+HTTPSET=\"URL\",\"" + Config::getGsmExtenderUrl() + "\"", "OK");
   commandSync("AT+HTTPSET=\"UAGENT\",\"Airella\"", "OK");
   commandSync("AT+HTTPSET=\"CONTYPE\",\"application-json\"", "OK");
-  commandSync("AT+HTTPACT=0", "OK");
+
+  if(!commandSync("AT+HTTPACT=0", "OK")) {
+    return httpResponse;
+  }
+
   gsmResponse = listenForData();
   if(!gsmResponse.success) {
     httpResponse.code = 400;
@@ -73,13 +87,13 @@ Http::Response GSM::httpGetRequest() {
   GSM::ParsedRequestInfo info = parseRequestInfo(gsmResponse.data);
   httpResponse.code = info.httpCode;
   
-  /*gsmResponse = readRequestData(info.dataSize);
+  gsmResponse = readRequestData(info.dataSize);
   if(!gsmResponse.success) {
     httpResponse.code = 400;
     httpResponse.payload = "Unable to get response data";
     return httpResponse;
   }
-  httpResponse.payload = gsmResponse.data;*/
+  httpResponse.payload = gsmResponse.data;
 
   serial.flush();
   return httpResponse;
@@ -91,21 +105,25 @@ Http::Response GSM::httpPostRequest(String& data) {
   commandSync("AT+HTTPSET=\"URL\",\"" + Config::getGsmExtenderUrl() + "\"", "OK");
   commandSync("AT+HTTPSET=\"UAGENT\",\"Airella\"", "OK");
   commandSync("AT+HTTPSET=\"CONTYPE\",\"application-json\"", "OK");
-  commandSync("AT+HTTPACT=1", "OK");
-  sendData(data);
+
+  if(sendData(data)) Logger::debug("[GSM::httpPostRequest] Send serial data ok");
+
   gsmResponse = listenForData();
+  Logger::debug("mleko1");
   if(!gsmResponse.success) {
     httpResponse.code = 400;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
+  Logger::debug("mleko2");
   if(gsmResponse.data == "+HTTPS: 0") {
     httpResponse.code = 400;
     httpResponse.payload = "Error connection";
     return httpResponse;
   }
-
+  Logger::debug("mleko3");
   gsmResponse = listenForData();
+  Logger::debug("mleko4");
   if(!gsmResponse.success) {
     httpResponse.code = 400;
     httpResponse.payload = gsmResponse.data;
@@ -113,29 +131,34 @@ Http::Response GSM::httpPostRequest(String& data) {
   }
   GSM::ParsedRequestInfo info = parseRequestInfo(gsmResponse.data);
   httpResponse.code = info.httpCode;
-  
-  /*gsmResponse = readRequestData(info.dataSize);
+  Logger::debug("mleko5");
+  gsmResponse = readRequestData(info.dataSize);
+  Logger::debug("mleko6");
   if(!gsmResponse.success) {
     httpResponse.code = 400;
     httpResponse.payload = "Unable to get response data";
     return httpResponse;
   }
-  httpResponse.payload = gsmResponse.data;*/
+  httpResponse.payload = gsmResponse.data;
 
   serial.flush();
   return httpResponse;
 }
 
+void GSM::commandAsync(const char* comand) {
+  Logger::debug("[GSM::commandAsync] Send AT command: " + String(comand));
+  serial.print(String(comand) + "\r\n");
+}
+
 void GSM::commandAsync(String& comand) {
-  Logger::debug("[GSM::commandAsync] Send AT command: " + comand);
-  serial.print(comand + "\r\n");
+  commandAsync(comand.c_str());
 }
 
-void GSM::commandSync(String& comand, const char* expectedResponse, unsigned long timeout /* = DEFAULT_TIMEOUT */) {
-  commandSync(comand.c_str(), expectedResponse, timeout);
+bool GSM::commandSync(String& comand, const char* expectedResponse, unsigned long timeout /* = DEFAULT_TIMEOUT */) {
+  return commandSync(comand.c_str(), expectedResponse, timeout);
 }
 
-void GSM::commandSync(const char* command, const char* expectedResponse, unsigned long timeout /* = DEFAULT_TIMEOUT */) {
+bool GSM::commandSync(const char* command, const char* expectedResponse, unsigned long timeout /* = DEFAULT_TIMEOUT */) {
   serial.flush();
   Logger::debug("[GSM::commandSync] Send AT command: " + String(command));
   serial.print(String(command) + "\r\n");
@@ -146,9 +169,8 @@ void GSM::commandSync(const char* command, const char* expectedResponse, unsigne
   unsigned long timestamp = millis();
   while(true) {
     if(timeout != 0 && calculateInterval(timestamp) > timeout) {
-      Logger::debug("[GSM::commandSync] AT timeout");
-      Logger::debug(response);
-      return;
+      Logger::debug("[GSM::commandSync] AT timeout: " + response);
+      return false;
     }
 
     while(serial.available() > 0) {
@@ -161,7 +183,11 @@ void GSM::commandSync(const char* command, const char* expectedResponse, unsigne
       }
       if(response == expectedResponse) {
         Logger::debug("[GSM::commandSync] Receive AT response: " + response);
-        return;
+        return true;
+      }
+      if(response == "ERROR") {
+        Logger::debug("[GSM::commandSync] Receive AT response FAIL");
+        return false;
       }
     }
   }
@@ -170,19 +196,26 @@ void GSM::commandSync(const char* command, const char* expectedResponse, unsigne
 GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) {
   GSM::Response response;
   char receivedChar = 0;
-  String receivedData;
+  String receivedData = "";
   unsigned long timestamp = millis();
   bool nextCommanReady = false;
+  Logger::debug("before");
   while(true) {
+    yield();
+    delay(1);
+    // Logger::debug("=");
     if(timeout != 0 && calculateInterval(timestamp) > timeout) {
+      // Logger::debug("@");
       Logger::debug("[GSM::listenForData] AT timeout: " + receivedData);
       response.code = 1;
       response.success = false;
       return response;
     }
-    
+    // Logger::debug("*");
     while(serial.available() > 0) {
+      // Logger::debug("$");
       receivedChar = serial.read();
+      // Logger::debug(String(receivedChar));
       if(receivedChar != '\n' && receivedChar != '\r') {
         receivedData += receivedChar;
         nextCommanReady = true;
@@ -193,6 +226,7 @@ GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) 
         return response;
       }
     }
+    // Logger::debug("/");
   }
 }
 
@@ -202,8 +236,7 @@ bool GSM::waitForResponse(const char* expectedResponse, unsigned long timeout /*
   unsigned long timestamp = millis();
   while(true) {
     if(timeout != 0 && calculateInterval(timestamp) > timeout) {
-      Logger::debug("[GSM::waitForResponse] AT timeout");
-      Logger::debug(receivedData);
+      Logger::debug("[GSM::waitForResponse] AT timeout: " + receivedData);
       return false;
     }
 
@@ -264,7 +297,6 @@ GSM::ParsedRequestInfo GSM::parseRequestInfo(String& _data) {
     result.dataSize *= 10;
     result.dataSize += number - 48;
   }
-  Logger::debug(String(result.dataSize));
   return result;
 }
 
@@ -278,54 +310,40 @@ unsigned long GSM::calculateInterval(unsigned long timestamp) {
 }
 
 GSM::Response GSM::readRequestData(unsigned long dataSize, unsigned long timeout /* = DEFAULT_TIMEOUT */) {
-  serial.setRxBufferSize(SERIAL_BUFFER_SIZE);
-  serial.flush();
-  GSM::Response response, gsmResponse;
-  unsigned long timestamp = millis();
-  unsigned long start;
-  unsigned long end;
-  int chunkIndex = 0;
-  int allChunkCount = dataSize / SERIAL_BUFFER_SIZE;
-  int lastChunkSize = dataSize % SERIAL_BUFFER_SIZE;
+  GSM::Response response;
   String command, expect;
+  command = "AT+HTTPREAD=0,";
+  command += dataSize;
+  expect = "+HTTPREAD: ";
+  expect += dataSize;
+  expect += "\r\n";
+  commandSync(command, expect.c_str());
+  response = listenForBytes(dataSize);
+  if(!response.success) return response;
+  if(response.data.length() < 4) return response;
 
-  while((chunkIndex + 1) <= allChunkCount) {
-    if(timeout != 0 && calculateInterval(timestamp) > timeout) {
-      Logger::debug("[GSM::readRequestData] AT timeout: " + String(response.data));
-      response.code = 1;
-      response.success = false;
-      return response;
+  int indexStart = 0;
+  for(int i = 0; i < response.data.length() - 3; i++) {
+    if(response.data[i] == '{') {
+      indexStart = i;
+      break;
     }
-
-    start = chunkIndex * SERIAL_BUFFER_SIZE;
-    end = start + SERIAL_BUFFER_SIZE;
-    command = "AT+HTTPREAD=";
-    command += start;
-    command += ",";
-    command += end;
-    expect = "+HTTPREAD: ";
-    expect += end;
-    expect += "\r\n";
-    commandSync(command, expect.c_str());
-    gsmResponse = listenForBytes(SERIAL_BUFFER_SIZE);
-    response.data += gsmResponse.data;
-    chunkIndex++;
   }
 
-  if(lastChunkSize > 0) {
-    start = chunkIndex * SERIAL_BUFFER_SIZE;
-    end = start + lastChunkSize;
-    command = "AT+HTTPREAD=";
-    command += start;
-    command += ",";
-    command += end;
-    expect = "+HTTPREAD: ";
-    expect += end;
-    expect += "\r\n";
-    commandSync(command, expect.c_str());
-    gsmResponse = listenForBytes(lastChunkSize);
-    response.data += gsmResponse.data;
+  int indexEnd = 0;
+  for(int i = response.data.length() - 1; i >= 0; i--) {
+    if(response.data[i] == '}') {
+      indexEnd = i;
+      break;
+    }
   }
+
+  char* data = new char[indexEnd - indexStart];
+  int tmpIndex = 0;
+  for(int i = indexStart; i <= indexEnd; i++) {
+    data[tmpIndex++] = response.data[i];
+  }
+  response.data = String(data);
 
   return response;
 }

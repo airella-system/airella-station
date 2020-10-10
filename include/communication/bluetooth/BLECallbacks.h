@@ -4,6 +4,7 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 #include "maintenance/Guardian.h"
+#include "core/Core.h"
 
 class InetConnTypeCallback : public BluetoothChunkerCallback {
   void afterReceive() {
@@ -192,6 +193,7 @@ class ClearDataCallback : public BluetoothChunkerCallback {
     Logger::debug("[ClearDataCallback::afterReceive()] called");
     Config::reset();
     Bluetooth::reloadValues();
+    core.reset();
   }
 
   void beforeSend() {}

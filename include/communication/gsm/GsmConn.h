@@ -15,7 +15,7 @@ public:
   static Http::Response httpPut(const String& url, String body, String& authorization);
   static bool isConnected();
   static bool isOk();
-private:
   static GSM gsm;
+private:
   static Http::Response buildRequest(const String& url, Http::Method method, String& authorization, String* body = NULL);
 };

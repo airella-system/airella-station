@@ -39,9 +39,10 @@ public:
 private:
   GSMConfig config;
   HardwareSerial serial;
+  void commandAsync(const char* comand);
   void commandAsync(String& comand);
-  void commandSync(String& comand, const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
-  void commandSync(const char* comand, const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
+  bool commandSync(String& comand, const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
+  bool commandSync(const char* comand, const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
   GSM::Response listenForData(unsigned long timeout = DEFAULT_TIMEOUT);
   bool waitForResponse(const char* expectedResponse, unsigned long timeout = DEFAULT_TIMEOUT);
   GSM::Response listenForBytes(unsigned long size, unsigned long timeout = DEFAULT_TIMEOUT);

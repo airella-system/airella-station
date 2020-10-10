@@ -113,6 +113,7 @@ bool ApiClass::doRegister(RegistrationResult* result) {
   const char* id = doc2["data"]["id"];
   const char* refreshToken = doc2["data"]["refreshToken"];
   Config::setApiStationId(String(id));
+  Logger::debug("PIES: " + String(refreshToken));
   Config::setRefreshToken(String(refreshToken));
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
 

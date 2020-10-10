@@ -46,13 +46,13 @@ Http::Response GsmConn::buildRequest(const String& url, Http::Method method, Str
   }
   doc["url"] = url;
   JsonObject headers = doc.createNestedObject("headers");
-  headers["AuthToken"] = authorization;
+  headers["Authorization"] = authorization;
   String data;
   serializeJson(doc, data);
   if(body != NULL) {
     std::string editableData = data.c_str();
     data = editableData.substr(0, editableData.size() - 1).c_str();
-    data += "\"data\":{" + *body + "}";
+    data += ",\"data\":" + *body + "}";
   }
   return gsm.httpPostRequest(data);
 }

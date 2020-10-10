@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "communication/common/Http.h"
 #include "communication/gsm/GsmConn.h"
+#include "communication/gsm/GSM.h"
 #include "communication/wifi/WiFiConn.h"
 #include "config/Config.h"
 #include "maintenance/Statistics.h"
@@ -24,5 +25,4 @@ class Internet {
 
  private:
   static Type type;
-  static Type* lastType;
 };

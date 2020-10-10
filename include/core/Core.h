@@ -29,6 +29,7 @@ public:
   Core();
   void setUp();
   void main();
+  void reset();
 
 private:
   WeatherSensor *weatherSensor = NULL;
@@ -41,6 +42,7 @@ private:
   MeasurementType measurementType;
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
+  bool isWorking = true;
 };
 
 extern Core core;
