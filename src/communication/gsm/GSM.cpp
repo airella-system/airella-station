@@ -10,8 +10,9 @@ GSM::GSM() : serial(config.serialLine) {
 }
 
 void GSM::powerOn() {
+  powerOff();
   //commandAsync("AT+MRST");
-  delay(1000);
+  delay(5000);
   Logger::info("[GSM::powerOn] Power ON: start");
   digitalWrite(config.powerPin, LOW);
   delay(900); //min 800ms
@@ -25,10 +26,10 @@ void GSM::powerOn() {
   else {
     Logger::info("[GSM::powerOn] Unable to register SIM card");
   }
-  delay(1000);
-  char tryCount = 5;
+  delay(10000);
+  char tryCount = 2;
   while (
-    !commandSync("AT+MIPCALL=1,\"internet\",\"internet\",\"internet\"", "OK", 30 * 1000)
+    !commandSync("AT+MIPCALL=1,\"internet\",\"internet\",\"internet\"", "OK", 10 * 1000)
     && tryCount > 0
   ) {
     tryCount--;
@@ -68,19 +69,19 @@ Http::Response GSM::httpGetRequest() {
 
   gsmResponse = listenForData();
   if(!gsmResponse.success) {
-    httpResponse.code = 400;
+    httpResponse.code = 20;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
   if(gsmResponse.data == "+HTTPS: 0") {
-    httpResponse.code = 400;
+    httpResponse.code = 21;
     httpResponse.payload = "Error connection";
     return httpResponse;
   }
 
   gsmResponse = listenForData();
   if(!gsmResponse.success) {
-    httpResponse.code = 400;
+    httpResponse.code = 22;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
@@ -89,7 +90,7 @@ Http::Response GSM::httpGetRequest() {
   
   gsmResponse = readRequestData(info.dataSize);
   if(!gsmResponse.success) {
-    httpResponse.code = 400;
+    httpResponse.code = 23;
     httpResponse.payload = "Unable to get response data";
     return httpResponse;
   }
@@ -108,34 +109,32 @@ Http::Response GSM::httpPostRequest(String& data) {
 
   if(sendData(data)) Logger::debug("[GSM::httpPostRequest] Send serial data ok");
 
+  if(!commandSync("AT+HTTPACT=1", "OK")) {
+    return httpResponse;
+  }
+
   gsmResponse = listenForData();
-  Logger::debug("mleko1");
   if(!gsmResponse.success) {
-    httpResponse.code = 400;
+    httpResponse.code = 20;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
-  Logger::debug("mleko2");
   if(gsmResponse.data == "+HTTPS: 0") {
-    httpResponse.code = 400;
+    httpResponse.code = 21;
     httpResponse.payload = "Error connection";
     return httpResponse;
   }
-  Logger::debug("mleko3");
   gsmResponse = listenForData();
-  Logger::debug("mleko4");
   if(!gsmResponse.success) {
-    httpResponse.code = 400;
+    httpResponse.code = 22;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
   GSM::ParsedRequestInfo info = parseRequestInfo(gsmResponse.data);
   httpResponse.code = info.httpCode;
-  Logger::debug("mleko5");
   gsmResponse = readRequestData(info.dataSize);
-  Logger::debug("mleko6");
   if(!gsmResponse.success) {
-    httpResponse.code = 400;
+    httpResponse.code = 23;
     httpResponse.payload = "Unable to get response data";
     return httpResponse;
   }
@@ -199,23 +198,16 @@ GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) 
   String receivedData = "";
   unsigned long timestamp = millis();
   bool nextCommanReady = false;
-  Logger::debug("before");
   while(true) {
-    yield();
-    delay(1);
-    // Logger::debug("=");
     if(timeout != 0 && calculateInterval(timestamp) > timeout) {
-      // Logger::debug("@");
       Logger::debug("[GSM::listenForData] AT timeout: " + receivedData);
       response.code = 1;
       response.success = false;
       return response;
     }
-    // Logger::debug("*");
+    
     while(serial.available() > 0) {
-      // Logger::debug("$");
       receivedChar = serial.read();
-      // Logger::debug(String(receivedChar));
       if(receivedChar != '\n' && receivedChar != '\r') {
         receivedData += receivedChar;
         nextCommanReady = true;
@@ -226,7 +218,8 @@ GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) 
         return response;
       }
     }
-    // Logger::debug("/");
+    yield();
+    delay(1);
   }
 }
 
@@ -278,25 +271,29 @@ GSM::Response GSM::listenForBytes(unsigned long size, unsigned long timeout /* =
   }
 }
 
-GSM::ParsedRequestInfo GSM::parseRequestInfo(String& _data) {
+GSM::ParsedRequestInfo GSM::parseRequestInfo(String& data) {
   GSM::ParsedRequestInfo result;
-  std::string data = _data.c_str();
-  std::regex regex("\\+HTTPRES: <([0-9]*)>,<([0-9]*)>,<([0-9]*)>.*");
-  std::smatch matches;
-  if(!std::regex_match(data, matches, regex)) {
-    result.success = false;
-    return result;
-  }
+  if(data.length() == 0) return result;
 
-  result.status = std::atoi(matches.str(1).c_str());
-  result.httpCode = std::atoi(matches.str(2).c_str());
-
-  //sdt::atoul() not working on arduino :/
-  result.dataSize = 0;
-  for(char number : matches.str(3)) {
-    result.dataSize *= 10;
-    result.dataSize += number - 48;
+  int numbers[3] = {0, 0, 0};
+  int numberIndex = 0;
+  int index = 0;
+  for(int i = 0; i < data.length(); i++) {
+    if(data[i] == '<') {
+      index = i + 1;
+      while(index < data.length() && data[index] != '>') {
+        index++;
+      }
+      for(int numCharIndex = i + 1; numCharIndex < index; numCharIndex++) {
+        numbers[numberIndex] *= 10;
+        numbers[numberIndex] += data[numCharIndex] - 48;
+      }
+      numberIndex++;
+    }
   }
+  result.status = numbers[0];
+  result.httpCode = numbers[1];
+  result.dataSize = numbers[2];
   return result;
 }
 
