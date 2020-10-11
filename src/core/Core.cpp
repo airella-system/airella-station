@@ -27,12 +27,12 @@ void Core::setUp() {
 
   airAndGpsSensorStrategy = new AirAndGpsSensorStrategy();
   weatherSensor = new WeatherSensor();
-  // heater = new Heater(*weatherSensor);
-  // heater->run();
+  heater = new Heater(*weatherSensor);
+  heater->run();
 
   DeviceContainer.airSensor = airAndGpsSensorStrategy->getAirSensor();
   DeviceContainer.weatherSensor = weatherSensor;
-  // DeviceContainer.heater = heater;
+  DeviceContainer.heater = heater;
 
   Logger::info("[Core]: Setting up ended");
 }

@@ -114,32 +114,25 @@ Http::Response GSM::httpPostRequest(String& data) {
   }
 
   gsmResponse = listenForData();
-  Logger::debug("mleko1");
   if(!gsmResponse.success) {
     httpResponse.code = 20;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
-  Logger::debug("mleko2");
   if(gsmResponse.data == "+HTTPS: 0") {
     httpResponse.code = 21;
     httpResponse.payload = "Error connection";
     return httpResponse;
   }
-  Logger::debug("mleko3");
   gsmResponse = listenForData();
-  Logger::debug("mleko4");
   if(!gsmResponse.success) {
     httpResponse.code = 22;
     httpResponse.payload = gsmResponse.data;
     return httpResponse;
   }
-  Logger::debug("mleko5");
   GSM::ParsedRequestInfo info = parseRequestInfo(gsmResponse.data);
   httpResponse.code = info.httpCode;
-  Logger::debug("mleko6");
   gsmResponse = readRequestData(info.dataSize);
-  Logger::debug("mleko7");
   if(!gsmResponse.success) {
     httpResponse.code = 23;
     httpResponse.payload = "Unable to get response data";
@@ -205,23 +198,16 @@ GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) 
   String receivedData = "";
   unsigned long timestamp = millis();
   bool nextCommanReady = false;
-  Logger::debug("before");
   while(true) {
-    yield();
-    
-    // Logger::debug("=");
     if(timeout != 0 && calculateInterval(timestamp) > timeout) {
-      // Logger::debug("@");
       Logger::debug("[GSM::listenForData] AT timeout: " + receivedData);
       response.code = 1;
       response.success = false;
       return response;
     }
-    // Logger::debug("*");
+    
     while(serial.available() > 0) {
-      // Logger::debug("$");
       receivedChar = serial.read();
-      // Logger::debug(String(receivedChar));
       if(receivedChar != '\n' && receivedChar != '\r') {
         receivedData += receivedChar;
         nextCommanReady = true;
@@ -232,8 +218,8 @@ GSM::Response GSM::listenForData(unsigned long timeout /* = DEFAULT_TIMEOUT */) 
         return response;
       }
     }
+    yield();
     delay(1);
-    // Logger::debug("/");
   }
 }
 
