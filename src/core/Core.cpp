@@ -9,8 +9,9 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up started");
   powerSensor = new PowerSensor();
   powerSensor->begin();
-  // storage = new Storage();
   DeviceContainer.powerSensor = powerSensor;
+  storage = new Storage();
+  DeviceContainer.storage = storage;
 
   Logger::info("[Core]: Iniatlized OK");
 

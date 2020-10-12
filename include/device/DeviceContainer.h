@@ -7,6 +7,7 @@
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
+#include "struct/StorableBuffer.h"
 
 class Heater;
 
@@ -15,6 +16,7 @@ public:
   friend class Core;
   friend class Guardian;
   friend class StatisticsClass;
+  friend class StorableBuffer;
 private:
   AirSensor *airSensor = NULL;
   WeatherSensor *weatherSensor = NULL;
