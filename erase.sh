@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-platformio run --target erase --environment mock
+platformio run --target erase --environment release

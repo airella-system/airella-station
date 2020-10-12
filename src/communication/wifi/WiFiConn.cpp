@@ -78,9 +78,14 @@ Http::Response WiFiConn::httpGet(const String& url, String& authorization) {
 Http::Response WiFiConn::httpPost(const String& url, String& body, String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("POST Request to url: " + url + " with body: " + body).c_str());
+  Logger::debug(String(ESP.getHeapSize()).c_str());
+  Logger::debug(String(ESP.getFreeHeap()).c_str());
+  Logger::debug(String(ESP.getMinFreeHeap()).c_str());
+  Logger::debug(String(ESP.getPsramSize()).c_str());
 
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("User-Agent", "Airella");
   if (!authorization.equals("")) {
     http.addHeader("Authorization", authorization);
   }
@@ -98,6 +103,7 @@ Http::Response WiFiConn::httpPut(const String& url, String& json, String& author
 
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("User-Agent", "Airella");
   if (!authorization.equals("")) {
     http.addHeader("Authorization", authorization);
   }

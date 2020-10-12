@@ -1,5 +1,5 @@
 #include "core/Core.h"
-
+#include "communication/gsm/GsmConn.h"
 // #define STOP_MAIN_LOOP
 
 Core::Core() {}
@@ -19,10 +19,8 @@ void Core::setUp() {
 
   Bluetooth::start(new BluetoothRefreshHandler());
   Internet::setType(Internet::WIFI);
-  Internet::start();
 
   if (WiFi.status() == WL_CONNECTED) {
-    // crash while internet is not connected
     timeProvider.connect();
     timeProvider.update();
   }
@@ -41,10 +39,11 @@ void Core::setUp() {
 }
 
 void Core::main() {
+  isWorking = true;
   if (!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");
     while (!Api.isRegistered()) {
-      delay(1000);
+      delay(10000);
     }
   } else {
     Statistics.reportBootUp();
@@ -54,11 +53,13 @@ void Core::main() {
 
 #ifdef STOP_MAIN_LOOP
   while (true) {
-    delay(1000);
+    GsmConn::gsm.httpGetRequest();
+    Http::Response res = Internet::httpGet("https://airella.cyfrogen.com/api/stations/JzZJMbouBINp?strategy=latest");
+    delay(30000);
   }
 #endif
 
-  while (true) {
+  while (isWorking) {
     bool notErrorInIteration = true;
     Guardian::statistics();
 
@@ -109,6 +110,10 @@ void Core::main() {
 
 bool Core::isError() {
   return this->error;
+}
+
+void Core::reset() {
+  isWorking = false;
 }
 
 Core core;

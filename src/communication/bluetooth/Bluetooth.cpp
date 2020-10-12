@@ -23,6 +23,9 @@ BluetoothChunker *Bluetooth::inetConnTypeCharacteristic = nullptr;
 
 BluetoothChunker *Bluetooth::ssidCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::wifiPassCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::gsmUrlCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::gsmConfigCharacteristic = nullptr;
+
 BluetoothChunker *Bluetooth::registerTokenCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::apiUrlCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::refreshDeviceCharacteristic = nullptr;
@@ -79,6 +82,8 @@ void Bluetooth::setDiscoverability(bool discoverability) {
 void Bluetooth::reloadValues() {
   ssidCharacteristic->setValue(Config::getWifiSsid().c_str());
   wifiPassCharacteristic->setValue(Config::getWifiPassword().c_str());
+  gsmUrlCharacteristic->setValue(Config::getGsmExtenderUrl().c_str());
+  gsmConfigCharacteristic->setValue(Config::getGsmConfig().c_str());
   registerTokenCharacteristic->setValue(Config::getRegistratonToken().c_str());
   apiUrlCharacteristic->setValue(Config::getApiUrl().c_str());
   stationNameCharacteristic->setValue(Config::getStationName().c_str());
@@ -112,6 +117,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
 
   registerTokenCharacteristic = new BluetoothChunker(pService, REGISTRATION_TOKEN_CUUID, W_PROPERTY);
   registerTokenCharacteristic->setCallback(new RegistrationTokenCallback());
+
+  gsmUrlCharacteristic = new BluetoothChunker(pService, GSM_EXTENDER_URL_CUUID, RW_PROPERTY);
+  gsmUrlCharacteristic->setCallback(new GsmUrlCallback());
+
+  gsmConfigCharacteristic = new BluetoothChunker(pService, GSM_CONFIG_CUUID, W_PROPERTY);
+  gsmConfigCharacteristic->setCallback(new GsmConfigCallback());
 
   apiUrlCharacteristic = new BluetoothChunker(pService, API_URL_CUUID, RW_PROPERTY);
   apiUrlCharacteristic->setCallback(new ApiUrlCallback());
@@ -167,6 +178,8 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
 
   ssidCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   wifiPassCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  gsmUrlCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
+  gsmConfigCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   registerTokenCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   apiUrlCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
   refreshDeviceCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);

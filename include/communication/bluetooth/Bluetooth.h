@@ -26,6 +26,12 @@
 // WiFi password
 #define WIFI_PASWORD_CUUID "0851dd07-b59f-40c6-8114-357c7dff694c"
 
+// GSM Extender URL
+#define GSM_EXTENDER_URL_CUUID "53831c50-cb06-4dbe-b41e-6020511c3c32"
+
+// GSM Config
+#define GSM_CONFIG_CUUID "767a9672-ec3f-4889-8678-2360c5e5192b"
+
 // Registration token from backend
 #define REGISTRATION_TOKEN_CUUID "cb520851-1fd3-446e-a590-e777ddd0232c"
 
@@ -95,6 +101,9 @@ class Bluetooth {
 
   static BluetoothChunker *ssidCharacteristic;
   static BluetoothChunker *wifiPassCharacteristic;
+  static BluetoothChunker *gsmUrlCharacteristic;
+  static BluetoothChunker *gsmConfigCharacteristic;
+
   static BluetoothChunker *registerTokenCharacteristic;
   static BluetoothChunker *apiUrlCharacteristic;
   static BluetoothChunker *refreshDeviceCharacteristic;

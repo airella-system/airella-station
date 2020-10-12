@@ -4,6 +4,7 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 #include "maintenance/Guardian.h"
+#include "core/Core.h"
 
 class InetConnTypeCallback : public BluetoothChunkerCallback {
   void afterReceive() {
@@ -49,6 +50,30 @@ class WifiPasswordCallback : public BluetoothChunkerCallback {
   void beforeSend() {
     Logger::debug("[WifiPasswordCallback::beforeSend()] called");
     chunker->setValue(Config::getWifiPassword().c_str());
+  }
+};
+
+class GsmUrlCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[GsmUrlCallback::afterReceive()] called");
+    Config::setGsmExtenderUrl(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[GsmUrlCallback::beforeSend()] called");
+    chunker->setValue(Config::getGsmExtenderUrl().c_str());
+  }
+};
+
+class GsmConfigCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[GsmConfigCallback::afterReceive()] called");
+    Config::setGsmConfig(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[GsmConfigCallback::beforeSend()] called");
+      chunker->setValue(Config::getGsmConfig().c_str());
   }
 };
 
@@ -192,6 +217,7 @@ class ClearDataCallback : public BluetoothChunkerCallback {
     Logger::debug("[ClearDataCallback::afterReceive()] called");
     Config::reset();
     Bluetooth::reloadValues();
+    core.reset();
   }
 
   void beforeSend() {}

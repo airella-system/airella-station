@@ -45,12 +45,14 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
 
   thermometer.requestTemperatures();
 
+  bool foundAnyDevice = false;
   for (int i = 0; i < numberOfDevices; i++) {
     if (thermometer.getAddress(deviceAddress[i], i)) {
       message = "[Heater] Found device " + i;
       message += " with address: ";
       message += deviceAddressToString(deviceAddress[i]);
       Logger::info(&message);
+      foundAnyDevice = true;
     } else {
       message = "[Heater] Found ghost device at " + i;
       message += " but could not detect address. Check power and cabling";
@@ -60,7 +62,7 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
     Logger::info("[Heater] Resolution: " + thermometer.getResolution(deviceAddress[i]));
   }
 
-  initialized = true;
+  initialized = foundAnyDevice;
   Logger::info("[Heater] initialized: OK");
   setTextState("HEATER|OK");
 }
@@ -72,6 +74,10 @@ Heater::~Heater() {
 }
 
 void Heater::on() {
+  if(!initialized) {
+    Logger::warning("[Heater::on] Unable to turn on Heater because exist hardware error");
+    return;
+  }
   heaterStatus.heaterIsOn = true;
   currentPower = 50;
   analogWrite(config.analogPin, 50);
@@ -79,18 +85,30 @@ void Heater::on() {
 }
 
 void Heater::setPower(int power) {
+  if(!initialized) {
+    Logger::warning("[Heater::setPower] Unable to set power of Heater because exist hardware error");
+    return;  
+  }
   heaterStatus.heaterIsOn = true;
   currentPower = power;
   analogWrite(config.analogPin, power);
 }
 
 void Heater::off() {
+  if(!initialized) {
+    Logger::warning("[Heater::off] Unable to turn off Heater because exist hardware error");
+    return;
+  }
   heaterStatus.heaterIsOn = false;
   analogWrite(config.analogPin, 0);
   Logger::info("[Heater::off()] Heater is OFF");
 }
 
 void Heater::run() {
+  if(!initialized) {
+    Logger::warning("[Heater::run] Unable to run Heater because exist hardware error");
+    return;
+  }
   heaterStatus.threadIsRunning = true;
   // xTaskCreatePinnedToCore(TaskFunction_t, Name, StackSize, void *pvParameters, Priority, TaskHandle_t, xCoreID)
   xTaskCreatePinnedToCore(this->threadFunction, "termoThread", 10000, this, 1, &termoThreadHandler, 1);

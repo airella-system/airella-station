@@ -86,6 +86,7 @@ bool StatisticsClass::createStatistic(DynamicJsonDocument statisticDoc) {
   response = Internet::httpPost(getUrl(), body);
   if (response.code != 201) {
     Logger::debug((String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") + String(response.code)).c_str());
+    Logger::debug(response.payload);
     return false;
   }
   Logger::debug(String("[StatisticsClass::createStatistic()] Created new statistic"));

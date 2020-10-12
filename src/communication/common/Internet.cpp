@@ -1,6 +1,6 @@
 #include "communication/common/Internet.h"
 
-Internet::Type Internet::type = Internet::WIFI;
+Internet::Type Internet::type = Internet::None;
 
 int Internet::start() {
   Internet::type = (Type)Config::getInternetConnectionType();
@@ -45,6 +45,23 @@ bool Internet::isOk() {
 }
 
 void Internet::setType(Type type) {
+  if(Internet::type == Internet::None) {
+    if(type == Internet::GSM) {
+      GsmConn::start();
+    }
+    else if(type == Internet::WIFI) {
+      WiFiConn::start();
+    }
+  }
+  else if(Internet::type != type) {
+    if(type == Internet::GSM) {
+      GsmConn::start();
+      WiFiConn::stop();
+    }
+    else if(type == Internet::WIFI) {
+      WiFiConn::start();
+      GsmConn::stop();
+    }
+  }
   Internet::type = type;
-  //todo: add logic to switch device connection, ex. active gsm | todo with gsm
 }

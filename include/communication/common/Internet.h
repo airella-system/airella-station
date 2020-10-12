@@ -3,13 +3,14 @@
 #include <Arduino.h>
 #include "communication/common/Http.h"
 #include "communication/gsm/GsmConn.h"
+#include "communication/gsm/GSM.h"
 #include "communication/wifi/WiFiConn.h"
 #include "config/Config.h"
 #include "maintenance/Statistics.h"
 
 class Internet {
  public:
-  enum Type { WIFI = 0, GSM = 1 };
+  enum Type { None = -1, WIFI = 0, GSM = 1 };
 
   static void setType(Type type);
   static int start();

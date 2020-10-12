@@ -7,6 +7,7 @@
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/bluetooth/BluetoothRefreshHandler.h"
 #include "communication/common/Internet.h"
+#include "communication/gsm/GSM.h"
 #include "config/Config.h"
 #include "config/MeasurementType.h"
 #include "device/AirSensor.h"
@@ -29,12 +30,14 @@ public:
   void setUp();
   void main();
   bool isError();
+  void reset();
 
 private:
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
   Storage *storage = NULL;
+  GSM *gsm = NULL;
   AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;
@@ -42,6 +45,7 @@ private:
   unsigned long lastErrorMillis = 0;
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
+  bool isWorking = true;
 };
 
 extern Core core;
