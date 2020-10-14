@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iterator>
-#include <BLEDevice.h>
+#include "NimBLEDevice.h"
 #include "maintenance/Logger.h"
 #include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
 #include "communication/bluetooth/chunker/BLEChunkerCallback.h"
@@ -32,7 +32,6 @@ public:
 	bool isActiveSending();
 
   void setCallback(BluetoothChunkerCallback* callback);
-  void setAccessPermissions(esp_gatt_perm_t perm);
 
 	bool setValue(std::string value);
   std::string getValue();

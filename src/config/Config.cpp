@@ -21,6 +21,7 @@ String Config::locationLongitude = String();
 bool Config::locationManual = false;
 String Config::accessToken = String();
 String Config::gsmExtenderUrl = String();
+String Config::gsmConfig = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
@@ -53,8 +54,8 @@ void Config::load(bool lock /* = true */) {
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
-  // Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://gsm-extender.airella.cyfrogen.com/");
-  Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://airella-gsm-http-extender-prox.herokuapp.com/");
+  Config::gsmExtenderUrl = Config::preferences.getString("gsm-ext-url", "https://gsm-extender.airella.cyfrogen.com/");
+  Config::gsmConfig = Config::preferences.getString("gsm-config", "");
   Config::preferences.end();
   if (lock) Config::unlock();
 }
@@ -80,7 +81,8 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putInt("reg-state", static_cast<int>(Config::getRegistrationState(false)));
   Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType(false)));
   Config::preferences.putString("access-token", Config::getAccessToken(false));
-  Config::preferences.putString("gsmExtenderUrl", Config::getGsmExtenderUrl(false));
+  Config::preferences.putString("gsm-ext-url", Config::getGsmExtenderUrl(false));
+  Config::preferences.putString("gsm-config", Config::getGsmConfig(false));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -196,6 +198,10 @@ String Config::getGsmExtenderUrl(bool lock /* = true */) {
   return getAtomicString(&Config::gsmExtenderUrl, lock);
 }
 
+String Config::getGsmConfig(bool lock /* = true */) {
+  return getAtomicString(&Config::gsmConfig, lock);
+}
+
 /**
  * setters
 */
@@ -284,5 +290,9 @@ void Config::setAccessToken(String accessToken, bool lock /* = true */) {
 }
 
 void Config::setGsmExtenderUrl(String gsmExtenderUrl, bool lock /* = true */) {
-  syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsmExtenderUrl", lock);
+  syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsm-ext-url", lock);
+}
+
+void Config::setGsmConfig(String gsmConfig, bool lock /* = true */) {
+  syncValueWithFlash(&gsmConfig, &Config::gsmConfig, "gsm-config", lock);
 }

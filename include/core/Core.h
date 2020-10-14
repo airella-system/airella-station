@@ -29,6 +29,7 @@ public:
   Core();
   void setUp();
   void main();
+  bool isError();
   void reset();
 
 private:
@@ -40,6 +41,8 @@ private:
   AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;
+  bool error = true;
+  unsigned long lastErrorMillis = 0;
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;

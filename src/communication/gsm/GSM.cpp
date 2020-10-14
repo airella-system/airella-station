@@ -29,7 +29,7 @@ void GSM::powerOn() {
   delay(10000);
   char tryCount = 2;
   while (
-    !commandSync("AT+MIPCALL=1,\"internet\",\"internet\",\"internet\"", "OK", 10 * 1000)
+    !commandSync(String("AT+MIPCALL=1,") + Config::getGsmConfig(), "OK", 10 * 1000)
     && tryCount > 0
   ) {
     tryCount--;

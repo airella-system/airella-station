@@ -2,6 +2,7 @@
 
 AirSensor::AirSensor(HardwareSerial *serial) {
   Logger::info("[AirSensor] Initalizing ...");
+  setTextState("AIR|INIT");
   isPowerOn = false;
   dataReady = false;
   lastByte = 0;
@@ -12,6 +13,7 @@ AirSensor::AirSensor(HardwareSerial *serial) {
   digitalWrite(config.powerPin, LOW);
   this->serial = serial;
   initialized = true;
+  setTextState("AIR|OK");
   Logger::info("[AirSensor] Air sensor is active.");
 }
 

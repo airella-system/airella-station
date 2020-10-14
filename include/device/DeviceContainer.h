@@ -7,6 +7,7 @@
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
+#include "device/GpsSensor.h"
 
 class Heater;
 
@@ -21,6 +22,7 @@ private:
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
   Storage *storage = NULL;
+  GpsSensor *gpsSensor = NULL;
 };
 
 extern DeviceContainerClass DeviceContainer;

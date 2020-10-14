@@ -15,6 +15,12 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
     Internet::start();
     Bluetooth::setLastOperationStatus("wifi|ok");
   }
+  else if(actionName.equals("gsm")) {
+    Bluetooth::setLastOperationStatus("gsm|setting_up");
+    Internet::stop();
+    Internet::start();
+    Bluetooth::setLastOperationStatus("gsm|ok");
+  }
   else if(actionName.equals("address")) {
     if(!Api.isRegistered()) {
       Logger::debug("[BluetoothRefreshHandler::deviceRefreshRequest()] Unauthorized to publishAddress()");

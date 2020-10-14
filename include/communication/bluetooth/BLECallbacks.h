@@ -53,6 +53,30 @@ class WifiPasswordCallback : public BluetoothChunkerCallback {
   }
 };
 
+class GsmUrlCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[GsmUrlCallback::afterReceive()] called");
+    Config::setGsmExtenderUrl(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[GsmUrlCallback::beforeSend()] called");
+    chunker->setValue(Config::getGsmExtenderUrl().c_str());
+  }
+};
+
+class GsmConfigCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[GsmConfigCallback::afterReceive()] called");
+    Config::setGsmConfig(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[GsmConfigCallback::beforeSend()] called");
+      chunker->setValue(Config::getGsmConfig().c_str());
+  }
+};
+
 class ApiUrlCallback : public BluetoothChunkerCallback {
   void afterReceive() {
     Logger::debug("[ApiUrlCallback::afterReceive()] called");
@@ -222,6 +246,6 @@ class DeviceStateCallback : public BluetoothChunkerCallback {
 
   void beforeSend() {
     Logger::debug("[DeviceStateCallback::beforeSend()] called");
-    chunker->setValue("" + Guardian::isDeviceOk());
+    chunker->setValue(Guardian::getDeviceState().c_str());
   }
 };

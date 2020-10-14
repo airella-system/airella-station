@@ -41,6 +41,7 @@ int WiFiConn::start() {
 
 void WiFiConn::stop() {
   WiFi.disconnect();
+  connected = false;
   delay(500);
   Logger::info("[WiFiConn::stop()] WiFi - disconnected");
 }
@@ -77,7 +78,6 @@ Http::Response WiFiConn::httpGet(const String& url, String& authorization) {
 Http::Response WiFiConn::httpPost(const String& url, String& body, String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("POST Request to url: " + url + " with body: " + body).c_str());
-
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("User-Agent", "Airella");

@@ -2,10 +2,12 @@
 
 Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWirePin), weatherSensor(_weatherSensor) {
   Logger::info("[Heater] Initalizing ...");
+  setTextState("HEATER|INIT");
   this->mux = xSemaphoreCreateMutex();
 
   if (!weatherSensor.isInit()) {
     Logger::error("[Heater] Weather sensor is uninitialized or null.");
+    setTextState("HEATER|INIT_ERROR");
     return;
   }
 
@@ -35,6 +37,12 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
   thermometer.requestTemperatures();
   numberOfDevices = thermometer.getDeviceCount();
   Logger::info("[Heater] Number of device: " + numberOfDevices);
+  if (numberOfDevices == 0) {
+    Logger::info("[Heater] Can't find thermometer");
+    setTextState("HEATER|INIT_ERROR");
+    return;
+  }
+
   thermometer.requestTemperatures();
 
   bool foundAnyDevice = false;
@@ -56,6 +64,7 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
 
   initialized = foundAnyDevice;
   Logger::info("[Heater] initialized: OK");
+  setTextState("HEATER|OK");
 }
 
 Heater::~Heater() {
@@ -111,7 +120,7 @@ void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned int intervalMax = 1000 * 10;  // 10s
   unsigned int interval = intervalMax;
-  unsigned long lastTimestamp = millis() -  2 * interval; // make first interation instant
+  unsigned long lastTimestamp = millis() - 2 * interval;  // make first interation instant
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
   bool heaterLastState = !heaterIsOn;
   int counter = 0;
@@ -140,7 +149,7 @@ void Heater::threadFunction(void *pvParameters) {
         heaterIsOn = false;
         interval = intervalMax;
       }
-      
+
       heater->setReport(temperature, humidity, dewPoint, heater->getCurrentPower(), heaterIsOn);
 
       counter++;
