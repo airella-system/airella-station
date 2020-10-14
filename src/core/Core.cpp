@@ -2,8 +2,6 @@
 #include "communication/gsm/GsmConn.h"
 // #define STOP_MAIN_LOOP
 
-Core::Core() { }
-
 void Core::setUp() {
   Logger::setUp();
   Logger::info("[Core]: Setting up started");
@@ -60,20 +58,8 @@ void Core::main() {
   
   while(isWorking) {
     Guardian::statistics();
-    
-    if (abs(millis() - lastPublishMillis) > 10000) {
-      Logger::info("[Core]: Start measurement");
 
-      Api.publishMeasurement(measurementType.temperature, weatherSensor->getTemperature());
-      Api.publishMeasurement(measurementType.humidity, weatherSensor->getHumidity());
-      Api.publishMeasurement(measurementType.pressure, weatherSensor->getPressure());
-      airAndGpsSensorStrategy->getAirSensor()->measurement();
-      Api.publishMeasurement(measurementType.pm1, airAndGpsSensorStrategy->getAirSensor()->getPM1());
-      Api.publishMeasurement(measurementType.pm2_5, airAndGpsSensorStrategy->getAirSensor()->getPM2_5());
-      Api.publishMeasurement(measurementType.pm10, airAndGpsSensorStrategy->getAirSensor()->getPM10());
-
-      lastPublishMillis = millis();
-    }
+    sendMeasurements();
 
     if (abs(millis() - lastGpsUpdateMillis) > 60000) {
       Logger::info("[Core]: Start switch to GPS");
@@ -94,6 +80,42 @@ void Core::main() {
 
 void Core::reset() {
   isWorking = false;
+}
+
+void Core::sendMeasurements() {
+  if (abs(millis() - lastPublishMillis) > 10000) {
+    Logger::info("[Core]: Start measurement");
+
+    float value = weatherSensor->getTemperature();
+    if(!Api.publishMeasurement(measurementType.temperature, value)) {
+      storableBuffer.push(measurementType.temperature, String(value));
+    }
+    value = weatherSensor->getHumidity();
+    if(!Api.publishMeasurement(measurementType.humidity, value)) {
+      storableBuffer.push(measurementType.humidity, String(value));
+    }
+    value = weatherSensor->getPressure();
+    if(!Api.publishMeasurement(measurementType.pressure, value)) {
+      storableBuffer.push(measurementType.pressure, String(value));
+    }
+    airAndGpsSensorStrategy->getAirSensor()->measurement();
+
+    uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
+    if(!Api.publishMeasurement(measurementType.pm1, pmValue)) {
+      storableBuffer.push(measurementType.pm1, String(value));
+    }
+    pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
+    if(!Api.publishMeasurement(measurementType.pm2_5, pmValue)) {
+      storableBuffer.push(measurementType.pm2_5, String(value));
+    }
+    pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
+    if(!Api.publishMeasurement(measurementType.pm10, pmValue)) {
+      storableBuffer.push(measurementType.pm10, String(value));
+    }
+
+    lastPublishMillis = millis();
+  }
+  storableBuffer.sync();
 }
 
 Core core;

@@ -7,7 +7,7 @@
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
-#include "struct/StorableBuffer.h"
+#include "util/StorableBuffer.h"
 
 class Heater;
 

@@ -4,7 +4,7 @@ Storage::Storage() {
   Logger::info("[Storage] Initalizing ...");
 
   if (!SD.begin()) {
-    Serial.println("Card Mount Failed");
+    Logger::debug("Card Mount Failed");
     Logger::warning("[Storage] SD mount failed");
     return;
   }
@@ -48,7 +48,7 @@ bool Storage::append(const char *message, const char *path, bool logging /* = tr
   return write(message, path, FILE_APPEND, logging);
 }
 
-String Storage::read(const char *message, const char *path, bool logging /* = true */) const {
+String Storage::read(const char *path, bool logging /* = true */) const {
   File file = SD.open(path);
   if (!file) {
     if (logging) Logger::warning("[Storage] unable to open file");
@@ -58,5 +58,5 @@ String Storage::read(const char *message, const char *path, bool logging /* = tr
 }
 
 bool Storage::remove(const char *path) const {
-  SD.remove(path);
+  return SD.remove(path);
 };
