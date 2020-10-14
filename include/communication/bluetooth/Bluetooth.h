@@ -1,9 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
+#include "NimBLEDevice.h" 
+#include "esp_gap_ble_api.h" 
 #include "communication/bluetooth/chunker/BluetoothChunker.h"
 #include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
 #include "esp_bt_main.h"
@@ -68,7 +67,6 @@
 // Device state - determines if all sensors are working
 #define DEVICE_STATE_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54003"
 
-#define DEFAULT_BT_PERMISSION ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED
 
 class Bluetooth {
  public:

@@ -7,7 +7,6 @@ BluetoothChunker::BluetoothChunker(BLEService* pService, const char* cuuid, cons
 };
 
 BluetoothChunker::~BluetoothChunker() {
-  delete characteristic;
   delete BLECallback;
 }
 
@@ -126,9 +125,6 @@ void BluetoothChunker::setCallback(BluetoothChunkerCallback* _callback) {
   callback->setChunker(this);
 }
 
-void BluetoothChunker::setAccessPermissions(esp_gatt_perm_t perm) {
-  characteristic->setAccessPermissions(perm);
-}
 
 bool BluetoothChunker::setValue(std::string _value) {
   value = _value;
