@@ -23,7 +23,7 @@ struct Date_t {
     String monthStr = month < 10 ? String("0") + month : String(month);
     String dayStr = day < 10 ? String("0") + day : String(day);
 
-    return String(year) + "/" + monthStr + "/" + dayStr;
+    return String(year) + "-" + monthStr + "-" + dayStr;
   }
 };
 
@@ -57,6 +57,10 @@ struct DateTime_t {
 
   String toString() {
     return date.toString() + " " + time.toString();
+  }
+
+  String toISOString() {
+    return date.toString() + time.toString() + "Z";
   }
 };
 

@@ -1,5 +1,8 @@
 #pragma once
+
 #include <Arduino.h>
+#include "time/Time.h"
+#include "config/Defines.h"
 
 class Logger {
  private:

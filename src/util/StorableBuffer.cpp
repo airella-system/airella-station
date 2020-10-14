@@ -31,7 +31,7 @@ void StorableBuffer::push(const char* type, const String& data) {
   }
   BufferItem bufferItem;
   bufferItem.data = data;
-  bufferItem.date = timeProvider.getDataTime().toString();
+  bufferItem.date = timeProvider.getDataTime().toISOString();
   bufferItem.type = type;
   buffer[bufferSize++] = bufferItem;
 }

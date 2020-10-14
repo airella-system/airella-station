@@ -7,13 +7,10 @@ void Logger::setUp() {
 }
 
 void Logger::log(const char *type, const char *message) {
-  // TODO: [in future] add persistence to SD cart storage, and add
-  // synchronization time with NTP server
-  unsigned long timestamp = millis();
   String logMessage = String("[");
   logMessage += type;
   logMessage += ":";
-  logMessage += timestamp;
+  logMessage += timeProvider.getDataTime().toString();
   logMessage += "]: ";
   logMessage += message;
   serial.println(logMessage);
@@ -36,13 +33,11 @@ void Logger::debug(const char *message) {
 }
 
 void Logger::log(const char *type, const String& message) {
-  // TODO: [in future] add persistence to SD cart storage, and add
-  // synchronization time with NTP server
   unsigned long timestamp = millis();
   String logMessage = String("[");
   logMessage += type;
   logMessage += ":";
-  logMessage += timestamp;
+  logMessage += timeProvider.getDataTime().toString();
   logMessage += "]: ";
   logMessage += message;
   serial.println(logMessage);
