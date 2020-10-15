@@ -121,7 +121,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   gsmUrlCharacteristic = new BluetoothChunker(pService, GSM_EXTENDER_URL_CUUID, RW_PROPERTY);
   gsmUrlCharacteristic->setCallback(new GsmUrlCallback());
 
-  gsmConfigCharacteristic = new BluetoothChunker(pService, GSM_CONFIG_CUUID, W_PROPERTY);
+  gsmConfigCharacteristic = new BluetoothChunker(pService, GSM_CONFIG_CUUID, RW_PROPERTY);
   gsmConfigCharacteristic->setCallback(new GsmConfigCallback());
 
   apiUrlCharacteristic = new BluetoothChunker(pService, API_URL_CUUID, RW_PROPERTY);
