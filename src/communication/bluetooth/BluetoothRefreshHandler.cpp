@@ -11,14 +11,12 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String &actionName) {
   );
   if(actionName.equals("wifi")) {
     Bluetooth::setLastOperationStatus("wifi|setting_up");
-    Internet::stop();
-    Internet::start();
+    Internet::setType(Internet::WIFI);
     Bluetooth::setLastOperationStatus("wifi|ok");
   }
   else if(actionName.equals("gsm")) {
     Bluetooth::setLastOperationStatus("gsm|setting_up");
-    Internet::stop();
-    Internet::start();
+    Internet::setType(Internet::GSM);
     Bluetooth::setLastOperationStatus("gsm|ok");
   }
   else if(actionName.equals("address")) {
