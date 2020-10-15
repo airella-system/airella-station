@@ -15,7 +15,8 @@ class InetConnTypeCallback : public BluetoothChunkerCallback {
 
   void beforeSend() {
     Logger::debug("[InetConnTypeCallback::beforeSend()] called");
-    std::string type = "" + static_cast<int>(Config::getInternetConnectionType());
+    int enumInteger = static_cast<int>(Config::getInternetConnectionType());
+    std::string type = std::string(String(enumInteger).c_str());
     chunker->setValue(type);
   }
 };
