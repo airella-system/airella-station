@@ -2,8 +2,8 @@
 
 #include <Arduino.h>
 #include "communication/common/Http.h"
-#include "communication/gsm/GsmConn.h"
 #include "communication/gsm/GSM.h"
+#include "communication/gsm/GsmConn.h"
 #include "communication/wifi/WiFiConn.h"
 #include "config/Config.h"
 #include "maintenance/Statistics.h"
@@ -12,7 +12,7 @@ class Internet {
  public:
   enum Type { None = -1, WIFI = 0, GSM = 1 };
 
-  static void setType(Type type);
+  static int resetType(Type type);
   static int start();
   static void stop();
   static bool isConnected();

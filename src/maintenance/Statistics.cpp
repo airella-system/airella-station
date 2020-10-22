@@ -85,7 +85,9 @@ bool StatisticsClass::createStatistic(DynamicJsonDocument statisticDoc) {
 
   response = Internet::httpPost(getUrl(), body);
   if (response.code != 201) {
-    Logger::debug((String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") + String(response.code)).c_str());
+    Logger::debug(
+        (String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") + String(response.code))
+            .c_str());
     Logger::debug(response.payload);
     return false;
   }
@@ -110,7 +112,7 @@ bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument
     Logger::debug("[Statistics::sendStatistic()] Authorization failed");
     return false;
   }
-  
+
   String url =
       Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/statistics/" + statisticId + "/values";
 
@@ -119,9 +121,9 @@ bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument
   Http::Response response = Internet::httpPost(url, body);
 
   if (response.code != 200) {
-    Logger::debug(
-        (String("[StatisticsClass::sendStatistic()] Sending statisctic fail - error: ") + String(response.code) + String(" ") + String(response.payload))
-            .c_str());
+    Logger::debug((String("[StatisticsClass::sendStatistic()] Sending statisctic fail - error: ") +
+                   String(response.code) + String(" ") + String(response.payload))
+                      .c_str());
     return false;
   }
   String message = "[StatisticsClass::sendStatistic()] Send statistic '";

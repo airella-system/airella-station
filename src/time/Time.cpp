@@ -13,18 +13,18 @@ void Time::unlock() {
 }
 
 bool Time::isInitialized() const {
-    return initialized;
+  return initialized;
 }
 
 void Time::connect() {
   Logger::info("[Time::connect()] Try to connect to NTP server");
-  if(initialized) {
+  if (initialized) {
     Logger::warning("[Time::connect()] Already connect to NTP server");
     return;
   }
 
   lock();
-  if(WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED) {
     initialized = false;
     unlock();
     Logger::debug("[Time::connect()] Unable to connect to NTP server, reasone: no internet connection");
@@ -48,36 +48,20 @@ void Time::update() {
 Date_t Time::getDate() {
   tm* timeInfo = getTimeInfo();
 
-  return Date_t(
-    timeInfo->tm_year + 1900,
-    timeInfo->tm_mon + 1,
-    timeInfo->tm_mday
-  );
+  return Date_t(timeInfo->tm_year + 1900, timeInfo->tm_mon + 1, timeInfo->tm_mday);
 }
 
 Time_t Time::getTime() {
   tm* timeInfo = getTimeInfo();
 
-  return Time_t(
-    timeInfo->tm_hour + TIMEZONE_HOUR_SHIFT,
-    timeInfo->tm_min,
-    timeInfo->tm_sec
-  );
+  return Time_t(timeInfo->tm_hour + TIMEZONE_HOUR_SHIFT, timeInfo->tm_min, timeInfo->tm_sec);
 }
 
 DateTime_t Time::getDataTime() {
   tm* timeInfo = getTimeInfo();
 
-  Date_t date(
-    timeInfo->tm_year + 1900,
-    timeInfo->tm_mon + 1,
-    timeInfo->tm_mday
-  );
-  Time_t time(
-    timeInfo->tm_hour + TIMEZONE_HOUR_SHIFT,
-    timeInfo->tm_min,
-    timeInfo->tm_sec
-  );
+  Date_t date(timeInfo->tm_year + 1900, timeInfo->tm_mon + 1, timeInfo->tm_mday);
+  Time_t time(timeInfo->tm_hour + TIMEZONE_HOUR_SHIFT, timeInfo->tm_min, timeInfo->tm_sec);
 
   return DateTime_t(date, time);
 }

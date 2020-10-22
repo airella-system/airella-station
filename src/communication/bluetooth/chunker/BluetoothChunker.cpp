@@ -11,26 +11,26 @@ BluetoothChunker::~BluetoothChunker() {
 }
 
 bool BluetoothChunker::startReceiving(std::string& headerChunk) {
-  if(isActiveReceiving()) {
+  if (isActiveReceiving()) {
     Logger::error("[BluetoothChunker::startReceiving()] Reveiving transaction already started");
     return false;
   }
-  
-  if(headerChunk.length() < BT_CHUNKER_HEADER_SIZE) {
+
+  if (headerChunk.length() < BT_CHUNKER_HEADER_SIZE) {
     Logger::error("[BluetoothChunker::startReceiving()] Invalid message");
     return false;
   }
 
   toReceiveChunkCount = 0;
-  //copy num save in many chars to single long type variable
-  for(int i = 0; i < BT_CHUNKER_HEADER_SIZE; i++) {
+  // copy num save in many chars to single long type variable
+  for (int i = 0; i < BT_CHUNKER_HEADER_SIZE; i++) {
     // save sizeof(char) bytes
-    toReceiveChunkCount = toReceiveChunkCount | headerChunk[i]; 
+    toReceiveChunkCount = toReceiveChunkCount | headerChunk[i];
     // move all bytes of 8 byte in left, make space for next part of num
-    if(i < BT_CHUNKER_HEADER_SIZE - 1) toReceiveChunkCount = toReceiveChunkCount << 8;
+    if (i < BT_CHUNKER_HEADER_SIZE - 1) toReceiveChunkCount = toReceiveChunkCount << 8;
   }
-  
-  //remove the header from original chunk
+
+  // remove the header from original chunk
   headerChunk = headerChunk.substr(BT_CHUNKER_HEADER_SIZE);
   activeReceiving = true;
   receiveTimestamp = millis();
@@ -39,12 +39,12 @@ bool BluetoothChunker::startReceiving(std::string& headerChunk) {
 }
 
 void BluetoothChunker::addChunk(std::string value) {
-  if(!isActiveReceiving()) return;
+  if (!isActiveReceiving()) return;
 
   buffer.push_back(value);
   receiveChunkCount++;
   receiveTimestamp = millis();
-  if(receiveChunkCount == toReceiveChunkCount) endReceiving();
+  if (receiveChunkCount == toReceiveChunkCount) endReceiving();
 }
 
 void BluetoothChunker::endReceiving() {
@@ -60,24 +60,24 @@ void BluetoothChunker::endReceiving() {
   String message = "[BluetoothChunker::endReceiving()] Ended reveiving transaction: ";
   message += value.c_str();
   Logger::debug(message.c_str());
-  
+
   callback->afterReceive();
 }
 
 bool BluetoothChunker::isActiveReceiving() {
-  if(isReceiverTimeout()) clearReceivingTransaction();
+  if (isReceiverTimeout()) clearReceivingTransaction();
   return activeReceiving;
 }
 
 std::string BluetoothChunker::startSending() {
-  if(isActiveSending()) {
+  if (isActiveSending()) {
     Logger::error("[BluetoothChunker::startSending()] Sending transaction already started");
     return "";
   }
 
   callback->beforeSend();
 
-  if(std::log2(value.length()) > BT_CHUNKER_HEADER_SIZE * 8) {
+  if (std::log2(value.length()) > BT_CHUNKER_HEADER_SIZE * 8) {
     Logger::error("[BluetoothChunker::startSending()] To loong message");
     return "";
   }
@@ -86,10 +86,9 @@ std::string BluetoothChunker::startSending() {
   toSendChunkCount += (value.length() + BT_CHUNKER_HEADER_SIZE) % BT_MTU == 0 ? 0 : 1;
 
   std::string firstChunk = "";
-  
-  if(sentChunkCount == 0) {
 
-    for(int i = 0; i < BT_CHUNKER_HEADER_SIZE; i++) {
+  if (sentChunkCount == 0) {
+    for (int i = 0; i < BT_CHUNKER_HEADER_SIZE; i++) {
       char numChunk = toSendChunkCount >> (8 * i);
       firstChunk += " ";
       firstChunk[i] = firstChunk[i] & 00000000;
@@ -106,7 +105,7 @@ std::string BluetoothChunker::startSending() {
   String message = "[BluetoothChunker::startSending()] Started sending transaction: ";
   message += value.c_str();
   Logger::debug(message.c_str());
-  if(toSendChunkCount == sentChunkCount) endSending();
+  if (toSendChunkCount == sentChunkCount) endSending();
   return firstChunk;
 }
 
@@ -116,7 +115,7 @@ void BluetoothChunker::endSending() {
 }
 
 bool BluetoothChunker::isActiveSending() {
-  if(isSenderTimeout()) clearSendingTransaction();
+  if (isSenderTimeout()) clearSendingTransaction();
   return activeSending;
 }
 
@@ -124,7 +123,6 @@ void BluetoothChunker::setCallback(BluetoothChunkerCallback* _callback) {
   callback = _callback;
   callback->setChunker(this);
 }
-
 
 bool BluetoothChunker::setValue(std::string _value) {
   value = _value;
@@ -139,10 +137,9 @@ std::string BluetoothChunker::getChunk() {
   unsigned long startAt = sentChunkCount * BT_MTU - 1;
   unsigned long lenght = std::min((unsigned long)BT_MTU, bufferSize);
   sentChunkCount++;
-  if(toSendChunkCount == sentChunkCount) endSending();
+  if (toSendChunkCount == sentChunkCount) endSending();
   return value.substr(startAt, lenght);
 }
-
 
 bool BluetoothChunker::isReceiverTimeout() {
   return abs(millis() - receiveTimestamp) > BT_CHUNKER_TIMEOUT * 1000;

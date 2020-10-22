@@ -2,8 +2,8 @@
 
 #include <Arduino.h>
 #include <Preferences.h>
-#include "config/Defines.h"
 #include "communication/common/Internet.h"
+#include "config/Defines.h"
 
 class Config {
  public:
@@ -12,10 +12,10 @@ class Config {
     GSM = 1,
   };
 
-  enum RegistrationState { 
-    NO_REGISTRATION = 0, 
-    REGISTERING = 1, 
-    REGISTRATION_ERROR = 2, 
+  enum RegistrationState {
+    NO_REGISTRATION = 0,
+    REGISTERING = 1,
+    REGISTRATION_ERROR = 2,
     REGISTERED = 3,
     STATION_NAME = 4,
     STATION_ADDRESS = 5,
@@ -55,7 +55,6 @@ class Config {
   static String getGsmExtenderUrl(bool lock = true);
   static String getGsmConfig(bool lock = true);
 
-
   static void setInternetConnectionType(InternetConnectionType internetConnectionType, bool lock = true);
   static void setWifiSsid(String wifiSsid, bool lock = true);
   static void setWifiPassword(String wifiPassword, bool lock = true);
@@ -77,6 +76,7 @@ class Config {
   static void setGsmConfig(String gsmConfig, bool lock = true);
 
   static Preferences preferences;
+
  private:
   static SemaphoreHandle_t mux;
 

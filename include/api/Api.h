@@ -12,21 +12,22 @@ struct RegistrationResult {
 };
 
 class ApiClass {
-public:
-  ApiClass() {};
-  ~ApiClass() {};
+ public:
+  ApiClass(){};
+  ~ApiClass(){};
 
   RegistrationResult* registerStation();
   bool isRegistered();
   bool isAuth();
   bool publishMeasurement(String sensor, double value, bool authCheck = true);
-  bool publishName(const char *name, bool authCheck = true);
+  bool publishName(const char* name, bool authCheck = true);
   bool publishLocation(double longitude, double latitude, bool authCheck = true);
-  bool publishAddress(const char *country, const char *city, const char *street, const char *number, bool authCheck = true);
+  bool publishAddress(const char* country, const char* city, const char* street, const char* number,
+                      bool authCheck = true);
 
-private:
+ private:
   bool updateAccessToken();
-  bool registerSensor(const char *type);
+  bool registerSensor(const char* type);
   bool doRegister(RegistrationResult* result);
   bool doStationName(RegistrationResult* result);
   bool doStationAddress(RegistrationResult* result);

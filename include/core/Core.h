@@ -9,30 +9,30 @@
 #include "communication/common/Internet.h"
 #include "communication/gsm/GSM.h"
 #include "config/Config.h"
+#include "config/HardwareConfig.h"
 #include "config/MeasurementType.h"
-#include "device/AirSensor.h"
-#include "device/GpsSensor.h"
 #include "core/AirAndGpsSensorStrategy.h"
+#include "device/AirSensor.h"
+#include "device/DeviceContainer.h"
+#include "device/GpsSensor.h"
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
 #include "device/WeatherSensor.h"
-#include "maintenance/Logger.h"
-#include "time/Time.h"
-#include "maintenance/Statistics.h"
 #include "maintenance/Guardian.h"
-#include "device/DeviceContainer.h"
-#include "config/HardwareConfig.h"
+#include "maintenance/Logger.h"
+#include "maintenance/Statistics.h"
+#include "time/Time.h"
 
 class Core {
-public:
+ public:
   Core();
   void setUp();
   void main();
   bool isError();
   void reset();
 
-private:
+ private:
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;

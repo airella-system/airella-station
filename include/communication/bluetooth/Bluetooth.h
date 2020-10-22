@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Arduino.h>
-#include "NimBLEDevice.h" 
-#include "esp_gap_ble_api.h" 
+#include "NimBLEDevice.h"
 #include "communication/bluetooth/chunker/BluetoothChunker.h"
 #include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
-#include "esp_bt_main.h"
 #include "esp_bt_device.h"
+#include "esp_bt_main.h"
+#include "esp_gap_ble_api.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
@@ -67,7 +67,6 @@
 // Device state - determines if all sensors are working
 #define DEVICE_STATE_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54003"
 
-
 class Bluetooth {
  public:
   static void start(BluetoothHandler *bluetoothHandler);
@@ -86,7 +85,7 @@ class Bluetooth {
 
  private:
   static BLEServer *bleServer;
-  
+
   static BluetoothChunker *stationNameCharacteristic;
   static BluetoothChunker *stationCountryCharacteristic;
   static BluetoothChunker *stationCityCharacteristic;

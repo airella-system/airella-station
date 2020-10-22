@@ -74,7 +74,7 @@ Heater::~Heater() {
 }
 
 void Heater::on() {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::on] Unable to turn on Heater because exist hardware error");
     return;
   }
@@ -85,9 +85,9 @@ void Heater::on() {
 }
 
 void Heater::setPower(int power) {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::setPower] Unable to set power of Heater because exist hardware error");
-    return;  
+    return;
   }
   heaterStatus.heaterIsOn = true;
   currentPower = power;
@@ -95,7 +95,7 @@ void Heater::setPower(int power) {
 }
 
 void Heater::off() {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::off] Unable to turn off Heater because exist hardware error");
     return;
   }
@@ -105,7 +105,7 @@ void Heater::off() {
 }
 
 void Heater::run() {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::run] Unable to run Heater because exist hardware error");
     return;
   }

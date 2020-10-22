@@ -18,7 +18,7 @@ void Core::setUp() {
   Logger::info("[Core]: Loaded preferences.");
 
   Bluetooth::start(new BluetoothRefreshHandler());
-  Internet::setType(Config::getInternetConnectionType() == Config::WIFI ? Internet::WIFI : Internet::GSM);
+  Internet::resetType(Config::getInternetConnectionType() == Config::WIFI ? Internet::WIFI : Internet::GSM);
 
   if (WiFi.status() == WL_CONNECTED) {
     timeProvider.connect();

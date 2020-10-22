@@ -2,8 +2,8 @@
 #include <HTTPClient.h>
 #include <WiFi.h>
 #include "config/Config.h"
-#include "maintenance/Logger.h"
 #include "maintenance/Guardian.h"
+#include "maintenance/Logger.h"
 
 static HTTPClient http;
 bool WiFiConn::connected = false;
@@ -50,10 +50,9 @@ bool WiFiConn::isConnected() {
   return WiFiConn::connected;
 }
 
-
 bool WiFiConn::isOk() {
-  if(!WiFiConn::connected) return false;
-  if(WiFi.status() != WL_CONNECTED) {
+  if (!WiFiConn::connected) return false;
+  if (WiFi.status() != WL_CONNECTED) {
     return false;
   }
   return Ping.ping("www.google.com");

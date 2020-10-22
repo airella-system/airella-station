@@ -2,14 +2,15 @@
 
 #include "communication/bluetooth/Bluetooth.h"
 #include "config/Config.h"
-#include "maintenance/Logger.h"
-#include "maintenance/Guardian.h"
 #include "core/Core.h"
+#include "maintenance/Guardian.h"
+#include "maintenance/Logger.h"
 
 class InetConnTypeCallback : public BluetoothChunkerCallback {
   void afterReceive() {
     Logger::debug("[InetConnTypeCallback::afterReceive()] called");
-    Config::InternetConnectionType type = static_cast<Config::InternetConnectionType>(atoi(chunker->getValue().c_str()));
+    Config::InternetConnectionType type =
+        static_cast<Config::InternetConnectionType>(atoi(chunker->getValue().c_str()));
     Config::setInternetConnectionType(type);
   }
 
@@ -74,7 +75,7 @@ class GsmConfigCallback : public BluetoothChunkerCallback {
 
   void beforeSend() {
     Logger::debug("[GsmConfigCallback::beforeSend()] called");
-      chunker->setValue(Config::getGsmConfig().c_str());
+    chunker->setValue(Config::getGsmConfig().c_str());
   }
 };
 
@@ -207,7 +208,7 @@ class RefreshDeviceCallback : public BluetoothChunkerCallback {
   void afterReceive() {
     Logger::debug("[RefreshDeviceCallback::afterReceive()] called");
     String message = chunker->getValue().c_str();
-    Bluetooth::bluetoothHandler->deviceRefreshRequest(message); 
+    Bluetooth::bluetoothHandler->deviceRefreshRequest(message);
   }
 
   void beforeSend() {}

@@ -122,7 +122,7 @@ Config::InternetConnectionType Config::getInternetConnectionType(bool lock /* = 
 
 /**
  * getters
-*/
+ */
 
 String Config::getWifiSsid(bool lock /* = true */) {
   return getAtomicString(&Config::wifiSsid, lock);
@@ -204,7 +204,7 @@ String Config::getGsmConfig(bool lock /* = true */) {
 
 /**
  * setters
-*/
+ */
 
 void Config::setInternetConnectionType(Config::InternetConnectionType internetConnectionType, bool lock /* = true */) {
   Config::internetConnectionType = internetConnectionType;

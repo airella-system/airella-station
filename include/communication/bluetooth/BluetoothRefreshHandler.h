@@ -1,14 +1,14 @@
 #pragma once
 
-#include "config/Config.h"
 #include "api/Api.h"
-#include "maintenance/Logger.h"
 #include "communication/bluetooth/BluetoothHandler.h"
 #include "communication/common/Internet.h"
+#include "config/Config.h"
+#include "maintenance/Logger.h"
 
 class BluetoothRefreshHandler : public BluetoothHandler {
-public:
-    BluetoothRefreshHandler() {};
-    ~BluetoothRefreshHandler() {};
-    void deviceRefreshRequest(String &actionName);
+ public:
+  BluetoothRefreshHandler(){};
+  ~BluetoothRefreshHandler(){};
+  void deviceRefreshRequest(String &actionName);
 };

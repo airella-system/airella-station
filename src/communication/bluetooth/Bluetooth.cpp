@@ -5,7 +5,8 @@
 
 const uint32_t Bluetooth::W_PROPERTY = NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC;
 const uint32_t Bluetooth::R_PROPERTY = NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC;
-const uint32_t Bluetooth::RW_PROPERTY = NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC;
+const uint32_t Bluetooth::RW_PROPERTY =
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC;
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 
@@ -46,18 +47,18 @@ class CustomBLESecurity : public NimBLESecurityCallbacks {
 
   bool onSecurityRequest() { return true; }
 
-  void onAuthenticationComplete(ble_gap_conn_desc* cmpl) {
+  void onAuthenticationComplete(ble_gap_conn_desc *cmpl) {
     ble_addr_t peer_id_addrs[MYNEWT_VAL(BLE_STORE_MAX_BONDS)];
     int num_peers;
-    int rc = ble_store_util_bonded_peers(
-            &peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
-    
+    int rc = ble_store_util_bonded_peers(&peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
+
     if (rc != 0) {
       Logger::debug("[Bluetooth::onAuthenticationComplete()] Unknown error");
       return;
     }
     if (ble_addr_cmp(&peer_id_addrs[0], &cmpl->peer_id_addr) == 0) {
-      Logger::debug("[Bluetooth::onAuthenticationComplete()] Authenticating user that already authenticated - do nothing");
+      Logger::debug(
+          "[Bluetooth::onAuthenticationComplete()] Authenticating user that already authenticated - do nothing");
       return;
     }
     if (cmpl->sec_state.bonded && num_peers >= 1) {
@@ -74,9 +75,9 @@ BLEServer *Bluetooth::getBleServer() {
   return bleServer;
 }
 
-
 void Bluetooth::setDiscoverability(bool discoverability) {
-  Logger::debug((String("[Bluetooth::setDiscoverability()] Setting discoverability to ") + String(discoverability)).c_str());
+  Logger::debug(
+      (String("[Bluetooth::setDiscoverability()] Setting discoverability to ") + String(discoverability)).c_str());
   Bluetooth::getBleServer()->getAdvertising()->setScanFilter(!discoverability, false);
 }
 
@@ -174,8 +175,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   ble_addr_t peer_id_addrs[MYNEWT_VAL(BLE_STORE_MAX_BONDS)];
   int num_peers;
 
-  int rc = ble_store_util_bonded_peers(
-        &peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
+  int rc = ble_store_util_bonded_peers(&peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
 
   if (num_peers > 0) {
     Logger::debug("[Bluetooth::start()] One device is already bonded");

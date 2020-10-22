@@ -9,9 +9,5 @@ class Http {
     String payload;
   };
 
-  enum Method {
-    GET,
-    POST,
-    PUT
-  };
+  enum Method { GET, POST, PUT };
 };

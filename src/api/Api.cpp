@@ -418,19 +418,21 @@ bool ApiClass::addStatistics(RegistrationResult* result) {
   if (!Statistics.createMultipleEnumsStatistic("heaterState", "Heater state", "PRIVATE", heaterStateEnums, 2, "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
-  
+
   StatisticEnumDefinition heartbeatEnums[] = {{"HEARTBEAT", "Heartbeat"}};
   if (!Statistics.createMultipleEnumsStatistic("heartbeat", "Heartbeat", "PRIVATE", heartbeatEnums, 1, "SCATTER")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
   StatisticEnumDefinition connectionTypeEnums[] = {{"WIFI", "WiFi"}, {"GSM", "GSM"}};
-  if (!Statistics.createMultipleEnumsStatistic("connectionType", "Connection type", "PRIVATE", connectionTypeEnums, 2, "LINE")) {
+  if (!Statistics.createMultipleEnumsStatistic("connectionType", "Connection type", "PRIVATE", connectionTypeEnums, 2,
+                                               "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
   StatisticEnumDefinition connectionStateEnums[] = {{"OK", "Connected"}, {"ERROR", "Error"}};
-  if (!Statistics.createMultipleEnumsStatistic("connectionState", "Connection state", "PRIVATE", connectionStateEnums, 2, "LINE")) {
+  if (!Statistics.createMultipleEnumsStatistic("connectionState", "Connection state", "PRIVATE", connectionStateEnums,
+                                               2, "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
