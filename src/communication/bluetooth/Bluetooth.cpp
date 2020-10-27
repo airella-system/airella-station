@@ -104,6 +104,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   BLEDevice::setSecurityCallbacks(new CustomBLESecurity());
 
   bleServer = BLEDevice::createServer();
+  Bluetooth::getBleServer()->getAdvertising()->addServiceUUID(SERVICE_UUID);
   BLEService *pService = bleServer->createService(BLEUUID((const char *)SERVICE_UUID), 100);
 
   inetConnTypeCharacteristic = new BluetoothChunker(pService, INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
