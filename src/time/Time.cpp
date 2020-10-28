@@ -39,6 +39,7 @@ void Time::connect() {
 
 void Time::update() {
   lock();
+  //todo: get from flash if unable to update
   timeClient.update();
   lastRefreshTimestamp = millis();
   unlock();
@@ -85,6 +86,16 @@ DateTime_t Time::getDataTime() {
 tm* Time::getTimeInfo() {
   time_t totalSecunds = timeClient.getEpochTime();
   return localtime(&totalSecunds);
+}
+
+void Time::persistTime() {
+  //todo
+  Config::setPersistedTime(getDataTime().toString());
+  lastTimeOfPersist = millis();
+}
+
+bool Time::shouldBePersist() {
+  return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 30;
 }
 
 Time timeProvider;

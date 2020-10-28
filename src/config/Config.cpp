@@ -21,6 +21,7 @@ String Config::locationLongitude = String();
 bool Config::locationManual = false;
 String Config::accessToken = String();
 String Config::gsmExtenderUrl = String();
+String Config::persistedTime = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
@@ -55,6 +56,7 @@ void Config::load(bool lock /* = true */) {
   Config::accessToken = Config::preferences.getString("access-token", "");
   // Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://gsm-extender.airella.cyfrogen.com/");
   Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://airella-gsm-http-extender-prox.herokuapp.com/");
+  Config::persistedTime = Config::preferences.getString("persistedTime", "<TODO: timestamp form>"); //todo
   Config::preferences.end();
   if (lock) Config::unlock();
 }
@@ -81,6 +83,7 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType(false)));
   Config::preferences.putString("access-token", Config::getAccessToken(false));
   Config::preferences.putString("gsmExtenderUrl", Config::getGsmExtenderUrl(false));
+  Config::preferences.putString("persistedTime", Config::getPersistedTime(false));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -196,6 +199,10 @@ String Config::getGsmExtenderUrl(bool lock /* = true */) {
   return getAtomicString(&Config::gsmExtenderUrl, lock);
 }
 
+String Config::getPersistedTime(bool lock /* = true */) {
+  return getAtomicString(&Config::persistedTime, lock);
+}
+
 /**
  * setters
 */
@@ -285,4 +292,8 @@ void Config::setAccessToken(String accessToken, bool lock /* = true */) {
 
 void Config::setGsmExtenderUrl(String gsmExtenderUrl, bool lock /* = true */) {
   syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsmExtenderUrl", lock);
+}
+
+void Config::setPersistedTime(String persistedTime, bool lock /* = true */) {
+  syncValueWithFlash(&persistedTime, &Config::persistedTime, "persistedTime", lock);
 }

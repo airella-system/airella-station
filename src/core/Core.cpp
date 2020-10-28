@@ -22,6 +22,7 @@ void Core::setUp() {
   if (WiFi.status() == WL_CONNECTED) {
     timeProvider.connect();
     timeProvider.update();
+    timeProvider.persistTime();
   }
 
   airAndGpsSensorStrategy = new AirAndGpsSensorStrategy();
@@ -49,9 +50,6 @@ void Core::main() {
 
 #ifdef STOP_MAIN_LOOP
   while (true) {
-    GsmConn::gsm.httpGetRequest();
-    Http::Response res = Internet::httpGet("https://airella.cyfrogen.com/api/stations/JzZJMbouBINp?strategy=latest");
-    Logger::debug("JASNA PALA: " + res.payload);
     delay(30000);
   }
 #endif
@@ -73,6 +71,10 @@ void Core::main() {
 
       lastGpsUpdateMillis = millis();
       Logger::info("[Core]: End switch to GPS");
+    }
+
+    if(timeProvider.shouldBePersist()) {
+      timeProvider.persistTime();
     }
     delay(1000);
   }

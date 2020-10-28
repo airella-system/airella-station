@@ -2,12 +2,11 @@
 
 #include <Arduino.h>
 #include "device/DeviceContainer.h"
+#include "time/Time.h"
 
 class MeasurementPersister {
 public:
-  MeasurementPersister() {
-    storage = DeviceContainer.storage->getStorage();
-  };
+  MeasurementPersister();
   ~MeasurementPersister() {};
   void save(String& data);
 private:

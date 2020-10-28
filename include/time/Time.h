@@ -76,6 +76,9 @@ public:
   Date_t getDate();
   Time_t getTime();
   DateTime_t getDataTime();
+  unsigned long lastTimeOfPersist = 0;
+  void persistTime();
+  bool shouldBePersist();
 
 private:
   WiFiUDP ntpUDP;
