@@ -76,6 +76,7 @@ BLEServer *Bluetooth::getBleServer() {
 }
 
 void Bluetooth::setDiscoverability(bool discoverability) {
+  discoverability = true; // TODO Remove this to make station hidden after pairing
   Logger::debug(
       (String("[Bluetooth::setDiscoverability()] Setting discoverability to ") + String(discoverability)).c_str());
   Bluetooth::getBleServer()->getAdvertising()->setScanFilter(!discoverability, false);

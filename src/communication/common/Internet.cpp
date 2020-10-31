@@ -49,6 +49,7 @@ bool Internet::isOk() {
 
 int Internet::resetType(Type type) {
   stop();
+    Internet::type = type;
   if (type == Internet::GSM) {
     return GsmConn::start();
   } else if (type == Internet::WIFI) {
