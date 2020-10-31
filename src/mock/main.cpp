@@ -15,8 +15,7 @@ void setup() {
   Logger::setUp();
   Config::load();
   Bluetooth::start(new BluetoothRefreshHandler());
-  Internet::setType(Internet::WIFI);
-  Internet::start();
+  Internet::resetType(Internet::WIFI);
 }
 
 void loop() {

@@ -6,6 +6,29 @@ String Guardian::getDeviceState() {
   String state = "";
   state += "REGISTERED|";
   state += Api.isRegistered() ? "YES" : "NO";
+
+  #ifdef IS_MOCK
+  state += ",";
+  state += "API_CONNECTION|";
+  state += "OK";
+  state += ",";
+  state += "AIR_SENSOR|";
+  state += "ERROR";
+  state += ",";
+  state += "GPS|";
+  state += "OK";
+  state += ",";
+  state += "HEATER|";
+  state += "ERROR";
+  state += ",";
+  state += "POWER_SENSOR|";
+  state += "OK";
+  state += ",";
+  state += "WEATHER_SENSOR|";
+  state += "ERROR";
+  #endif
+
+  #ifndef IS_MOCK
   state += ",";
   state += "API_CONNECTION|";
   state += core.isError() ? "ERROR" : "OK";
@@ -19,6 +42,8 @@ String Guardian::getDeviceState() {
   state += DeviceContainer.powerSensor->getTextState();
   state += ",";
   state += DeviceContainer.weatherSensor->getTextState();
+  #endif
+
   return state;
 }
 

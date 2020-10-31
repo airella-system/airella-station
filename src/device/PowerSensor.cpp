@@ -3,14 +3,14 @@
 PowerSensor::PowerSensor() : inaDevice(config.sensorAddress), i2cBus(config.i2cBusNum) {}
 
 void PowerSensor::begin() {
-  setTextState("POWER|INIT");
+  setTextState("POWER_SENSOR|INIT");
   Logger::info("[PowerSensor] Initalizing ...");
 
   if (i2cBus.begin(config.clockLinePin, config.dataLinePin, 100000)) {
     Logger::info("[PowerSensor] Initialized I2C bus: OK.");
   } else {
     Logger::error("[PowerSensor] Unable to initialize I2C bus.");
-    setTextState("POWER|INIT_ERROR");
+    setTextState("POWER_SENSOR|INIT_ERROR");
     return;
   }
 
@@ -18,13 +18,13 @@ void PowerSensor::begin() {
     Logger::info("[PowerSensor] Initialized INA device: OK.");
   } else {
     Logger::error("[PowerSensor] Unable to find INA device.");
-    setTextState("POWER|INIT_ERROR");
+    setTextState("POWER_SENSOR|INIT_ERROR");
     return;
   }
 
   initialized = true;
   Logger::info("[PowerSensor] Initalized is OK.");
-  setTextState("POWER|OK");
+  setTextState("POWER_SENSOR|OK");
 }
 
 float PowerSensor::getBusVoltage() {
