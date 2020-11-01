@@ -40,7 +40,7 @@ union AirSensorBuffer {
 
 class AirSensor : public Sensor {
  public:
-  AirSensor(HardwareSerial* serial);
+  AirSensor(HardwareSerial *serial);
   ~AirSensor();
   void powerOn();
   void powerOff();

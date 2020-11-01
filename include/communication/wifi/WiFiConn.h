@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
-#include "communication/common/Http.h"
 #include <ESP32Ping.h>
+#include "communication/common/Http.h"
 
 class WiFiConn {
  public:

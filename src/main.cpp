@@ -1,5 +1,5 @@
-#include "maintenance/Logger.h"
 #include "core/Core.h"
+#include "maintenance/Logger.h"
 
 void setup() {
   core.setUp();

@@ -5,15 +5,11 @@
 class BluetoothChunker;
 
 class BluetoothChunkerCallback {
-
-public:
+ public:
   virtual void afterReceive() = 0;
   virtual void beforeSend() = 0;
-  void setChunker(BluetoothChunker* _chunker) {
-    chunker = _chunker;
-  }
+  void setChunker(BluetoothChunker* _chunker) { chunker = _chunker; }
 
-protected:
+ protected:
   BluetoothChunker* chunker;
-  
 };

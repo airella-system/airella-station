@@ -1,19 +1,18 @@
 #pragma once
 
-#include "config/Config.h"
-#include "maintenance/Logger.h"
-#include "device/Sensor.h"
-#include "communication/common/Http.h"
 #include <iostream>
 #include <regex>
 #include <string>
+#include "communication/common/Http.h"
+#include "config/Config.h"
+#include "device/Sensor.h"
+#include "maintenance/Logger.h"
 
 #define DEFAULT_TIMEOUT 30 * 1000
 #define SERIAL_BUFFER_SIZE 1024
 
 class GSM : public Sensor {
-
-public:
+ public:
   struct Response {
     bool success = true;
     int code = 0;
@@ -36,7 +35,7 @@ public:
   bool isConnected();
   bool isOk();
 
-private:
+ private:
   GSMConfig config;
   HardwareSerial serial;
   void commandAsync(const char* comand);
@@ -50,5 +49,4 @@ private:
   unsigned long calculateInterval(unsigned long timestamp);
   GSM::Response readRequestData(unsigned long dataSize, unsigned long timeout = DEFAULT_TIMEOUT);
   bool sendData(String& data, unsigned long timeout = DEFAULT_TIMEOUT);
-
 };

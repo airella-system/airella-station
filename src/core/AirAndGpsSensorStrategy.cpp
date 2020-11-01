@@ -32,9 +32,9 @@ void AirAndGpsSensorStrategy::switchToAirSensor() {
 }
 
 AirSensor* AirAndGpsSensorStrategy::getAirSensor() {
-    return this->airSensor;
+  return this->airSensor;
 }
 
 GpsSensor* AirAndGpsSensorStrategy::getGpsSensor() {
-    return this->gpsSensor;
+  return this->gpsSensor;
 }

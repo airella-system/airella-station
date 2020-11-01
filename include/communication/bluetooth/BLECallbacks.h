@@ -2,20 +2,22 @@
 
 #include "communication/bluetooth/Bluetooth.h"
 #include "config/Config.h"
-#include "maintenance/Logger.h"
-#include "maintenance/Guardian.h"
 #include "core/Core.h"
+#include "maintenance/Guardian.h"
+#include "maintenance/Logger.h"
 
 class InetConnTypeCallback : public BluetoothChunkerCallback {
   void afterReceive() {
     Logger::debug("[InetConnTypeCallback::afterReceive()] called");
-    Config::InternetConnectionType type = static_cast<Config::InternetConnectionType>(atoi(chunker->getValue().c_str()));
+    Config::InternetConnectionType type =
+        static_cast<Config::InternetConnectionType>(atoi(chunker->getValue().c_str()));
     Config::setInternetConnectionType(type);
   }
 
   void beforeSend() {
     Logger::debug("[InetConnTypeCallback::beforeSend()] called");
-    std::string type = "" + static_cast<int>(Config::getInternetConnectionType());
+    int enumInteger = static_cast<int>(Config::getInternetConnectionType());
+    std::string type = std::string(String(enumInteger).c_str());
     chunker->setValue(type);
   }
 };
@@ -50,6 +52,30 @@ class WifiPasswordCallback : public BluetoothChunkerCallback {
   void beforeSend() {
     Logger::debug("[WifiPasswordCallback::beforeSend()] called");
     chunker->setValue(Config::getWifiPassword().c_str());
+  }
+};
+
+class GsmUrlCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[GsmUrlCallback::afterReceive()] called");
+    Config::setGsmExtenderUrl(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[GsmUrlCallback::beforeSend()] called");
+    chunker->setValue(Config::getGsmExtenderUrl().c_str());
+  }
+};
+
+class GsmConfigCallback : public BluetoothChunkerCallback {
+  void afterReceive() {
+    Logger::debug("[GsmConfigCallback::afterReceive()] called");
+    Config::setGsmConfig(chunker->getValue().c_str());
+  }
+
+  void beforeSend() {
+    Logger::debug("[GsmConfigCallback::beforeSend()] called");
+    chunker->setValue(Config::getGsmConfig().c_str());
   }
 };
 
@@ -182,7 +208,7 @@ class RefreshDeviceCallback : public BluetoothChunkerCallback {
   void afterReceive() {
     Logger::debug("[RefreshDeviceCallback::afterReceive()] called");
     String message = chunker->getValue().c_str();
-    Bluetooth::bluetoothHandler->deviceRefreshRequest(message); 
+    Bluetooth::bluetoothHandler->deviceRefreshRequest(message);
   }
 
   void beforeSend() {}
@@ -222,6 +248,6 @@ class DeviceStateCallback : public BluetoothChunkerCallback {
 
   void beforeSend() {
     Logger::debug("[DeviceStateCallback::beforeSend()] called");
-    chunker->setValue("" + Guardian::isDeviceOk());
+    chunker->setValue(Guardian::getDeviceState().c_str());
   }
 };

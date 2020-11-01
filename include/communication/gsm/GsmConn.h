@@ -7,7 +7,7 @@
 class GSM;
 
 class GsmConn {
-public:
+ public:
   static int start();
   static void stop();
   static Http::Response httpGet(const String& url, String& authorization);
@@ -16,6 +16,8 @@ public:
   static bool isConnected();
   static bool isOk();
   static GSM gsm;
-private:
-  static Http::Response buildRequest(const String& url, Http::Method method, String& authorization, String* body = NULL);
+
+ private:
+  static Http::Response buildRequest(const String& url, Http::Method method, String& authorization,
+                                     String* body = NULL);
 };

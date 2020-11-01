@@ -8,6 +8,9 @@ int Internet::start() {
 }
 
 void Internet::stop() {
+  if (Internet::type == Internet::None) {
+    return;
+  }
   Internet::type == Internet::WIFI ? WiFiConn::stop() : GsmConn::stop();
 }
 
@@ -44,24 +47,12 @@ bool Internet::isOk() {
   return Internet::type == Internet::WIFI ? WiFiConn::isOk() : GsmConn::isOk();
 }
 
-void Internet::setType(Type type) {
-  if(Internet::type == Internet::None) {
-    if(type == Internet::GSM) {
-      GsmConn::start();
-    }
-    else if(type == Internet::WIFI) {
-      WiFiConn::start();
-    }
-  }
-  else if(Internet::type != type) {
-    if(type == Internet::GSM) {
-      GsmConn::start();
-      WiFiConn::stop();
-    }
-    else if(type == Internet::WIFI) {
-      WiFiConn::start();
-      GsmConn::stop();
-    }
-  }
+int Internet::resetType(Type type) {
+  stop();
   Internet::type = type;
+  if (type == Internet::GSM) {
+    return GsmConn::start();
+  } else if (type == Internet::WIFI) {
+    return WiFiConn::start();
+  }
 }

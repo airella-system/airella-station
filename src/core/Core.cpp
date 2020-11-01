@@ -17,7 +17,7 @@ void Core::setUp() {
   Logger::info("[Core]: Loaded preferences.");
 
   Bluetooth::start(new BluetoothRefreshHandler());
-  Internet::setType(Internet::WIFI);
+  Internet::resetType(Config::getInternetConnectionType() == Config::WIFI ? Internet::WIFI : Internet::GSM);
 
   if (WiFi.status() == WL_CONNECTED) {
     timeProvider.connect();
@@ -33,6 +33,7 @@ void Core::setUp() {
   heater->run();
 
   DeviceContainer.airSensor = airAndGpsSensorStrategy->getAirSensor();
+  DeviceContainer.gpsSensor = airAndGpsSensorStrategy->getGpsSensor();
   DeviceContainer.weatherSensor = weatherSensor;
   DeviceContainer.heater = heater;
 
@@ -50,25 +51,33 @@ void Core::main() {
     Statistics.reportBootUp();
   }
 
+  error = false;
+
 #ifdef STOP_MAIN_LOOP
   while (true) {
     delay(30000);
   }
 #endif
-  
-  while(isWorking) {
+
+  while (isWorking) {
     Guardian::statistics();
     Guardian::check();
 
-    sendMeasurements();
+    if (error) {
+      if (abs(millis() - lastErrorMillis) > 60000) {
+        error = false;
+      }
+    }
+
+    bool notErrorInIteration = sendMeasurements();
 
     if (abs(millis() - lastGpsUpdateMillis) > 60000) {
       Logger::info("[Core]: Start switch to GPS");
       airAndGpsSensorStrategy->switchToGpsSensor();
 
       if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
-        Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
-                            airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
+        notErrorInIteration &= Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
+                                                   airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
       }
       airAndGpsSensorStrategy->switchToAirSensor();
 
@@ -79,48 +88,66 @@ void Core::main() {
     if(timeProvider.shouldBePersist()) {
       timeProvider.persistTime();
     }
+
+    if (!notErrorInIteration) {
+      lastErrorMillis = millis();
+      error = true;
+    }
+    
     delay(1000);
   }
+}
+
+bool Core::isError() {
+  return this->error;
 }
 
 void Core::reset() {
   isWorking = false;
 }
 
-void Core::sendMeasurements() {
+bool Core::sendMeasurements() {
+  bool notErrorInIteration = true;
   if (abs(millis() - lastPublishMillis) > 10000) {
     Logger::info("[Core]: Start measurement");
 
     float value = weatherSensor->getTemperature();
     if(!Api.publishMeasurement(measurementType.temperature, value)) {
       storableBuffer.push(measurementType.temperature, String(value));
+      notErrorInIteration = false;
     }
     value = weatherSensor->getHumidity();
     if(!Api.publishMeasurement(measurementType.humidity, value)) {
       storableBuffer.push(measurementType.humidity, String(value));
+      notErrorInIteration = false;
     }
     value = weatherSensor->getPressure();
     if(!Api.publishMeasurement(measurementType.pressure, value)) {
       storableBuffer.push(measurementType.pressure, String(value));
+      notErrorInIteration = false;
     }
     airAndGpsSensorStrategy->getAirSensor()->measurement();
 
     uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
     if(!Api.publishMeasurement(measurementType.pm1, pmValue)) {
       storableBuffer.push(measurementType.pm1, String(value));
+      notErrorInIteration = false;
     }
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
     if(!Api.publishMeasurement(measurementType.pm2_5, pmValue)) {
       storableBuffer.push(measurementType.pm2_5, String(value));
+      notErrorInIteration = false;
     }
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
     if(!Api.publishMeasurement(measurementType.pm10, pmValue)) {
       storableBuffer.push(measurementType.pm10, String(value));
+      notErrorInIteration = false;
     }
 
     lastPublishMillis = millis();
   }
   storableBuffer.sync();
+  return notErrorInIteration;
 }
 
 Core core;

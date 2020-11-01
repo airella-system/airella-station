@@ -22,6 +22,7 @@ bool Config::locationManual = false;
 String Config::accessToken = String();
 String Config::gsmExtenderUrl = String();
 unsigned long Config::persistedTime = 1604218415;
+String Config::gsmConfig = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
 
@@ -54,9 +55,10 @@ void Config::load(bool lock /* = true */) {
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
-  // Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://gsm-extender.airella.cyfrogen.com/");
-  Config::gsmExtenderUrl = Config::preferences.getString("gsmExtenderUrl", "https://airella-gsm-http-extender-prox.herokuapp.com/");
   Config::persistedTime = Config::preferences.getULong("persistedTime", 1604218415);
+  // Config::gsmExtenderUrl = Config::preferences.getString("gsm-ext-url", "https://airella-gsm-http-extender-prox.herokuapp.com/");
+  Config::gsmExtenderUrl = Config::preferences.getString("gsm-ext-url", "https://gsm-extender.airella.cyfrogen.com/");
+  Config::gsmConfig = Config::preferences.getString("gsm-config", "");
   Config::preferences.end();
   if (lock) Config::unlock();
 }
@@ -82,8 +84,9 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putInt("reg-state", static_cast<int>(Config::getRegistrationState(false)));
   Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType(false)));
   Config::preferences.putString("access-token", Config::getAccessToken(false));
-  Config::preferences.putString("gsmExtenderUrl", Config::getGsmExtenderUrl(false));
   Config::preferences.putULong("timestamp", Config::getPersistedTime(false));
+  Config::preferences.putString("gsm-ext-url", Config::getGsmExtenderUrl(false));
+  Config::preferences.putString("gsm-config", Config::getGsmConfig(false));
   Config::preferences.end();
   if (lock) Config::unlock();
   Logger::debug("[Config::save()] Config saved");
@@ -123,7 +126,7 @@ Config::InternetConnectionType Config::getInternetConnectionType(bool lock /* = 
 
 /**
  * getters
-*/
+ */
 
 String Config::getWifiSsid(bool lock /* = true */) {
   return getAtomicString(&Config::wifiSsid, lock);
@@ -206,16 +209,19 @@ unsigned long Config::getPersistedTime(bool lock /* = true */) {
   return value;
 }
 
+String Config::getGsmConfig(bool lock /* = true */) {
+  return getAtomicString(&Config::gsmConfig, lock);
+}
+
 /**
  * setters
-*/
+ */
 
 void Config::setInternetConnectionType(Config::InternetConnectionType internetConnectionType, bool lock /* = true */) {
   Config::internetConnectionType = internetConnectionType;
   Config::preferences.begin("prefs", false);
   Config::preferences.putInt("inet-conn", static_cast<int>(internetConnectionType));
   Config::preferences.end();
-  Internet::setType(static_cast<Internet::Type>(internetConnectionType));
   if (lock) Config::unlock();
 }
 
@@ -294,7 +300,11 @@ void Config::setAccessToken(String accessToken, bool lock /* = true */) {
 }
 
 void Config::setGsmExtenderUrl(String gsmExtenderUrl, bool lock /* = true */) {
-  syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsmExtenderUrl", lock);
+  syncValueWithFlash(&gsmExtenderUrl, &Config::gsmExtenderUrl, "gsm-ext-url", lock);
+}
+
+void Config::setGsmConfig(String gsmConfig, bool lock /* = true */) {
+  syncValueWithFlash(&gsmConfig, &Config::gsmConfig, "gsm-config", lock);
 }
 
 void Config::setPersistedTime(unsigned long persistedTime, bool lock /* = true */) {

@@ -2,10 +2,12 @@
 
 Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWirePin), weatherSensor(_weatherSensor) {
   Logger::info("[Heater] Initalizing ...");
+  setTextState("HEATER|INIT");
   this->mux = xSemaphoreCreateMutex();
 
   if (!weatherSensor.isInit()) {
     Logger::error("[Heater] Weather sensor is uninitialized or null.");
+    setTextState("HEATER|INIT_ERROR");
     return;
   }
 
@@ -35,6 +37,12 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
   thermometer.requestTemperatures();
   numberOfDevices = thermometer.getDeviceCount();
   Logger::info("[Heater] Number of device: " + numberOfDevices);
+  if (numberOfDevices == 0) {
+    Logger::info("[Heater] Can't find thermometer");
+    setTextState("HEATER|INIT_ERROR");
+    return;
+  }
+
   thermometer.requestTemperatures();
 
   bool foundAnyDevice = false;
@@ -56,6 +64,7 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
 
   initialized = foundAnyDevice;
   Logger::info("[Heater] initialized: OK");
+  setTextState("HEATER|OK");
 }
 
 Heater::~Heater() {
@@ -65,7 +74,7 @@ Heater::~Heater() {
 }
 
 void Heater::on() {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::on] Unable to turn on Heater because exist hardware error");
     return;
   }
@@ -76,9 +85,9 @@ void Heater::on() {
 }
 
 void Heater::setPower(int power) {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::setPower] Unable to set power of Heater because exist hardware error");
-    return;  
+    return;
   }
   heaterStatus.heaterIsOn = true;
   currentPower = power;
@@ -86,7 +95,7 @@ void Heater::setPower(int power) {
 }
 
 void Heater::off() {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::off] Unable to turn off Heater because exist hardware error");
     return;
   }
@@ -96,7 +105,7 @@ void Heater::off() {
 }
 
 void Heater::run() {
-  if(!initialized) {
+  if (!initialized) {
     Logger::warning("[Heater::run] Unable to run Heater because exist hardware error");
     return;
   }
@@ -111,7 +120,7 @@ void Heater::threadFunction(void *pvParameters) {
   Heater *heater = (Heater *)pvParameters;
   unsigned int intervalMax = 1000 * 10;  // 10s
   unsigned int interval = intervalMax;
-  unsigned long lastTimestamp = millis() -  2 * interval; // make first interation instant
+  unsigned long lastTimestamp = millis() - 2 * interval;  // make first interation instant
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
   bool heaterLastState = !heaterIsOn;
   int counter = 0;
@@ -140,7 +149,7 @@ void Heater::threadFunction(void *pvParameters) {
         heaterIsOn = false;
         interval = intervalMax;
       }
-      
+
       heater->setReport(temperature, humidity, dewPoint, heater->getCurrentPower(), heaterIsOn);
 
       counter++;

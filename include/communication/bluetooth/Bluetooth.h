@@ -1,13 +1,12 @@
 #pragma once
 
 #include <Arduino.h>
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
+#include "NimBLEDevice.h"
 #include "communication/bluetooth/chunker/BluetoothChunker.h"
 #include "communication/bluetooth/chunker/BluetoothChunkerCallback.h"
-#include "esp_bt_main.h"
 #include "esp_bt_device.h"
+#include "esp_bt_main.h"
+#include "esp_gap_ble_api.h"
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
@@ -25,6 +24,12 @@
 
 // WiFi password
 #define WIFI_PASWORD_CUUID "0851dd07-b59f-40c6-8114-357c7dff694c"
+
+// GSM Extender URL
+#define GSM_EXTENDER_URL_CUUID "53831c50-cb06-4dbe-b41e-6020511c3c32"
+
+// GSM Config
+#define GSM_CONFIG_CUUID "767a9672-ec3f-4889-8678-2360c5e5192b"
 
 // Registration token from backend
 #define REGISTRATION_TOKEN_CUUID "cb520851-1fd3-446e-a590-e777ddd0232c"
@@ -62,8 +67,6 @@
 // Device state - determines if all sensors are working
 #define DEVICE_STATE_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54003"
 
-#define DEFAULT_BT_PERMISSION ESP_GATT_PERM_READ_ENCRYPTED | ESP_GATT_PERM_WRITE_ENCRYPTED
-
 class Bluetooth {
  public:
   static void start(BluetoothHandler *bluetoothHandler);
@@ -82,7 +85,7 @@ class Bluetooth {
 
  private:
   static BLEServer *bleServer;
-  
+
   static BluetoothChunker *stationNameCharacteristic;
   static BluetoothChunker *stationCountryCharacteristic;
   static BluetoothChunker *stationCityCharacteristic;
@@ -95,6 +98,9 @@ class Bluetooth {
 
   static BluetoothChunker *ssidCharacteristic;
   static BluetoothChunker *wifiPassCharacteristic;
+  static BluetoothChunker *gsmUrlCharacteristic;
+  static BluetoothChunker *gsmConfigCharacteristic;
+
   static BluetoothChunker *registerTokenCharacteristic;
   static BluetoothChunker *apiUrlCharacteristic;
   static BluetoothChunker *refreshDeviceCharacteristic;

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
+#include "config/HardwareConfig.h"
 #include "device/AirSensor.h"
 #include "device/GpsSensor.h"
-#include "config/HardwareConfig.h"
 
 class AirAndGpsSensorStrategy {
  public:

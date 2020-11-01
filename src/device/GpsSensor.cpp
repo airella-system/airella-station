@@ -2,6 +2,7 @@
 
 GpsSensor::GpsSensor(HardwareSerial* serial) {
   Logger::info("[GpsSensor] Initalizing ...");
+  setTextState("GPS|INIT");
   this->serial = serial;
   initialized = true;
   Logger::info("[GpsSensor] GPS is active.");
@@ -21,6 +22,7 @@ bool GpsSensor::fetchLocation() {
       return true;
     }
   }
+  setTextState("GPS|ERROR");
   return false;
 }
 
@@ -106,7 +108,6 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
              &utcTimeDecimal_SS, &latitude_DDmm, &latitudeDecimal_mm, &latitideDirection, &longitude_DDDmm,
              &longitudeDecimal_mm, &longitudeDirection, &quality, &numOfSatelites, &horizontalDilution, &altitude,
              &altitudeUnits, &undulation, &undulationUnits, &checkSum) >= 1) {
-
     double wut = ((latitude_DDmm % 100) + getFloatFromDecimalInteger(latitudeDecimal_mm));
     this->latitude =
         (latitude_DDmm / 100) + ((latitude_DDmm % 100) + getFloatFromDecimalInteger(latitudeDecimal_mm)) / 60.0;
@@ -120,9 +121,9 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
       this->longitude = -this->longitude;
     }
 
-    Logger::info(
-        (String("[GpsSensor] Final latitude and longitude: ") + String(this->latitude, 10) + ", " + String(this->longitude, 10))
-            .c_str());
+    Logger::info((String("[GpsSensor] Final latitude and longitude: ") + String(this->latitude, 10) + ", " +
+                  String(this->longitude, 10))
+                     .c_str());
 
     return true;
   }
@@ -134,7 +135,7 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
 double GpsSensor::getFloatFromDecimalInteger(int integer) {
   int nDigits = floor(log10(abs(integer))) + 1;
   int power = pow(10, nDigits);
-  return integer / (double) power;
+  return integer / (double)power;
 }
 
 double GpsSensor::getLatitude() {

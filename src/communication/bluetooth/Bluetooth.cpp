@@ -3,9 +3,10 @@
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 
-const uint32_t Bluetooth::W_PROPERTY = BLECharacteristic::PROPERTY_WRITE;
-const uint32_t Bluetooth::R_PROPERTY = BLECharacteristic::PROPERTY_READ;
-const uint32_t Bluetooth::RW_PROPERTY = BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE;
+const uint32_t Bluetooth::W_PROPERTY = NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC;
+const uint32_t Bluetooth::R_PROPERTY = NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC;
+const uint32_t Bluetooth::RW_PROPERTY =
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC;
 
 BluetoothHandler *Bluetooth::bluetoothHandler = nullptr;
 
@@ -23,6 +24,9 @@ BluetoothChunker *Bluetooth::inetConnTypeCharacteristic = nullptr;
 
 BluetoothChunker *Bluetooth::ssidCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::wifiPassCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::gsmUrlCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::gsmConfigCharacteristic = nullptr;
+
 BluetoothChunker *Bluetooth::registerTokenCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::apiUrlCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::refreshDeviceCharacteristic = nullptr;
@@ -34,7 +38,7 @@ BluetoothChunker *Bluetooth::deviceStateCharacteristic = nullptr;
 
 String Bluetooth::lastOperatioinState = String();
 
-class CustomBLESecurity : public BLESecurityCallbacks {
+class CustomBLESecurity : public NimBLESecurityCallbacks {
   uint32_t onPassKeyRequest() { return 0; }
 
   void onPassKeyNotify(uint32_t pass_key) {}
@@ -43,12 +47,24 @@ class CustomBLESecurity : public BLESecurityCallbacks {
 
   bool onSecurityRequest() { return true; }
 
-  void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) {
-    int bondDevicesNum = esp_ble_get_bond_device_num();
-    if (cmpl.success && bondDevicesNum > 1) {
+  void onAuthenticationComplete(ble_gap_conn_desc *cmpl) {
+    ble_addr_t peer_id_addrs[MYNEWT_VAL(BLE_STORE_MAX_BONDS)];
+    int num_peers;
+    int rc = ble_store_util_bonded_peers(&peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
+
+    if (rc != 0) {
+      Logger::debug("[Bluetooth::onAuthenticationComplete()] Unknown error");
+      return;
+    }
+    if (ble_addr_cmp(&peer_id_addrs[0], &cmpl->peer_id_addr) == 0) {
+      Logger::debug(
+          "[Bluetooth::onAuthenticationComplete()] Authenticating user that already authenticated - do nothing");
+      return;
+    }
+    if (cmpl->sec_state.bonded && num_peers >= 1) {
       Logger::debug("[Bluetooth::onAuthenticationComplete()] Already added device - removing bond request");
-      esp_ble_remove_bond_device(cmpl.bd_addr);
-    } else if (cmpl.success) {
+      ble_gap_unpair(&cmpl->peer_id_addr);
+    } else if (cmpl->sec_state.bonded) {
       Logger::debug("[Bluetooth::onAuthenticationComplete()] Added new device");
       Bluetooth::setDiscoverability(false);
     }
@@ -59,26 +75,18 @@ BLEServer *Bluetooth::getBleServer() {
   return bleServer;
 }
 
-void Bluetooth::removeBondDevices() {
-  int dev_num = esp_ble_get_bond_device_num();
-  if (dev_num > 0) {
-    esp_ble_bond_dev_t *dev_list = (esp_ble_bond_dev_t *)malloc(sizeof(esp_ble_bond_dev_t) * dev_num);
-    esp_ble_get_bond_device_list(&dev_num, dev_list);
-    for (int i = 0; i < dev_num; i++) {
-      esp_ble_remove_bond_device(dev_list[i].bd_addr);
-    }
-    free(dev_list);
-  }
-}
-
 void Bluetooth::setDiscoverability(bool discoverability) {
-  Logger::debug((String("[Bluetooth::setDiscoverability()] Setting discoverability to ") + String(discoverability)).c_str());
+  discoverability = true; // TODO Remove this to make station hidden after pairing
+  Logger::debug(
+      (String("[Bluetooth::setDiscoverability()] Setting discoverability to ") + String(discoverability)).c_str());
   Bluetooth::getBleServer()->getAdvertising()->setScanFilter(!discoverability, false);
 }
 
 void Bluetooth::reloadValues() {
   ssidCharacteristic->setValue(Config::getWifiSsid().c_str());
   wifiPassCharacteristic->setValue(Config::getWifiPassword().c_str());
+  gsmUrlCharacteristic->setValue(Config::getGsmExtenderUrl().c_str());
+  gsmConfigCharacteristic->setValue(Config::getGsmConfig().c_str());
   registerTokenCharacteristic->setValue(Config::getRegistratonToken().c_str());
   apiUrlCharacteristic->setValue(Config::getApiUrl().c_str());
   stationNameCharacteristic->setValue(Config::getStationName().c_str());
@@ -94,11 +102,12 @@ void Bluetooth::reloadValues() {
 void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   Bluetooth::bluetoothHandler = bluetoothHandler;
   BLEDevice::init("Airella Station");
-
-  BLEDevice::setEncryptionLevel(ESP_BLE_SEC_ENCRYPT);
+  BLEDevice::setSecurityAuth(true, true, true);
   BLEDevice::setSecurityCallbacks(new CustomBLESecurity());
 
   bleServer = BLEDevice::createServer();
+  bleServer->getAdvertising()->addServiceUUID(SERVICE_UUID);
+  
   BLEService *pService = bleServer->createService(BLEUUID((const char *)SERVICE_UUID), 100);
 
   inetConnTypeCharacteristic = new BluetoothChunker(pService, INTERNET_CONNECTION_TYPE_CUUID, RW_PROPERTY);
@@ -112,6 +121,12 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
 
   registerTokenCharacteristic = new BluetoothChunker(pService, REGISTRATION_TOKEN_CUUID, W_PROPERTY);
   registerTokenCharacteristic->setCallback(new RegistrationTokenCallback());
+
+  gsmUrlCharacteristic = new BluetoothChunker(pService, GSM_EXTENDER_URL_CUUID, RW_PROPERTY);
+  gsmUrlCharacteristic->setCallback(new GsmUrlCallback());
+
+  gsmConfigCharacteristic = new BluetoothChunker(pService, GSM_CONFIG_CUUID, RW_PROPERTY);
+  gsmConfigCharacteristic->setCallback(new GsmConfigCallback());
 
   apiUrlCharacteristic = new BluetoothChunker(pService, API_URL_CUUID, RW_PROPERTY);
   apiUrlCharacteristic->setCallback(new ApiUrlCallback());
@@ -155,36 +170,17 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler) {
   deviceStateCharacteristic = new BluetoothChunker(pService, DEVICE_STATE_CUUID, R_PROPERTY);
   deviceStateCharacteristic->setCallback(new DeviceStateCallback());
 
-  stationNameCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  stationCountryCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  stationCityCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  stationStreetCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  stationNumberCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  latitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  longitudeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  locationManualCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  inetConnTypeCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-
-  ssidCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  wifiPassCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  registerTokenCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  apiUrlCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  refreshDeviceCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  clearDataCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-
-  registrationStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  inetConnStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-  deviceStateCharacteristic->setAccessPermissions(DEFAULT_BT_PERMISSION);
-
   reloadValues();
   pService->start();
   BLEAdvertising *pAdvertising = bleServer->getAdvertising();
   pAdvertising->start();
 
-  esp_ble_auth_req_t auth_req = ESP_LE_AUTH_BOND;
-  esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));
+  ble_addr_t peer_id_addrs[MYNEWT_VAL(BLE_STORE_MAX_BONDS)];
+  int num_peers;
 
-  if (esp_ble_get_bond_device_num() > 0) {
+  int rc = ble_store_util_bonded_peers(&peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
+
+  if (num_peers > 0) {
     Logger::debug("[Bluetooth::start()] One device is already bonded");
     Bluetooth::setDiscoverability(false);
   } else {
@@ -202,13 +198,6 @@ void Bluetooth::setLastOperationStatus(String operationStatus) {
 }
 
 String Bluetooth::getMAC() {
-  String mac;
-  const uint8_t *point = esp_bt_dev_get_address();
-  for (int i = 0; i < 6; i++) {
-    char chunk[3];
-    sprintf(chunk, "%02X", (int)point[i]);
-    mac += chunk;
-    if (i < 5) mac += ":";
-  }
-  return mac;
+  std::string mac = BLEDevice::getAddress();
+  return String(mac.c_str());
 }

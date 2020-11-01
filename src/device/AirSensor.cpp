@@ -2,6 +2,7 @@
 
 AirSensor::AirSensor(HardwareSerial *serial) {
   Logger::info("[AirSensor] Initalizing ...");
+  setTextState("AIR_SENSOR|INIT");
   isPowerOn = false;
   dataReady = false;
   lastByte = 0;
@@ -12,9 +13,9 @@ AirSensor::AirSensor(HardwareSerial *serial) {
   digitalWrite(config.powerPin, LOW);
   this->serial = serial;
   initialized = true;
+  setTextState("AIR_SENSOR|OK");
   Logger::info("[AirSensor] Air sensor is active.");
 }
-
 
 AirSensor::~AirSensor() {
   Logger::info("[AirSensor] Air sensor is close.");
@@ -32,7 +33,7 @@ void AirSensor::powerOff() {
 
 void AirSensor::calibrate() {
   Logger::info("[AirSensor] Start calibrate.");
-  for(int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     singleMeasurement(false);
     delay(200);
   }
@@ -50,9 +51,9 @@ void AirSensor::measurement() {
   AirSensorMeasurement measutementAvg;
 
   measutementAvg = getMeasurementData();
-  for(int i = 0; i < measurementCount; i++) {
+  for (int i = 0; i < measurementCount; i++) {
     singleMeasurement(false);
-    if(i == 0) {
+    if (i == 0) {
       measutementAvg = getMeasurementData();
     }
     lastMeasutement = getMeasurementData();
@@ -69,7 +70,7 @@ void AirSensor::measurement() {
     measutementAvg.raw_gt_5_0 += lastMeasutement.raw_gt_5_0;
     measutementAvg.raw_gt_10_0 += lastMeasutement.raw_gt_10_0;
 
-    if(lastMeasutement.error_code > 0) {
+    if (lastMeasutement.error_code > 0) {
       measutementAvg.error_code = lastMeasutement.error_code;
     }
   }
@@ -96,7 +97,7 @@ void AirSensor::measurement() {
 }
 
 void AirSensor::singleMeasurement(bool logging = true) {
-  if(logging) Logger::info("[AirSensor] New single measurement.");
+  if (logging) Logger::info("[AirSensor] New single measurement.");
   for (int i = 0; i < AIR_SENSOR_DATA_SIZE; i++) {
     updateBuffer();
   }
@@ -231,5 +232,5 @@ uint8_t AirSensor::getErrorCode() const {
 }
 
 void AirSensor::setupSerial() const {
-  this->serial->updateBaudRate(9600);   
+  this->serial->updateBaudRate(9600);
 }

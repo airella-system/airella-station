@@ -9,16 +9,18 @@
 #include "communication/common/Internet.h"
 #include "communication/gsm/GSM.h"
 #include "config/Config.h"
+#include "config/HardwareConfig.h"
 #include "config/MeasurementType.h"
-#include "device/AirSensor.h"
-#include "device/GpsSensor.h"
 #include "core/AirAndGpsSensorStrategy.h"
+#include "device/AirSensor.h"
+#include "device/DeviceContainer.h"
+#include "device/GpsSensor.h"
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
 #include "device/WeatherSensor.h"
+#include "maintenance/Guardian.h"
 #include "maintenance/Logger.h"
-#include "time/Time.h"
 #include "maintenance/Statistics.h"
 #include "maintenance/Guardian.h"
 #include "device/DeviceContainer.h"
@@ -31,10 +33,11 @@ public:
   ~Core() {};
   void setUp();
   void main();
+  bool isError();
   void reset();
-  void sendMeasurements();
+  bool sendMeasurements();
 
-private:
+ private:
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
@@ -43,6 +46,8 @@ private:
   AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;
+  bool error = true;
+  unsigned long lastErrorMillis = 0;
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;

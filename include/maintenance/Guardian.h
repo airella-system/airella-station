@@ -2,16 +2,20 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include "api/Api.h"
 #include "config/Config.h"
+#include "core/Core.h"
+#include "device/DeviceContainer.h"
 #include "maintenance/Logger.h"
 
 class Guardian {
 public:
-  static bool isDeviceOk();
+  static String getDeviceState();
   static void checkWiFiConnection();
   static bool reconectWiFi();
   static void statistics();
   static void check();
+
 private:
   static unsigned long lastStatisticTimestamp;
 };

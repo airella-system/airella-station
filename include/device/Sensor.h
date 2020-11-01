@@ -5,8 +5,12 @@
 #include "maintenance/Logger.h"
 
 class Sensor {
-  public:
-    bool isInit();
-  protected:
-    bool initialized = false;
+ public:
+  bool isInit();
+  void setTextState(String string);
+  String getTextState();
+
+ protected:
+  bool initialized = false;
+  String stringState = "stringState";
 };

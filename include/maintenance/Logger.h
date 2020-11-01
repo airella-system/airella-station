@@ -7,7 +7,7 @@
 class Logger {
  private:
   static void log(const char *type, const char *message);
-  static void log(const char *type, const String& message);
+  static void log(const char *type, const String &message);
 
  public:
   static HardwareSerial serial;
@@ -22,13 +22,13 @@ class Logger {
   static void error(const String *message);
   static void debug(const String *message);
 
-  static void info(const String& message);
-  static void warning(const String& message);
-  static void error(const String& message);
-  static void debug(const String& message);
+  static void info(const String &message);
+  static void warning(const String &message);
+  static void error(const String &message);
+  static void debug(const String &message);
 
-  static void info(String& message);
-  static void warning(String& message);
-  static void error(String& message);
-  static void debug(String& message);
+  static void info(String &message);
+  static void warning(String &message);
+  static void error(String &message);
+  static void debug(String &message);
 };
