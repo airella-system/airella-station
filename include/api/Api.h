@@ -1,6 +1,11 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include "util/MeasurementPersister.h"
+#include "communication/common/Internet.h"
+#include "config/Config.h"
+#include "maintenance/Logger.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "maintenance/Statistics.h"
 
@@ -47,6 +52,7 @@ class ApiClass {
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;
+  MeasurementPersister measurementPersister;
 };
 
 extern ApiClass Api;

@@ -25,7 +25,7 @@ private:
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
-  Storage *storage = NULL;
+  Storage *storage = new Storage();
   GpsSensor *gpsSensor = NULL;
 };
 

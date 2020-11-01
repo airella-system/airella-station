@@ -1,6 +1,7 @@
 #include "util/StorableBuffer.h"
 
 StorableBuffer::StorableBuffer(String _name) : name(_name) {
+  DeviceContainer.storage->tryToInit();
   FS* storage = DeviceContainer.storage->getStorage();
   if(storage->exists("/sbuffer")) {
     storage->mkdir("/sbuffer");

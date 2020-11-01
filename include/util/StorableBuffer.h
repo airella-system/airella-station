@@ -5,7 +5,7 @@
 #include "util/List.h"
 #include "time/Time.h"
 
-#define BUFFER_MAX_SIZE 20
+#define BUFFER_MAX_SIZE 5
 
 struct BufferItem {
   String date;

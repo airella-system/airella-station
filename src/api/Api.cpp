@@ -1,8 +1,4 @@
 #include "api/Api.h"
-#include <ArduinoJson.h>
-#include "communication/common/Internet.h"
-#include "config/Config.h"
-#include "maintenance/Logger.h"
 
 RegistrationResult* ApiClass::registerStation() {
   RegistrationResult* result = new RegistrationResult();
@@ -375,6 +371,7 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
   doc["value"] = value;
   String body = "";
   serializeJson(doc, body);
+  measurementPersister.save(sensor, body);
 
   Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 

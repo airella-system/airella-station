@@ -1,6 +1,7 @@
 #include "device/Storage.h"
 
-Storage::Storage() {
+void Storage::tryToInit() {
+  if(initialized) return;
   Logger::info("[Storage] Initalizing ...");
 
   if (!SD.begin()) {

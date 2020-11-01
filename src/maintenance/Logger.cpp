@@ -33,7 +33,6 @@ void Logger::debug(const char *message) {
 }
 
 void Logger::log(const char *type, const String& message) {
-  unsigned long timestamp = millis();
   String logMessage = String("[");
   logMessage += type;
   logMessage += ":";

@@ -3,13 +3,14 @@
 // #define STOP_MAIN_LOOP
 
 void Core::setUp() {
+  timeProvider.loadPersistedTime();
   Logger::setUp();
   Logger::info("[Core]: Setting up started");
+  DeviceContainer.storage->tryToInit();
+
   powerSensor = new PowerSensor();
   powerSensor->begin();
   DeviceContainer.powerSensor = powerSensor;
-  storage = new Storage();
-  DeviceContainer.storage = storage;
 
   Logger::info("[Core]: Iniatlized OK");
 
@@ -23,8 +24,6 @@ void Core::setUp() {
     timeProvider.connect();
     timeProvider.update();
     timeProvider.persistTime();
-  } else {
-    timeProvider.loadPersistedTime();
   }
 
   airAndGpsSensorStrategy = new AirAndGpsSensorStrategy();
