@@ -1,4 +1,5 @@
 #include "time/Time.h"
+#include "config/Config.h"
 
 Time::Time() : timeClient(ntpUDP) {
   semaphore = xSemaphoreCreateMutex();
