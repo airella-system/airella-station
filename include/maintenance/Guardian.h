@@ -11,6 +11,7 @@ public:
   static void checkWiFiConnection();
   static bool reconectWiFi();
   static void statistics();
+  static void check();
 private:
   static unsigned long lastStatisticTimestamp;
 };

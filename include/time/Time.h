@@ -78,6 +78,7 @@ public:
   DateTime_t getDataTime();
   unsigned long lastTimeOfPersist = 0;
   void persistTime();
+  void loadPersistedTime();
   bool shouldBePersist();
 
 private:

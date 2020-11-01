@@ -39,7 +39,7 @@ void Time::connect() {
 
 void Time::update() {
   lock();
-  //todo: get from flash if unable to update
+  timeClient.setTimeOffset(0);
   timeClient.update();
   lastRefreshTimestamp = millis();
   unlock();
@@ -89,9 +89,12 @@ tm* Time::getTimeInfo() {
 }
 
 void Time::persistTime() {
-  //todo
-  Config::setPersistedTime(getDataTime().toString());
+  Config::setPersistedTime(timeClient.getEpochTime());
   lastTimeOfPersist = millis();
+}
+
+void Time::loadPersistedTime() {
+  timeClient.setTimeOffset(Config::getPersistedTime());
 }
 
 bool Time::shouldBePersist() {

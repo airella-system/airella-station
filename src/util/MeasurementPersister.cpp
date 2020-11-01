@@ -8,6 +8,8 @@ MeasurementPersister::MeasurementPersister() {
 };
 
 void MeasurementPersister::save(String& data) {
-  String fileName = "/measurements" + timeProvider.getDate().toString();
-  if()
+  DeviceContainer.storage->append(
+    data.c_str(), 
+    ("/measurements" + timeProvider.getDate().toString()).c_str()
+  );
 }

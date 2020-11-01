@@ -9,7 +9,13 @@ bool Guardian::isDeviceOk() {
 
 void Guardian::checkWiFiConnection() {
   if(WiFi.status() != WL_CONNECTED) {
-    reconectWiFi();
+    if(reconectWiFi()) {
+      if(!timeProvider.isInitialized()) {
+        timeProvider.connect();
+      }
+      timeProvider.update();
+      timeProvider.persistTime();
+    }
   }
 }
 
@@ -42,4 +48,8 @@ void Guardian::statistics() {
 
       lastStatisticTimestamp = millis();
     }
+}
+
+void Guardian::check() {
+  
 }

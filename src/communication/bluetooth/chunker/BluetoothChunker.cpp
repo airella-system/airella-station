@@ -78,13 +78,18 @@ std::string BluetoothChunker::startSending() {
 
   callback->beforeSend();
 
-  if(std::log2(value.length()) > BT_CHUNKER_HEADER_SIZE * 8) {
-    Logger::error("[BluetoothChunker::startSending()] To loong message");
-    return "";
-  }
+  // if(std::log2(value.length()) > BT_CHUNKER_HEADER_SIZE * 8) {
+  //   Logger::error("[BluetoothChunker::startSending()] To loong message");
+  //   return "";
+  // }
   activeSending = true;
   toSendChunkCount = (value.length() + BT_CHUNKER_HEADER_SIZE) / BT_MTU;
   toSendChunkCount += (value.length() + BT_CHUNKER_HEADER_SIZE) % BT_MTU == 0 ? 0 : 1;
+  //todo: check it again
+  if (toSendChunkCount > std::pow(2, BT_CHUNKER_HEADER_SIZE * 8)) {
+    Logger::error("[BluetoothChunker::startSending()] To loong message");
+    return "";
+  }
 
   std::string firstChunk = "";
   

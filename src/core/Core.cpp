@@ -23,6 +23,8 @@ void Core::setUp() {
     timeProvider.connect();
     timeProvider.update();
     timeProvider.persistTime();
+  } else {
+    timeProvider.loadPersistedTime();
   }
 
   airAndGpsSensorStrategy = new AirAndGpsSensorStrategy();
@@ -56,6 +58,7 @@ void Core::main() {
   
   while(isWorking) {
     Guardian::statistics();
+    Guardian::check();
 
     sendMeasurements();
 
