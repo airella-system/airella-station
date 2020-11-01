@@ -63,20 +63,15 @@ void Core::main() {
     Guardian::statistics();
     Guardian::check();
 
-    if (error) {
-      if (abs(millis() - lastErrorMillis) > 60000) {
-        error = false;
-      }
-    }
-
-    bool notErrorInIteration = sendMeasurements();
+    bool notSensorErrorInIteration = sendMeasurements();
+    bool notGPSErrorInIteration = false;
 
     if (abs(millis() - lastGpsUpdateMillis) > 60000) {
       Logger::info("[Core]: Start switch to GPS");
       airAndGpsSensorStrategy->switchToGpsSensor();
 
       if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
-        notErrorInIteration &= Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
+        notGPSErrorInIteration = Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
                                                    airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
       }
       airAndGpsSensorStrategy->switchToAirSensor();
@@ -89,9 +84,12 @@ void Core::main() {
       timeProvider.persistTime();
     }
 
-    if (!notErrorInIteration) {
+    if (!notSensorErrorInIteration || !notGPSErrorInIteration) {
       lastErrorMillis = millis();
       error = true;
+    } 
+    else {
+      error = false;
     }
     
     delay(1000);
