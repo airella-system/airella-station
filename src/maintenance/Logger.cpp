@@ -1,22 +1,24 @@
 #include "maintenance/Logger.h"
+#include "device/DeviceContainer.h"
 
 HardwareSerial Logger::serial = HardwareSerial(0);
+DataPersister Logger::logPersister = DataPersister();
 
 void Logger::setUp() {
   serial.begin(115200, SERIAL_8N1, 3, 1, false, 1000);
 }
 
 void Logger::log(const char *type, const char *message) {
-  // TODO: [in future] add persistence to SD cart storage, and add
-  // synchronization time with NTP server
-  unsigned long timestamp = millis();
   String logMessage = String("[");
   logMessage += type;
   logMessage += ":";
-  logMessage += timestamp;
+  logMessage += timeProvider.getDataTime().toString();
   logMessage += "]: ";
   logMessage += message;
   serial.println(logMessage);
+  #ifdef PERSIST_LOGS
+  logPersister.saveLog(logMessage);
+  #endif
 }
 
 void Logger::info(const char *message) {
@@ -35,14 +37,11 @@ void Logger::debug(const char *message) {
   Logger::log("DEBUG", message);
 }
 
-void Logger::log(const char *type, const String &message) {
-  // TODO: [in future] add persistence to SD cart storage, and add
-  // synchronization time with NTP server
-  unsigned long timestamp = millis();
+void Logger::log(const char *type, const String& message) {
   String logMessage = String("[");
   logMessage += type;
   logMessage += ":";
-  logMessage += timestamp;
+  logMessage += timeProvider.getDataTime().toString();
   logMessage += "]: ";
   logMessage += message;
   serial.println(logMessage);

@@ -1,4 +1,5 @@
 #include "time/Time.h"
+#include "config/Config.h"
 
 Time::Time() : timeClient(ntpUDP) {
   semaphore = xSemaphoreCreateMutex();
@@ -39,6 +40,7 @@ void Time::connect() {
 
 void Time::update() {
   lock();
+  timeClient.setTimeOffset(0);
   timeClient.update();
   lastRefreshTimestamp = millis();
   unlock();
@@ -69,6 +71,19 @@ DateTime_t Time::getDataTime() {
 tm* Time::getTimeInfo() {
   time_t totalSecunds = timeClient.getEpochTime();
   return localtime(&totalSecunds);
+}
+
+void Time::persistTime() {
+  Config::setPersistedTime(timeClient.getEpochTime());
+  lastTimeOfPersist = millis();
+}
+
+void Time::loadPersistedTime() {
+  timeClient.setTimeOffset(Config::getPersistedTime());
+}
+
+bool Time::shouldBePersist() {
+  return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 30;
 }
 
 Time timeProvider;

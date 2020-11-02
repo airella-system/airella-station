@@ -6,8 +6,9 @@
 #include "device/Heater.h"
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
+#include "util/StorableBuffer.h"
+#include "util/DataPersister.h"
 #include "device/WeatherSensor.h"
-#include "maintenance/Logger.h"
 
 class Heater;
 
@@ -16,13 +17,15 @@ class DeviceContainerClass {
   friend class Core;
   friend class Guardian;
   friend class StatisticsClass;
-
- private:
+  friend class StorableBuffer;
+  friend class DataPersister;
+  
+private:
   AirSensor *airSensor = NULL;
   WeatherSensor *weatherSensor = NULL;
   PowerSensor *powerSensor = NULL;
   Heater *heater = NULL;
-  Storage *storage = NULL;
+  Storage *storage = new Storage();
   GpsSensor *gpsSensor = NULL;
 };
 

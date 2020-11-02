@@ -48,8 +48,14 @@ String Guardian::getDeviceState() {
 }
 
 void Guardian::checkWiFiConnection() {
-  if (WiFi.status() != WL_CONNECTED) {
-    reconectWiFi();
+  if(WiFi.status() != WL_CONNECTED) {
+    if(reconectWiFi()) {
+      if(!timeProvider.isInitialized()) {
+        timeProvider.connect();
+      }
+      timeProvider.update();
+      timeProvider.persistTime();
+    }
   }
 }
 
@@ -82,4 +88,8 @@ void Guardian::statistics() {
 
     lastStatisticTimestamp = millis();
   }
+}
+
+void Guardian::check() {
+  
 }

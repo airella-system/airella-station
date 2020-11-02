@@ -22,15 +22,20 @@
 #include "maintenance/Guardian.h"
 #include "maintenance/Logger.h"
 #include "maintenance/Statistics.h"
-#include "time/Time.h"
+#include "maintenance/Guardian.h"
+#include "device/DeviceContainer.h"
+#include "config/HardwareConfig.h"
+#include "util/StorableBuffer.h"
 
 class Core {
- public:
-  Core();
+public:
+  Core() : storableBuffer("m") {};
+  ~Core() {};
   void setUp();
   void main();
   bool isError();
   void reset();
+  bool sendMeasurements();
 
  private:
   WeatherSensor *weatherSensor = NULL;
@@ -46,6 +51,8 @@ class Core {
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
+  StorableBuffer storableBuffer;
+  void tryPublishMeasurement();
 };
 
 extern Core core;

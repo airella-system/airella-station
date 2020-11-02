@@ -1,6 +1,11 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include "util/DataPersister.h"
+#include "communication/common/Internet.h"
+#include "config/Config.h"
+#include "maintenance/Logger.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "maintenance/Statistics.h"
 
@@ -20,7 +25,8 @@ class ApiClass {
   bool isRegistered();
   bool isAuth();
   bool publishMeasurement(String sensor, double value, bool authCheck = true);
-  bool publishName(const char* name, bool authCheck = true);
+  bool publishHistoricalMeasurement(String* sensor, String* data, String* date);
+  bool publishName(const char *name, bool authCheck = true);
   bool publishLocation(double longitude, double latitude, bool authCheck = true);
   bool publishAddress(const char* country, const char* city, const char* street, const char* number,
                       bool authCheck = true);
@@ -46,6 +52,7 @@ class ApiClass {
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;
+  DataPersister measurementPersister;
 };
 
 extern ApiClass Api;

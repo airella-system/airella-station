@@ -9,12 +9,13 @@
 #include "maintenance/Logger.h"
 
 class Guardian {
- public:
+public:
   static String getDeviceState();
   static void checkWiFiConnection();
   static bool reconectWiFi();
   static void statistics();
+  static void check();
 
- private:
+private:
   static unsigned long lastStatisticTimestamp;
 };

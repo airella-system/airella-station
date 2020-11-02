@@ -1,10 +1,11 @@
 #include "device/Storage.h"
 
-Storage::Storage() {
+void Storage::tryToInit() {
+  if(initialized) return;
   Logger::info("[Storage] Initalizing ...");
 
   if (!SD.begin()) {
-    Serial.println("Card Mount Failed");
+    Logger::debug("Card Mount Failed");
     Logger::warning("[Storage] SD mount failed");
     return;
   }
@@ -26,7 +27,7 @@ FS *Storage::getStorage() {
   return &SD;
 }
 
-bool Storage::write(const char *message, const char *path, const char *mode, bool logging = true) const {
+bool Storage::write(const char *message, const char *path, const char *mode, bool logging /* = true */) const {
   File file = SD.open(path, mode);
   if (!file) {
     if (logging) Logger::warning("[Storage] unable to open file for writing");
@@ -40,15 +41,15 @@ bool Storage::write(const char *message, const char *path, const char *mode, boo
   return true;
 };
 
-bool Storage::write(const char *message, const char *path, bool logging = true) const {
+bool Storage::write(const char *message, const char *path, bool logging /* = true */) const {
   return write(message, path, FILE_WRITE, logging);
 }
 
-bool Storage::append(const char *message, const char *path, bool logging = true) const {
+bool Storage::append(const char *message, const char *path, bool logging /* = true */) const {
   return write(message, path, FILE_APPEND, logging);
 }
 
-String Storage::read(const char *message, const char *path, bool logging = true) const {
+String Storage::read(const char *path, bool logging /* = true */) const {
   File file = SD.open(path);
   if (!file) {
     if (logging) Logger::warning("[Storage] unable to open file");
@@ -58,5 +59,5 @@ String Storage::read(const char *message, const char *path, bool logging = true)
 }
 
 bool Storage::remove(const char *path) const {
-  SD.remove(path);
+  return SD.remove(path);
 };
