@@ -7,7 +7,7 @@
 #include "device/PowerSensor.h"
 #include "device/Storage.h"
 #include "util/StorableBuffer.h"
-#include "util/MeasurementPersister.h"
+#include "util/DataPersister.h"
 #include "device/WeatherSensor.h"
 
 class Heater;
@@ -18,7 +18,7 @@ class DeviceContainerClass {
   friend class Guardian;
   friend class StatisticsClass;
   friend class StorableBuffer;
-  friend class MeasurementPersister;
+  friend class DataPersister;
   
 private:
   AirSensor *airSensor = NULL;

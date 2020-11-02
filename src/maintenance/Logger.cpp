@@ -1,6 +1,8 @@
 #include "maintenance/Logger.h"
+#include "device/DeviceContainer.h"
 
 HardwareSerial Logger::serial = HardwareSerial(0);
+DataPersister Logger::logPersister = DataPersister();
 
 void Logger::setUp() {
   serial.begin(115200, SERIAL_8N1, 3, 1, false, 1000);
@@ -14,6 +16,9 @@ void Logger::log(const char *type, const char *message) {
   logMessage += "]: ";
   logMessage += message;
   serial.println(logMessage);
+  #ifdef PERSIST_LOGS
+  logPersister.saveLog(logMessage);
+  #endif
 }
 
 void Logger::info(const char *message) {

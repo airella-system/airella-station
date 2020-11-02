@@ -4,10 +4,13 @@
 #include "time/Time.h"
 #include "config/Defines.h"
 
+class DataPersister;
+
 class Logger {
  private:
   static void log(const char *type, const char *message);
   static void log(const char *type, const String &message);
+  static DataPersister logPersister;
 
  public:
   static HardwareSerial serial;

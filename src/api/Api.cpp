@@ -371,7 +371,7 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
   doc["value"] = value;
   String body = "";
   serializeJson(doc, body);
-  measurementPersister.save(sensor, body);
+  measurementPersister.saveMeasurement(sensor, body);
 
   Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 

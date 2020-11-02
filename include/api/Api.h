@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include "util/MeasurementPersister.h"
+#include "util/DataPersister.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
@@ -52,7 +52,7 @@ class ApiClass {
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;
-  MeasurementPersister measurementPersister;
+  DataPersister measurementPersister;
 };
 
 extern ApiClass Api;
