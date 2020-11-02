@@ -56,7 +56,6 @@ void Config::load(bool lock /* = true */) {
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
   Config::persistedTime = Config::preferences.getULong("persistedTime", 1604218415);
-  // Config::gsmExtenderUrl = Config::preferences.getString("gsm-ext-url", "https://airella-gsm-http-extender-prox.herokuapp.com/");
   Config::gsmExtenderUrl = Config::preferences.getString("gsm-ext-url", "https://gsm-extender.airella.cyfrogen.com/");
   Config::gsmConfig = Config::preferences.getString("gsm-config", "");
   Config::preferences.end();
