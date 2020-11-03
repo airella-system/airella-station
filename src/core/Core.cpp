@@ -7,6 +7,8 @@ Core::Core() {}
 void Core::setUp() {
   Logger::setUp();
   Logger::info("[Core]: Setting up started");
+  xTaskQueue = xQueueCreate(1, sizeof(Task<void*, double, String>));
+
   powerSensor = new PowerSensor();
   powerSensor->begin();
   // storage = new Storage();
@@ -17,7 +19,7 @@ void Core::setUp() {
   Config::load();
   Logger::info("[Core]: Loaded preferences.");
 
-  Bluetooth::start(new BluetoothRefreshHandler());
+  Bluetooth::start(new BluetoothRefreshHandler(), this->xTaskQueue);
   Internet::resetType(Config::getInternetConnectionType() == Config::WIFI ? Internet::WIFI : Internet::GSM);
 
   if (WiFi.status() == WL_CONNECTED) {
@@ -38,12 +40,21 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up ended");
 }
 
+void Core::doCoreTasks() {
+  Task<void*, double, String> task;
+  while (xQueueReceive(xTaskQueue, &task, 0) == pdTRUE) {
+    task.setStub(true);
+    task.run(nullptr);
+  }
+}
+
 void Core::main() {
   isWorking = true;
   if (!Api.isRegistered()) {
     Logger::info("[Core]: Wait for registrations.");
     while (!Api.isRegistered()) {
-      delay(10000);
+      doCoreTasks();
+      delay(100);
     }
   } else {
     Statistics.reportBootUp();
@@ -60,6 +71,7 @@ void Core::main() {
 #endif
 
   while (isWorking) {
+    doCoreTasks();
     bool notErrorInIteration = true;
     Guardian::statistics();
 
@@ -104,7 +116,7 @@ void Core::main() {
       lastErrorMillis = millis();
       error = true;
     }
-    delay(1000);
+    delay(100);
   }
 }
 

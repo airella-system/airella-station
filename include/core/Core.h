@@ -23,6 +23,7 @@
 #include "maintenance/Logger.h"
 #include "maintenance/Statistics.h"
 #include "time/Time.h"
+#include "Task.h"
 
 class Core {
  public:
@@ -31,6 +32,7 @@ class Core {
   void main();
   bool isError();
   void reset();
+  void doCoreTasks();
 
  private:
   WeatherSensor *weatherSensor = NULL;
@@ -46,6 +48,7 @@ class Core {
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
+  QueueHandle_t xTaskQueue = NULL;
 };
 
 extern Core core;

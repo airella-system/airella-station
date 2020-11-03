@@ -1,17 +1,23 @@
 #include "communication/bluetooth/BluetoothRefreshHandler.h"
 #include "communication/bluetooth/Bluetooth.h"
+#include "core/Task.h"
 
 void BluetoothRefreshHandler::deviceRefreshRequest(String& actionName) {
   Logger::info(
       (String("[BluetoothRefreshHandler]: Receive config update request, action (") + actionName + ")").c_str());
   if (actionName.equals("wifi")) {
     Bluetooth::setLastOperationStatus("wifi|setting_up");
-    int response = Internet::resetType(Internet::WIFI);
-    if (response == 0) {
-      Bluetooth::setLastOperationStatus("wifi|ok");
-    } else {
-      Bluetooth::setLastOperationStatus("wifi|error");
-    }
+    Task<void*, double, String>::startBlocking(
+        Bluetooth::getCoreTaskQueueHandle(),
+        [](Task<void*, double, String>* task, void* data) { return String(Internet::resetType(Internet::WIFI)); },
+        [](double progress) {},
+        [](String result) {
+          if (result.equals("0")) {
+            Bluetooth::setLastOperationStatus("wifi|ok");
+          } else {
+            Bluetooth::setLastOperationStatus("wifi|error");
+          }
+        });
   } else if (actionName.equals("gsm")) {
     Bluetooth::setLastOperationStatus("gsm|setting_up");
     int response = Internet::resetType(Internet::GSM);

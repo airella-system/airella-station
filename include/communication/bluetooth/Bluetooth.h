@@ -69,7 +69,7 @@
 
 class Bluetooth {
  public:
-  static void start(BluetoothHandler *bluetoothHandler);
+  static void start(BluetoothHandler *bluetoothHandler, QueueHandle_t xCoreTaskQueue);
   static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
   static String getLastOperationStatus();
@@ -78,6 +78,7 @@ class Bluetooth {
   static void removeBondDevices();
   static BLEServer *getBleServer();
   static void setDiscoverability(bool discoverability);
+  static QueueHandle_t getCoreTaskQueueHandle();
 
   static const uint32_t W_PROPERTY;
   static const uint32_t R_PROPERTY;
@@ -111,4 +112,5 @@ class Bluetooth {
   static BluetoothChunker *deviceStateCharacteristic;
 
   static String lastOperatioinState;
+  static QueueHandle_t xCoreTaskQueue;
 };
