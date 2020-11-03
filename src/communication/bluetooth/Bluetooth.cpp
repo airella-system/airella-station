@@ -36,7 +36,7 @@ BluetoothChunker *Bluetooth::registrationStateCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::inetConnStateCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::deviceStateCharacteristic = nullptr;
 
-QueueHandle_t Bluetooth::xCoreTaskQueue = NULL;
+TaskHandler<void*, double, String> *Bluetooth::taskHandler = nullptr;
 String Bluetooth::lastOperatioinState = String();
 
 class CustomBLESecurity : public NimBLESecurityCallbacks {
@@ -100,9 +100,9 @@ void Bluetooth::reloadValues() {
   locationManualCharacteristic->setValue(Config::getLocationManual() ? "1" : "0");
 }
 
-void Bluetooth::start(BluetoothHandler *bluetoothHandler, QueueHandle_t xCoreTaskQueue) {
+void Bluetooth::start(BluetoothHandler *bluetoothHandler, TaskHandler<void*, double, String>* taskHandler) {
   Bluetooth::bluetoothHandler = bluetoothHandler;
-  Bluetooth::xCoreTaskQueue = xCoreTaskQueue;
+  Bluetooth::taskHandler = taskHandler;
   BLEDevice::init("Airella Station");
   BLEDevice::setSecurityAuth(true, true, true);
   BLEDevice::setSecurityCallbacks(new CustomBLESecurity());
@@ -204,6 +204,6 @@ String Bluetooth::getMAC() {
   return String(mac.c_str());
 }
 
-QueueHandle_t Bluetooth::getCoreTaskQueueHandle() {
-  return xCoreTaskQueue;
+TaskHandler<void*, double, String>* Bluetooth::getTaskHandler() {
+  return taskHandler;
 }

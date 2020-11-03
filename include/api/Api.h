@@ -16,7 +16,7 @@ class ApiClass {
   ApiClass(){};
   ~ApiClass(){};
 
-  RegistrationResult* registerStation();
+  RegistrationResult registerStation();
   bool isRegistered();
   bool isAuth();
   bool publishMeasurement(String sensor, double value, bool authCheck = true);

@@ -24,6 +24,7 @@
 #include "maintenance/Statistics.h"
 #include "time/Time.h"
 #include "Task.h"
+#include "TaskHandler.h"
 
 class Core {
  public:
@@ -48,7 +49,7 @@ class Core {
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
-  QueueHandle_t xTaskQueue = NULL;
+  TaskHandler<void*, double, String>* taskHandler;
 };
 
 extern Core core;

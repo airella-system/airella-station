@@ -7,8 +7,7 @@ Core::Core() {}
 void Core::setUp() {
   Logger::setUp();
   Logger::info("[Core]: Setting up started");
-  xTaskQueue = xQueueCreate(1, sizeof(Task<void*, double, String>));
-
+  taskHandler = new TaskHandler<void*, double, String>(1);
   powerSensor = new PowerSensor();
   powerSensor->begin();
   // storage = new Storage();
@@ -19,7 +18,7 @@ void Core::setUp() {
   Config::load();
   Logger::info("[Core]: Loaded preferences.");
 
-  Bluetooth::start(new BluetoothRefreshHandler(), this->xTaskQueue);
+  Bluetooth::start(new BluetoothRefreshHandler(), this->taskHandler);
   Internet::resetType(Config::getInternetConnectionType() == Config::WIFI ? Internet::WIFI : Internet::GSM);
 
   if (WiFi.status() == WL_CONNECTED) {
@@ -41,11 +40,7 @@ void Core::setUp() {
 }
 
 void Core::doCoreTasks() {
-  Task<void*, double, String> task;
-  while (xQueueReceive(xTaskQueue, &task, 0) == pdTRUE) {
-    task.setStub(true);
-    task.run(nullptr);
-  }
+  taskHandler->runPendingTasks(nullptr);
 }
 
 void Core::main() {
