@@ -25,15 +25,21 @@
 #include "time/Time.h"
 #include "Task.h"
 #include "TaskHandler.h"
+#include "maintenance/Guardian.h"
+#include "device/DeviceContainer.h"
+#include "config/HardwareConfig.h"
+#include "util/StorableBuffer.h"
 
 class Core {
- public:
-  Core();
+public:
+  Core() : storableBuffer("m") {};
+  ~Core() {};
   void setUp();
   void main();
   bool isError();
   void reset();
   void doCoreTasks();
+  bool sendMeasurements();
 
  private:
   WeatherSensor *weatherSensor = NULL;
@@ -50,6 +56,8 @@ class Core {
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
   TaskHandler<void*, double, String>* taskHandler;
+  StorableBuffer storableBuffer;
+  void tryPublishMeasurement();
 };
 
 extern Core core;

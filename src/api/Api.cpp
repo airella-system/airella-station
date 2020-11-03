@@ -1,8 +1,4 @@
 #include "api/Api.h"
-#include <ArduinoJson.h>
-#include "communication/common/Internet.h"
-#include "config/Config.h"
-#include "maintenance/Logger.h"
 
 RegistrationResult ApiClass::registerStation() {
   RegistrationResult result;
@@ -370,11 +366,32 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
   String apiUrlBase = Config::getApiUrl();
   String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
 
-  const size_t capacity = JSON_OBJECT_SIZE(1);
+  const size_t capacity = JSON_OBJECT_SIZE(2);
   DynamicJsonDocument doc(capacity);
   doc["value"] = value;
   String body = "";
   serializeJson(doc, body);
+  measurementPersister.saveMeasurement(sensor, body);
+
+  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
+
+  String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;
+  Logger::debug(debugText.c_str());
+
+  return response.code == 200;
+}
+
+bool ApiClass::publishHistoricalMeasurement(String* sensor, String* data, String* date) {
+  if (!isAuth()) {
+    Logger::debug("[ApiClass::publishMeasurement()] Authorization failed");
+    return false;
+  }
+
+  String apiUrlBase = Config::getApiUrl();
+  String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + *sensor + "/measurements";
+
+  String body = (*data).substring(0, (*data).length() - 2);
+  body += ",\"date\":" + (*date) + "}";
 
   Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 

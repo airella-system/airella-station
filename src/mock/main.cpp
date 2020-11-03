@@ -12,10 +12,16 @@ bool refreshRequested = false;
 unsigned long lastPublishMillis = 0;
 
 void setup() {
+  timeProvider.loadPersistedTime();
   Logger::setUp();
   Config::load();
   Bluetooth::start(new BluetoothRefreshHandler());
   Internet::resetType(Internet::WIFI);
+  if (WiFi.status() == WL_CONNECTED) {
+    timeProvider.connect();
+    timeProvider.update();
+    timeProvider.persistTime();
+  }
 }
 
 void loop() {

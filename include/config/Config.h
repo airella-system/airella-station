@@ -53,6 +53,7 @@ class Config {
   static RegistrationState getRegistrationState(bool lock = true);
   static String getAccessToken(bool lock = true);
   static String getGsmExtenderUrl(bool lock = true);
+  static unsigned long getPersistedTime(bool lock = true);
   static String getGsmConfig(bool lock = true);
 
   static void setInternetConnectionType(InternetConnectionType internetConnectionType, bool lock = true);
@@ -73,6 +74,7 @@ class Config {
   static void setRegistrationState(RegistrationState registrationState, bool lock = true);
   static void setAccessToken(String accessToken, bool lock = true);
   static void setGsmExtenderUrl(String gsmExtenderUrl, bool lock = true);
+  static void setPersistedTime(unsigned long persistedTime, bool lock = true);
   static void setGsmConfig(String gsmConfig, bool lock = true);
 
   static Preferences preferences;
@@ -103,5 +105,6 @@ class Config {
   static String accessToken;
   static RegistrationState registrationState;
   static String gsmExtenderUrl;
+  static unsigned long persistedTime;
   static String gsmConfig;
 };

@@ -21,7 +21,7 @@ struct Date_t {
     String monthStr = month < 10 ? String("0") + month : String(month);
     String dayStr = day < 10 ? String("0") + day : String(day);
 
-    return String(year) + "/" + monthStr + "/" + dayStr;
+    return String(year) + "-" + monthStr + "-" + dayStr;
   }
 };
 
@@ -50,7 +50,13 @@ struct DateTime_t {
   DateTime_t(){};
   DateTime_t(Date_t &_date, Time_t &_time) : date(_date), time(_time){};
 
-  String toString() { return date.toString() + " " + time.toString(); }
+  String toString() {
+    return date.toString() + " " + time.toString();
+  }
+
+  String toISOString() {
+    return date.toString() + time.toString() + "Z";
+  }
 };
 
 class Time {
@@ -64,6 +70,10 @@ class Time {
   Date_t getDate();
   Time_t getTime();
   DateTime_t getDataTime();
+  unsigned long lastTimeOfPersist = 0;
+  void persistTime();
+  void loadPersistedTime();
+  bool shouldBePersist();
 
  private:
   WiFiUDP ntpUDP;
