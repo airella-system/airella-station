@@ -1,11 +1,11 @@
 #include "api/Api.h"
 
-RegistrationResult* ApiClass::registerStation() {
-  RegistrationResult* result = new RegistrationResult();
-  result->ok = true;
+RegistrationResult ApiClass::registerStation() {
+  RegistrationResult result;
+  result.ok = true;
   if (isRegistered()) {
     Logger::debug("[ApiClass::registerStation()] Station already registered");
-    result->message = "Station already registered";
+    result.message = "Station already registered";
     return result;
   }
 
@@ -14,65 +14,65 @@ RegistrationResult* ApiClass::registerStation() {
   if (Config::getRegistratonToken().equals("")) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     Logger::debug("[ApiClass::registerStation()] Registration fail - no registration token");
-    result->message = "No registration token";
+    result.message = "No registration token";
     return result;
   }
 
   if (!Internet::isConnected()) {
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     Logger::debug("[ApiClass::registerStation()] Registration fail - no internet connection");
-    result->message = "No internet connection";
+    result.message = "No internet connection";
     return result;
   }
 
   Config::RegistrationState currentRegistrationState = Config::getRegistrationState();
 
   if (currentRegistrationState < Config::RegistrationState::REGISTERED) {
-    if (!doRegister(result)) return result;
+    if (!doRegister(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::STATION_NAME) {
-    if (!doStationName(result)) return result;
+    if (!doStationName(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::STATION_ADDRESS) {
-    if (!doStationAddress(result)) return result;
+    if (!doStationAddress(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::STATION_LOCATION) {
-    if (!doStationLocation(result)) return result;
+    if (!doStationLocation(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::TEMP_SENSOR) {
-    if (!doTempSensor(result)) return result;
+    if (!doTempSensor(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::HUMIDITY_SENSOR) {
-    if (!doHumiditySensor(result)) return result;
+    if (!doHumiditySensor(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::PREASSURE_SENSOR) {
-    if (!doPreasurreSensor(result)) return result;
+    if (!doPreasurreSensor(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::PM1_SENSOR) {
-    if (!doPM1Sensor(result)) return result;
+    if (!doPM1Sensor(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::PM2_5_SENSOR) {
-    if (!doPM2_5Sensor(result)) return result;
+    if (!doPM2_5Sensor(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::PM10_SENSOR) {
-    if (!doPM10Sensor(result)) return result;
+    if (!doPM10Sensor(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::STATISTICS) {
-    if (!addStatistics(result)) return result;
+    if (!addStatistics(&result)) return result;
   }
 
   if (currentRegistrationState < Config::RegistrationState::MAC_VALUE) {
-    if (!doBtMacValue(result)) return result;
+    if (!doBtMacValue(&result)) return result;
   }
 
   Logger::info("[ApiClass::registerStation()] Registered successfull");
