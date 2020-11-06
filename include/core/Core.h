@@ -22,6 +22,9 @@
 #include "maintenance/Guardian.h"
 #include "maintenance/Logger.h"
 #include "maintenance/Statistics.h"
+#include "time/Time.h"
+#include "Task.h"
+#include "TaskHandler.h"
 #include "maintenance/Guardian.h"
 #include "device/DeviceContainer.h"
 #include "config/HardwareConfig.h"
@@ -35,6 +38,7 @@ public:
   void main();
   bool isError();
   void reset();
+  void doCoreTasks();
   bool sendMeasurements();
 
  private:
@@ -51,6 +55,7 @@ public:
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
+  TaskHandler<void*, double, String>* taskHandler;
   StorableBuffer storableBuffer;
   void tryPublishMeasurement();
 };

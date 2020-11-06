@@ -10,6 +10,7 @@
 
 #include "BluetoothHandler.h"
 #include "communication/common/Internet.h"
+#include "core/TaskHandler.h"
 
 #define SERVICE_UUID "f1eb6601-af50-4cf3-9f6e-4e1c6fb8e88c"
 
@@ -69,7 +70,7 @@
 
 class Bluetooth {
  public:
-  static void start(BluetoothHandler *bluetoothHandler);
+  static void start(BluetoothHandler *bluetoothHandler, TaskHandler<void*, double, String>* taskHandler);
   static void reloadValues();
   static BluetoothHandler *bluetoothHandler;
   static String getLastOperationStatus();
@@ -78,6 +79,7 @@ class Bluetooth {
   static void removeBondDevices();
   static BLEServer *getBleServer();
   static void setDiscoverability(bool discoverability);
+  static TaskHandler<void*, double, String>* getTaskHandler();
 
   static const uint32_t W_PROPERTY;
   static const uint32_t R_PROPERTY;
@@ -111,4 +113,5 @@ class Bluetooth {
   static BluetoothChunker *deviceStateCharacteristic;
 
   static String lastOperatioinState;
+  static TaskHandler<void*, double, String>* taskHandler;
 };
