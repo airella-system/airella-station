@@ -7,4 +7,10 @@ public:
   Autocofiguration() {}
   ~Autocofiguration() {}
   void tryConfig();
+private:
+  bool isConfigured();
+  bool configFileExists();
+  bool configFileIsCorect();
+  void parseConfigFile(/*pointer here*/);
+  void setConfig();
 };
