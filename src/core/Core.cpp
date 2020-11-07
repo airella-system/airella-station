@@ -14,8 +14,9 @@ void Core::setUp() {
   DeviceContainer.powerSensor = powerSensor;
 
   Logger::info("[Core]: Iniatlized OK");
-
   Config::load();
+  Autocofiguration autocofiguration;
+  autocofiguration.tryConfig();
   Logger::info("[Core]: Loaded preferences.");
 
   Bluetooth::start(new BluetoothRefreshHandler(), this->taskHandler);
