@@ -10,12 +10,13 @@
 
 bool refreshRequested = false;
 unsigned long lastPublishMillis = 0;
+TaskHandler<void*, double, String>* taskHandler = new TaskHandler<void*, double, String>(1);
 
 void setup() {
   timeProvider.loadPersistedTime();
   Logger::setUp();
   Config::load();
-  Bluetooth::start(new BluetoothRefreshHandler());
+  Bluetooth::start(new BluetoothRefreshHandler(), taskHandler);
   Internet::resetType(Internet::WIFI);
   if (WiFi.status() == WL_CONNECTED) {
     timeProvider.connect();
@@ -25,6 +26,7 @@ void setup() {
 }
 
 void loop() {
+  taskHandler->runPendingTasks(nullptr);
   if ((millis() - lastPublishMillis) > 10000) {
     Logger::debug("Publishing data");
     double temperature = random(15 * 100, 25 * 100) / 100.0;
