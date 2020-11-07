@@ -1,6 +1,9 @@
 #pragma once
 
+#include "config/Config.h"
 #include "maintenance/Logger.h"
+#include "device/DeviceContainer.h"
+#include <ArduinoJson.h>
 
 class Autocofiguration {
 public:
@@ -8,9 +11,10 @@ public:
   ~Autocofiguration() {}
   void tryConfig();
 private:
+  const char* configFileName = "/airella.conf";
   bool isConfigured();
   bool configFileExists();
-  bool configFileIsCorect();
-  void parseConfigFile(/*pointer here*/);
-  void setConfig();
+  bool parseConfigFile(DynamicJsonDocument* configDoc);
+  bool configFileIsCorect(DynamicJsonDocument* configDoc);
+  void setConfig(DynamicJsonDocument* configDoc);
 };
