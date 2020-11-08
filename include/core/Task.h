@@ -27,7 +27,9 @@ class TaskState {
 template <class Argument, class Progress, class Result>
 class Task {
  public:
-  Task() {}
+  Task() {
+    stub = true;
+  }
 
   Task(Result (*taskBody)(TaskRequestorHandle<Argument, Progress, Result>, Argument)) {
     notifySemaphore = xSemaphoreCreateMutex();

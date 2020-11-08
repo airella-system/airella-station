@@ -66,7 +66,7 @@ void Core::main() {
 #endif
 
   while (isWorking) {
-    // doCoreTasks();
+    doCoreTasks();
     Guardian::statistics();
     Guardian::check();
 
