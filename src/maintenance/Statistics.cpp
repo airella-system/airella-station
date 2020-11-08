@@ -10,7 +10,9 @@ void StatisticsClass::reportConnectionType() {
 }
 
 void StatisticsClass::reportHeater() {
-  HeaterReport heaterReport = DeviceContainer.heater->getReport();
+  Heater* heater = DeviceContainer.heater;
+  if(!heater->isInit()) return;
+  HeaterReport heaterReport = heater->getReport();
   sendFloatStatistic("heaterTemp", heaterReport.temperature);
   sendFloatStatistic("heaterHum", heaterReport.humidity);
   sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
@@ -29,7 +31,9 @@ void StatisticsClass::reportConnectionState() {
 }
 
 void StatisticsClass::reportPower() {
-  PowerInfo powerInfo = DeviceContainer.powerSensor->getPowerInfo();
+  PowerSensor* powerSensor = DeviceContainer.powerSensor;
+  if(!powerSensor->isInit()) return;
+  PowerInfo powerInfo = powerSensor->getPowerInfo();
   sendFloatStatistic("busVoltage", powerInfo.busVoltage);
   sendFloatStatistic("current", powerInfo.current);
   sendFloatStatistic("loadVoltage", powerInfo.loadVoltage);
@@ -86,8 +90,9 @@ bool StatisticsClass::createStatistic(DynamicJsonDocument statisticDoc) {
   response = Internet::httpPost(getUrl(), body);
   if (response.code != 201) {
     Logger::debug(
-        (String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") + String(response.code))
-            .c_str());
+      (String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") 
+      + String(response.code)).c_str()
+    );
     Logger::debug(response.payload);
     return false;
   }
@@ -113,17 +118,22 @@ bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument
     return false;
   }
 
-  String url =
-      Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/statistics/" + statisticId + "/values";
+  String url = Config::getApiUrl() 
+    + "/stations/" 
+    + Config::getApiStationId() 
+    + "/statistics/" 
+    + statisticId 
+    + "/values";
 
   String body;
   serializeJson(statisticDoc, body);
   Http::Response response = Internet::httpPost(url, body);
 
   if (response.code != 200) {
-    Logger::debug((String("[StatisticsClass::sendStatistic()] Sending statisctic fail - error: ") +
-                   String(response.code) + String(" ") + String(response.payload))
-                      .c_str());
+    Logger::debug(
+      (String("[StatisticsClass::sendStatistic()] Sending statisctic fail - error: ") 
+      + String(response.code) + String(" ") + String(response.payload)).c_str()
+    );
     return false;
   }
   String message = "[StatisticsClass::sendStatistic()] Send statistic '";
@@ -134,21 +144,14 @@ bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument
 }
 
 String StatisticsClass::getUrl() const {
-  return Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/statistics";
+  return Config::getApiUrl() 
+    + "/stations/" 
+    + Config::getApiStationId() 
+    + "/statistics";
 }
 
 bool StatisticsClass::isEmpty() {
   return bufferSize == 0;
-}
-
-void StatisticsClass::push(const char* value) {
-  // if(bufferSize >= MAX_BUFFER_SIZE) return;
-  // todo
-}
-
-const char* StatisticsClass::pop() {
-  // todo
-  return "";
 }
 
 StatisticsClass Statistics;

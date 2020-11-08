@@ -41,8 +41,6 @@ class StatisticsClass {
   const char** buffer;
   unsigned char bufferSize = 0;
   bool isEmpty();
-  void push(const char* value);
-  const char* pop();
 };
 
 extern StatisticsClass Statistics;
