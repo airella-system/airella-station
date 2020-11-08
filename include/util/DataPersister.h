@@ -12,4 +12,5 @@ public:
   void saveLog(String& logMessage);
 private:
   FS* storage;
+  bool initialized = false;
 };

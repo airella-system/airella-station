@@ -2,6 +2,10 @@
 
 StorableBuffer::StorableBuffer(String _name) : name(_name) {
   DeviceContainer.storage->tryToInit();
+  if(!DeviceContainer.storage->isInit()) {
+    Logger::debug("[StorableBuffer::StorableBuffer()] Storage is not initialized");
+    return;
+  }
   FS* storage = DeviceContainer.storage->getStorage();
   if(storage->exists("/sbuffer")) {
     storage->mkdir("/sbuffer");
@@ -23,9 +27,11 @@ StorableBuffer::StorableBuffer(String _name) : name(_name) {
   else {
     lastFileNum = atoi((*lastFileName).c_str());
   }
+  initialized = true;
 }
 
 void StorableBuffer::push(const char* type, const String& data) {
+  if(!initialized) return;
   if(bufferSize < BUFFER_MAX_SIZE) {
     saveToStorege();
     bufferSize = 0;
@@ -94,6 +100,7 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
 }
 
 void StorableBuffer::sync() {
+  if(!initialized) return;
   if(!Internet::isOk()) return;
 
   MultiValueList list;

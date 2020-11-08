@@ -29,6 +29,7 @@
 #include "device/DeviceContainer.h"
 #include "config/HardwareConfig.h"
 #include "util/StorableBuffer.h"
+#include "config/Autocofiguration.h"
 
 class Core {
 public:

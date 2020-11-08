@@ -55,9 +55,18 @@ String Storage::read(const char *path, bool logging /* = true */) const {
     if (logging) Logger::warning("[Storage] unable to open file");
     return String();
   }
-  return file.readString();
+  String fileContent = file.readString();
+  file.close();
+  return fileContent;
 }
 
 bool Storage::remove(const char *path) const {
   return SD.remove(path);
-};
+}
+
+unsigned int Storage::getFileSize(const char *path) const {
+  File file = SD.open(path);
+  unsigned int fileSize = file.size();
+  file.close();
+  return fileSize;
+}

@@ -6,7 +6,7 @@ DataPersister *Logger::logPersister = nullptr;
 
 void Logger::setUp() {
   serial.begin(115200, SERIAL_8N1, 3, 1, false, 1000);
-  Logger::logPersister = new DataPersister();
+  logPersister = new DataPersister();
 }
 
 void Logger::log(const char *type, const char *message) {

@@ -19,6 +19,7 @@ class DeviceContainerClass {
   friend class StatisticsClass;
   friend class StorableBuffer;
   friend class DataPersister;
+  friend class Autocofiguration;
   
 private:
   AirSensor *airSensor = NULL;
