@@ -23,6 +23,7 @@ public:
   bool needSync();
   void sync();
 private:
+  bool initialized = false;
   String name;
   int lastFileNum;
   List storagedFiles;

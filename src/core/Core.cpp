@@ -15,8 +15,8 @@ void Core::setUp() {
 
   Logger::info("[Core]: Iniatlized OK");
   Config::load();
-  //Autocofiguration autocofiguration;
-  //autocofiguration.tryConfig();
+  Autocofiguration autocofiguration;
+  autocofiguration.tryConfig();
   Logger::info("[Core]: Loaded preferences.");
 
   Bluetooth::start(new BluetoothRefreshHandler(), this->taskHandler);
@@ -66,7 +66,7 @@ void Core::main() {
 #endif
 
   while (isWorking) {
-    doCoreTasks();
+    // doCoreTasks();
     Guardian::statistics();
     Guardian::check();
 

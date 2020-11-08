@@ -16,12 +16,12 @@ Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWireP
   analogWrite(config.analogPin, 0);
   heaterStatus.heaterIsOn = false;
   heaterStatus.threadIsRunning = false;
-  setPower(0);
+  currentPower = 0;
+  analogWrite(config.analogPin, 0);
 
   thermometer = DallasTemperature(&communicationBus);
   /*
    * This section is a little strange, but i haven't idea why this does not work with single begin
-   * TODO: debug this and correct
    */
   thermometer.begin();
   delay(2000);
