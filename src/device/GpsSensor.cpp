@@ -5,6 +5,7 @@ GpsSensor::GpsSensor(HardwareSerial* serial) {
   setTextState("GPS|INIT");
   this->serial = serial;
   initialized = true;
+  setTextState("GPS|OK");
   Logger::info("[GpsSensor] GPS is active.");
 }
 

@@ -130,6 +130,10 @@ void Heater::threadFunction(void *pvParameters) {
       lastTimestamp = millis();
 
       float temperature = heater->getTemperature();
+
+      if (temperature < -100) {
+        continue;
+      }
       float humidity = heater->getHumidity();
       float dewPoint = heater->calculateDewPoint(humidity, temperature);
       float temperatureLevel = dewPoint + 5;
@@ -171,7 +175,6 @@ void Heater::threadFunction(void *pvParameters) {
           heaterLastState = heaterIsOn;
         }
       }
-
     } else {
       delay(interval);
     }
