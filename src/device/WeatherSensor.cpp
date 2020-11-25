@@ -19,7 +19,7 @@ WeatherSensor::WeatherSensor() : i2cBus(config.i2cBusNum) {
     setTextState("WEATHER_SENSOR|INIT_ERROR");
     return;
   }
-
+  mux = xSemaphoreCreateMutex();
   initialized = true;
   Logger::info("[WeatherSensor] Initalized is OK.");
   setTextState("WEATHER_SENSOR|OK");
@@ -28,13 +28,30 @@ WeatherSensor::WeatherSensor() : i2cBus(config.i2cBusNum) {
 WeatherSensor::~WeatherSensor() {}
 
 float WeatherSensor::getTemperature() {
-  return bmeDevice.readTemperature();
+  lock();
+  float value = bmeDevice.readTemperature();
+  unlock();
+  return value;
 }
 
 float WeatherSensor::getPressure() {
-  return bmeDevice.readPressure();
+  lock();
+  float value = bmeDevice.readPressure();
+  unlock();
+  return value;
 }
 
 float WeatherSensor::getHumidity() {
-  return bmeDevice.readHumidity();
+  lock();
+  float value = bmeDevice.readHumidity();
+  unlock();
+  return value;
+}
+
+void WeatherSensor::lock() const {
+  xSemaphoreTake(mux, portMAX_DELAY);
+}
+
+void WeatherSensor::unlock() const {
+  xSemaphoreGive(mux);
 }

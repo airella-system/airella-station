@@ -16,4 +16,7 @@ class WeatherSensor : public Sensor {
   WeatherSensorConfig config;
   Adafruit_BME280 bmeDevice;
   TwoWire i2cBus;
+  void lock() const;
+  void unlock() const;
+  SemaphoreHandle_t mux;
 };

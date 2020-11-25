@@ -1,4 +1,5 @@
 #include "device/Heater.h"
+#include "maintenance/Statistics.h"
 
 Heater::Heater(WeatherSensor &_weatherSensor) : communicationBus(config.oneWirePin), weatherSensor(_weatherSensor) {
   Logger::info("[Heater] Initalizing ...");
@@ -253,7 +254,7 @@ String Heater::deviceAddressToString(DeviceAddress deviceAddress) const {
 }
 
 float Heater::getHumidity() {
-  return weatherSensor.getHumidity();
+  return Statistics.calcHumidity();
 }
 
 float Heater::calculateDewPoint(float humidity, float temperature) const {

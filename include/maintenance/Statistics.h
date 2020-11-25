@@ -36,11 +36,19 @@ class StatisticsClass {
   bool sendStringStatistic(const char* statisticId, const char* value);
   bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc);
 
+  float calcTemperature();
+  float calcHumidity();
+  float calcPressure();
+
  private:
+  const unsigned int dataArraySize = 5;
   String getUrl() const;
   const char** buffer;
   unsigned char bufferSize = 0;
   bool isEmpty();
+  template<typename F>
+  float calc(F &&getData);
+  float abs(float a);
 };
 
 extern StatisticsClass Statistics;
