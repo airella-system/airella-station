@@ -19,7 +19,7 @@ WeatherSensor::WeatherSensor() : i2cBus(config.i2cBusNum) {
     setTextState("WEATHER_SENSOR|INIT_ERROR");
     return;
   }
-
+  mux = xSemaphoreCreateMutex();
   initialized = true;
   Logger::info("[WeatherSensor] Initalized is OK.");
   setTextState("WEATHER_SENSOR|OK");

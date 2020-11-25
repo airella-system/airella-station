@@ -158,19 +158,19 @@ bool StatisticsClass::isEmpty() {
 
 float StatisticsClass::calcTemperature() {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
-  auto getData = [sensor]() { return sensor->getTemperature(); };
+  auto getData = [&sensor]() { return sensor->getTemperature(); };
   return calc(getData);
 }
 
 float StatisticsClass::calcHumidity() {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
-  auto getData = [sensor]() { return sensor->getHumidity(); };
+  auto getData = [&sensor]() { return sensor->getHumidity(); };
   return calc(getData);
 }
 
 float StatisticsClass::calcPressure() {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
-  auto getData = [sensor]() { return sensor->getPressure(); };
+  auto getData = [&sensor]() { return sensor->getPressure(); };
   return calc(getData);
 }
 
@@ -179,6 +179,7 @@ float StatisticsClass::calc(F &&getData) {
   float data[dataArraySize];
   for(unsigned int i = 0; i < dataArraySize; i++) {
     data[i] = getData();
+    if(i != dataArraySize - 1) delay(25);
   }
 
   std::sort(data, data + dataArraySize);
