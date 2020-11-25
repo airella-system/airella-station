@@ -1,4 +1,6 @@
 #include "maintenance/Statistics.h"
+#include <algorithm>
+#include <functional>
 
 void StatisticsClass::reportBootUp() {
   sendStringStatistic("boot", "BOOT");
@@ -152,6 +154,54 @@ String StatisticsClass::getUrl() const {
 
 bool StatisticsClass::isEmpty() {
   return bufferSize == 0;
+}
+
+float StatisticsClass::calcTemperature() {
+  WeatherSensor* sensor = DeviceContainer.weatherSensor;
+  auto getData = [sensor]() { return sensor->getTemperature(); };
+  return calc(getData);
+}
+
+float StatisticsClass::calcHumidity() {
+  WeatherSensor* sensor = DeviceContainer.weatherSensor;
+  auto getData = [sensor]() { return sensor->getHumidity(); };
+  return calc(getData);
+}
+
+float StatisticsClass::calcPressure() {
+  WeatherSensor* sensor = DeviceContainer.weatherSensor;
+  auto getData = [sensor]() { return sensor->getPressure(); };
+  return calc(getData);
+}
+
+template<typename F>
+float StatisticsClass::calc(F &&getData) {
+  float data[dataArraySize];
+  for(unsigned int i = 0; i < dataArraySize; i++) {
+    data[i] = getData();
+  }
+
+  std::sort(data, data + dataArraySize);
+  float dA = abs(data[0] - data[dataArraySize / 2]);
+  float dB = abs(data[dataArraySize - 1] - data[dataArraySize / 2]);
+  float delta = 0;
+  if(dA > dB) delta = dB;
+  else delta = dA;
+  float sum = 0;
+  unsigned int count = 0;
+  float midValue = data[dataArraySize / 2];
+  for(unsigned int i = 0; i < dataArraySize; i++) {
+    if(abs(data[i] - midValue) <= delta) {
+      sum += data[i];
+      count++;
+    }
+  }
+  return sum / count;
+}
+
+float StatisticsClass::abs(float a) {
+  if(a < 0) return -1 * a;
+  return a;
 }
 
 StatisticsClass Statistics;

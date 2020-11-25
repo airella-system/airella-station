@@ -115,17 +115,17 @@ bool Core::sendMeasurements() {
   if (abs(millis() - lastPublishMillis) > 10000) {
     Logger::info("[Core]: Start measurement");
 
-    float value = weatherSensor->getTemperature();
+    float value = Statistics.calcTemperature();
     if(!Api.publishMeasurement(measurementType.temperature, value)) {
       storableBuffer.push(measurementType.temperature, String(value));
       notErrorInIteration = false;
     }
-    value = weatherSensor->getHumidity();
+    value = Statistics.calcHumidity();
     if(!Api.publishMeasurement(measurementType.humidity, value)) {
       storableBuffer.push(measurementType.humidity, String(value));
       notErrorInIteration = false;
     }
-    value = weatherSensor->getPressure();
+    value = Statistics.calcPressure();
     if(!Api.publishMeasurement(measurementType.pressure, value)) {
       storableBuffer.push(measurementType.pressure, String(value));
       notErrorInIteration = false;
