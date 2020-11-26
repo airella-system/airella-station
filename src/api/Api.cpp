@@ -427,7 +427,7 @@ bool ApiClass::addStatistics(RegistrationResult* result) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 
-  if (!Statistics.createMultipleFloatsStatistic("heaterPower", "Heater power", "PRIVATE", "W", "LINE")) {
+  if (!Statistics.createMultipleFloatsStatistic("heaterPower", "Heater power", "PRIVATE", "%", "LINE")) {
     return logRegistrationFail("Unable to create all statistics", result);
   }
 

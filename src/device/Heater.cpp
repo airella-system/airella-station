@@ -125,24 +125,52 @@ void Heater::threadFunction(void *pvParameters) {
   bool heaterIsOn = heater->getHeaterState().heaterIsOn;
   bool heaterLastState = !heaterIsOn;
   int counter = 0;
+  int wrongMeasurements = 0;
 
   while (true) {
     if (abs(millis() - lastTimestamp) > interval) {
       lastTimestamp = millis();
 
       float temperature = heater->getTemperature();
-
-      if (temperature < -100) {
+      // Air sensor works well in temperature less than 60 degress
+      // Let's stop heater when temperature is higher than 50 degress
+      if (heaterIsOn && temperature > 50) {
+        Logger::info("[Heater] Too hot! Stopping heater");
+        heater->setPower(0);
+        heater->off();
+        heaterIsOn = false;
+        interval = intervalMax;
         continue;
       }
+
+      if (temperature < -100) { 
+        // Dallas library returns -127 on error but we are not sure about comparing floating variables
+        // (and practically you can't use station bellow 100 degress)
+        wrongMeasurements++;
+        if (heaterIsOn && wrongMeasurements >= 3) {
+          Logger::info("[Heater] Got 3 wrong temperature measurements... Stopping heater");
+          heater->setPower(0);
+          heater->off();
+          heaterIsOn = false;
+          interval = intervalMax;
+        }
+        continue;
+      }
+
+      wrongMeasurements = 0;
+
       float humidity = heater->getHumidity();
-      float dewPoint = heater->calculateDewPoint(humidity, temperature);
+      float outsideTemperature = heater->getOutsideTemperature();
+      float dewPoint = heater->calculateDewPoint(humidity, outsideTemperature);
       float temperatureLevel = dewPoint + 5;
 
       if (!heaterIsOn && temperature < temperatureLevel - 0.5) {
         heater->setPower(MAX_POWER);
         heaterIsOn = true;
         Logger::info("[Heater] Power is ON");
+        interval = intervalMax;
+      } else if (heaterIsOn && temperature < temperatureLevel - 0.5) {
+        heater->setPower(MAX_POWER);
         interval = intervalMax;
       } else if (heaterIsOn && abs(temperatureLevel - temperature) <= 0.5) {
         int power = MAX_POWER * (temperatureLevel + 0.5 - temperature);
@@ -255,6 +283,10 @@ String Heater::deviceAddressToString(DeviceAddress deviceAddress) const {
 
 float Heater::getHumidity() {
   return Statistics.calcHumidity();
+}
+
+float Heater::getOutsideTemperature() {
+  return Statistics.calcTemperature();
 }
 
 float Heater::calculateDewPoint(float humidity, float temperature) const {

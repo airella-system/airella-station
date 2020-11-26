@@ -18,7 +18,7 @@ void StatisticsClass::reportHeater() {
   sendFloatStatistic("heaterTemp", heaterReport.temperature);
   sendFloatStatistic("heaterHum", heaterReport.humidity);
   sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
-  sendFloatStatistic("heaterPower", heaterReport.currentPower);
+  sendFloatStatistic("heaterPower", heaterReport.currentPower / 255.0 * 100.0);
   const char* strValue = heaterReport.isOn ? "ON" : "OFF";
   sendStringStatistic("heaterState", strValue);
 }

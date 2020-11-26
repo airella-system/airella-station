@@ -33,6 +33,7 @@ class Heater : public Sensor {
   void stop();
   float getTemperature();
   float getHumidity();
+  float getOutsideTemperature();
   float calculateDewPoint(float humidity, float temperature) const;
   unsigned int getCurrentPower() const;
   HeaterStatus getHeaterState() const;
