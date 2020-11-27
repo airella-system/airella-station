@@ -34,11 +34,12 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String& actionName) {
           }
         });
   } else if (actionName.equals("address")) {
+    Bluetooth::setLastOperationStatus("address|setting_up");
     Bluetooth::getTaskHandler()->startBlockingTask(
         [](TaskRequestorHandle<void*, double, String> task, void* data) {
           if (!Api.isRegistered()) {
             Logger::debug("[BluetoothRefreshHandler::deviceRefreshRequest()] Unauthorized to publishAddress()");
-            return String("ERROR");
+            return String("OK");
           }
 
           bool actionResult =
@@ -56,18 +57,46 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String& actionName) {
         [](double progress) {},
         [](String result) {
           if (result.equals("ERROR")) {
-            Bluetooth::setLastOperationStatus("address|Unauthorized to publishAddress()");
+            Bluetooth::setLastOperationStatus("address|error");
           } else if (result.equals("OK")) {
             Bluetooth::setLastOperationStatus("address|ok");
           }
         });
+  } else if (actionName.equals("name")) {
+    Bluetooth::setLastOperationStatus("name|setting_up");
+    Bluetooth::getTaskHandler()->startBlockingTask(
+        [](TaskRequestorHandle<void*, double, String> task, void* data) {
+          if (!Api.isRegistered()) {
+            Logger::debug("[BluetoothRefreshHandler::deviceRefreshRequest()] Unauthorized to publishName()");
+            return String("OK");
+          }
+
+          bool actionResult = Api.publishName(Config::getStationName().c_str());
+
+          if (!actionResult) {
+            Logger::info("[BluetoothRefreshHandler::deviceRefreshRequest()] Unable to set name");
+            return String("ERROR");
+          } else {
+            Logger::info("[BluetoothRefreshHandler::deviceRefreshRequest()] Set station name: ok");
+            return String("OK");
+          }
+        },
+        [](double progress) {},
+        [](String result) {
+          if (result.equals("ERROR")) {
+            Bluetooth::setLastOperationStatus("name|error");
+          } else if (result.equals("OK")) {
+            Bluetooth::setLastOperationStatus("name|ok");
+          }
+        });
 
   } else if (actionName.equals("location")) {
+    Bluetooth::setLastOperationStatus("location|setting_up");
     Bluetooth::getTaskHandler()->startBlockingTask(
         [](TaskRequestorHandle<void*, double, String> task, void* data) {
           if (!Api.isRegistered()) {
             Logger::debug("[BluetoothRefreshHandler::deviceRefreshRequest()] Unauthorized to publishLocation()");
-            return String("ERROR");
+            return String("OK");
           }
 
           bool actionResult =
@@ -86,7 +115,7 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String& actionName) {
           if (result.equals("OK")) {
             Bluetooth::setLastOperationStatus("location|ok");
           } else {
-            Bluetooth::setLastOperationStatus("location|Unable to set location");
+            Bluetooth::setLastOperationStatus("location|error");
           }
         });
 

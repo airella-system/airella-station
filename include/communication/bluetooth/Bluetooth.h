@@ -58,6 +58,9 @@
 // Clears device when any message is received
 #define CLEAR_DATA_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d0"
 
+// Last operation status
+#define LAST_OPERATION_STATUS_CUUID "2ffe173c-0f18-4af2-b21a-c9c3aef54004"
+
 // BT chunker test
 #define TEST_CHUNK_CUUID "9023e6f3-223d-4c6c-bd39-ebca35d7e8d1"
 
@@ -110,8 +113,9 @@ class Bluetooth {
 
   static BluetoothChunker *registrationStateCharacteristic;
   static BluetoothChunker *inetConnStateCharacteristic;
+  static BluetoothChunker *lastOperationStatusCharacteristic;
   static BluetoothChunker *deviceStateCharacteristic;
 
-  static String lastOperatioinState;
+  static String lastOperationStatus;
   static TaskHandler<void*, double, String>* taskHandler;
 };

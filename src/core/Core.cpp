@@ -71,7 +71,7 @@ void Core::main() {
     Guardian::check();
 
     bool notSensorErrorInIteration = sendMeasurements();
-    bool notGPSErrorInIteration = false;
+    bool notGPSErrorInIteration = true;
 
     if (abs(millis() - lastGpsUpdateMillis) > 60000) {
       Logger::info("[Core]: Start switch to GPS");

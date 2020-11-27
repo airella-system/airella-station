@@ -251,3 +251,12 @@ class DeviceStateCallback : public BluetoothChunkerCallback {
     chunker->setValue(Guardian::getDeviceState().c_str());
   }
 };
+
+class LastOperationStateCallback : public BluetoothChunkerCallback {
+  void afterReceive() {}
+
+  void beforeSend() {
+    Logger::debug("[LastOperationStateCallback::beforeSend()] called");
+    chunker->setValue(Bluetooth::getLastOperationStatus().c_str());
+  }
+};

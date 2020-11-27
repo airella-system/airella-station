@@ -34,10 +34,11 @@ BluetoothChunker *Bluetooth::clearDataCharacteristic = nullptr;
 
 BluetoothChunker *Bluetooth::registrationStateCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::inetConnStateCharacteristic = nullptr;
+BluetoothChunker *Bluetooth::lastOperationStatusCharacteristic = nullptr;
 BluetoothChunker *Bluetooth::deviceStateCharacteristic = nullptr;
 
 TaskHandler<void*, double, String> *Bluetooth::taskHandler = nullptr;
-String Bluetooth::lastOperatioinState = String();
+String Bluetooth::lastOperationStatus = String();
 
 class CustomBLESecurity : public NimBLESecurityCallbacks {
   uint32_t onPassKeyRequest() { return 0; }
@@ -98,6 +99,7 @@ void Bluetooth::reloadValues() {
   latitudeCharacteristic->setValue(Config::getLocationLatitude().c_str());
   longitudeCharacteristic->setValue(Config::getLocationLongitude().c_str());
   locationManualCharacteristic->setValue(Config::getLocationManual() ? "1" : "0");
+  lastOperationStatusCharacteristic->setValue("bluetooth|initalized");
 }
 
 void Bluetooth::start(BluetoothHandler *bluetoothHandler, TaskHandler<void*, double, String>* taskHandler) {
@@ -169,6 +171,9 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler, TaskHandler<void*, dou
   inetConnStateCharacteristic = new BluetoothChunker(pService, CONNECTION_STATE_CUUID, R_PROPERTY);
   inetConnStateCharacteristic->setCallback(new InetConnectionStateCallback());
 
+  lastOperationStatusCharacteristic = new BluetoothChunker(pService, LAST_OPERATION_STATUS_CUUID, R_PROPERTY);
+  lastOperationStatusCharacteristic->setCallback(new LastOperationStateCallback());
+  
   deviceStateCharacteristic = new BluetoothChunker(pService, DEVICE_STATE_CUUID, R_PROPERTY);
   deviceStateCharacteristic->setCallback(new DeviceStateCallback());
 
@@ -192,11 +197,11 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler, TaskHandler<void*, dou
 }
 
 String Bluetooth::getLastOperationStatus() {
-  return lastOperatioinState;
+  return lastOperationStatus;
 }
 
 void Bluetooth::setLastOperationStatus(String operationStatus) {
-  lastOperatioinState = operationStatus;
+  lastOperationStatus = operationStatus;
 }
 
 String Bluetooth::getMAC() {
