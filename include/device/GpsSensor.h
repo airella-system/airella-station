@@ -17,6 +17,7 @@ class GpsSensor : public Sensor {
   unsigned char bufferIterator = 0;
   unsigned long startFetchingTime;
   static const int FETCH_LOCATION_TIMEOUT = 10000;
+  static const int MINIMUM_SATELITES = 4;
   static const int BUFFER_SIZE = 83;  // NMEA 0183 has messages with 82 size, but we need 1 more character for NULL
   char buffer[BUFFER_SIZE];
 
