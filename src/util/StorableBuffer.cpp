@@ -80,6 +80,7 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
   unsigned int lineStart = 0;
   unsigned int lineStartHelper = 0;
   unsigned int lineEnd = 0;
+  unsigned int lineEndHelper = 0;
   unsigned int typeStart = 0;
   unsigned int typeEnd = 0;
   Logger::debug(fileContent);
@@ -91,21 +92,23 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
       for(int i = lineStart + 19; i < lineEnd; ++i) {
         if(fileContent[i] == '|') typeEnd = i;
       }
-      if(lineStart == 0) lineStartHelper = 0;
-      else lineStartHelper = lineStart - 1;
-      node->values[0] = new String(fileContent.substring(lineStartHelper, lineStart + 19));
+      if(lineStart == 0) {
+        lineStartHelper = 0;
+        lineEndHelper = lineStart + 20;
+      }
+      else {
+        lineStartHelper = lineStart - 1;
+        lineEndHelper = lineStart + 19;
+      }
+      node->values[0] = new String(fileContent.substring(lineStartHelper, lineEndHelper));
       node->values[1] = new String(fileContent.substring(typeStart, typeEnd));
       node->values[2] = new String(fileContent.substring(typeEnd + 1, lineEnd - 1));
-
-      Logger::debug(node->values[0]);
-      Logger::debug(node->values[1]);
-      Logger::debug(node->values[2]);
 
       list.add(node);
       lineStart = lineEnd + 1;
     }
   }
-  // DeviceContainer.storage->remove((*fileName).c_str());
+  DeviceContainer.storage->remove((*fileName).c_str());
 }
 
 void StorableBuffer::sync() {
@@ -127,10 +130,7 @@ void StorableBuffer::sync() {
     MultiValueNode* node = list.pop();
 
     if(Api.publishHistoricalMeasurement(node->values[2], node->values[1], node->values[0])) {
-      Logger::debug("test1");
-      delay(10);
       MultiValueList::clear(node, 3);
-      Logger::debug("test2");
     }
     else {
       list.add(node);
@@ -141,7 +141,7 @@ void StorableBuffer::sync() {
     String data; 
     while(!list.isEmpty()) {
       MultiValueNode* node = list.pop();
-      data += *node->values[0] + *node->values[2] + "|" + *node->values[1] + "\n";
+      data += *node->values[0] + *node->values[1] + "|" + *node->values[2] + "\n";
       MultiValueList::clear(node, 3);
     }
     ++lastFileNum;

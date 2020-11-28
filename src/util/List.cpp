@@ -54,18 +54,14 @@ bool MultiValueList::isEmpty() {
 
 MultiValueNode* MultiValueList::pop() {
   MultiValueNode* firstItem = list;
-  delete list;
   list = firstItem->next;
   return firstItem;
 }
 
 void MultiValueList::clear(MultiValueNode* node, unsigned int valuesCount) {
-  Logger::debug("mleko1");
   for(int i = 0; i < valuesCount; ++i) {
     delete node->values[i];
   }
-  Logger::debug("mleko2");
   delete node->values;
-  Logger::debug("mleko3");
-  // delete node;
+  delete node;
 }

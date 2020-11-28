@@ -70,9 +70,8 @@ DateTime_t Time::getDataTime() {
 
 tm* Time::getTimeInfo() {
   time_t totalSecunds;
-  // if(initialized) totalSecunds = timeClient.getEpochTime();
-  // else totalSecunds = persistedTime;
-  totalSecunds = persistedTime;
+  if(initialized) totalSecunds = timeClient.getEpochTime();
+  else totalSecunds = persistedTime;
   return localtime(&totalSecunds);
 }
 

@@ -5,7 +5,6 @@
 void Core::setUp() {
   timeProvider.loadPersistedTime();
   Logger::setUp();
-  Logger::debug(String(Config::getPersistedTime(), DEC));
   Logger::info("[Core]: Setting up started");
   taskHandler = new TaskHandler<void*, double, String>(1);
   DeviceContainer.storage->tryToInit();
@@ -152,7 +151,7 @@ bool Core::sendMeasurements() {
     lastPublishMillis = millis();
     Guardian::tryFlushBuffers();
   }
-  // storableBuffer.sync();
+  storableBuffer.sync();
   return notErrorInIteration;
 }
 
