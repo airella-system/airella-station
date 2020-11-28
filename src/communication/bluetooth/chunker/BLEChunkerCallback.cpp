@@ -1,5 +1,3 @@
-#pragma once
-
 #include "communication/bluetooth/chunker/BLEChunkerCallback.h"
 
 void BLEChunkerCallback::onRead(BLECharacteristic *pCharacteristic) {

@@ -7,7 +7,7 @@
 #include <time.h>
 #include "maintenance/Logger.h"
 
-#define TIMEZONE_HOUR_SHIFT 2
+#define TIMEZONE_HOUR_SHIFT 1
 
 struct Date_t {
   unsigned int year;
@@ -55,7 +55,7 @@ struct DateTime_t {
   }
 
   String toISOString() {
-    return date.toString() + time.toString() + "Z";
+    return date.toString() + "T" + time.toString() + "Z";
   }
 };
 

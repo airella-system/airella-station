@@ -12,7 +12,7 @@ void Autocofiguration::tryConfig() {
     return;
   }
   
-  DynamicJsonDocument* configDoc;
+  DynamicJsonDocument* configDoc = nullptr;
   if(!parseConfigFile(configDoc)) {
     Logger::debug("[Autocofiguration::tryConfig()] Unable to parse configuration file.");
     return;

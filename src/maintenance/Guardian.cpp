@@ -1,6 +1,8 @@
 #include "maintenance/Guardian.h"
 
 unsigned long Guardian::lastStatisticTimestamp = 0;
+DataPersister* Guardian::measurePersister = nullptr;
+DataPersister* Guardian::logPersister = nullptr;
 
 String Guardian::getDeviceState() {
   String state = "";
@@ -92,4 +94,9 @@ void Guardian::statistics() {
 
 void Guardian::check() {
   
+}
+
+void Guardian::tryFlushBuffers() {
+  if(measurePersister != nullptr) measurePersister->flushBuffer(DataPersister::BufferType::measurementBuferType);
+  if(logPersister != nullptr) logPersister->flushBuffer(DataPersister::BufferType::logBuffer);
 }

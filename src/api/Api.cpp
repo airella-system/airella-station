@@ -1,4 +1,9 @@
 #include "api/Api.h"
+#include "maintenance/Guardian.h"
+
+ApiClass::ApiClass() {
+  Guardian::measurePersister = &measurementPersister;
+}
 
 RegistrationResult ApiClass::registerStation() {
   RegistrationResult result;
@@ -358,6 +363,13 @@ bool ApiClass::publishAddress(const char* country, const char* city, const char*
 }
 
 bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*= true*/) {
+  const size_t capacity = JSON_OBJECT_SIZE(2);
+  DynamicJsonDocument doc(capacity);
+  doc["value"] = value;
+  String body = "";
+  serializeJson(doc, body);
+  measurementPersister.saveMeasurement(sensor, body);
+
   if (authCheck && !isAuth()) {
     Logger::debug("[ApiClass::publishMeasurement()] Authorization failed");
     return false;
@@ -365,13 +377,6 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
 
   String apiUrlBase = Config::getApiUrl();
   String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + sensor + "/measurements";
-
-  const size_t capacity = JSON_OBJECT_SIZE(2);
-  DynamicJsonDocument doc(capacity);
-  doc["value"] = value;
-  String body = "";
-  serializeJson(doc, body);
-  measurementPersister.saveMeasurement(sensor, body);
 
   Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 
@@ -390,9 +395,12 @@ bool ApiClass::publishHistoricalMeasurement(String* sensor, String* data, String
   String apiUrlBase = Config::getApiUrl();
   String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + *sensor + "/measurements";
 
-  String body = (*data).substring(0, (*data).length() - 2);
-  body += ",\"date\":" + (*date) + "}";
-
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2) + 100);
+  doc["value"] = (*data);
+  doc["date"] = (*date);
+  String body = "";
+  serializeJson(doc, body);
+  Logger::debug(body);
   Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
 
   String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;

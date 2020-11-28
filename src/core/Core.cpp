@@ -149,8 +149,9 @@ bool Core::sendMeasurements() {
     }
 
     lastPublishMillis = millis();
+    Guardian::tryFlushBuffers();
   }
-  storableBuffer.sync();
+  // storableBuffer.sync();
   return notErrorInIteration;
 }
 

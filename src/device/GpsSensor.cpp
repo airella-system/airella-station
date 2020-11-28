@@ -109,7 +109,6 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
              &utcTimeDecimal_SS, &latitude_DDmm, &latitudeDecimal_mm, &latitideDirection, &longitude_DDDmm,
              &longitudeDecimal_mm, &longitudeDirection, &quality, &numOfSatelites, &horizontalDilution, &altitude,
              &altitudeUnits, &undulation, &undulationUnits, &checkSum) >= 1) {
-    double wut = ((latitude_DDmm % 100) + getFloatFromDecimalInteger(latitudeDecimal_mm));
     this->latitude =
         (latitude_DDmm / 100) + ((latitude_DDmm % 100) + getFloatFromDecimalInteger(latitudeDecimal_mm)) / 60.0;
     this->longitude =

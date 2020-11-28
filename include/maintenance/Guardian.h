@@ -15,6 +15,9 @@ public:
   static bool reconectWiFi();
   static void statistics();
   static void check();
+  static void tryFlushBuffers();
+  static DataPersister* measurePersister;
+  static DataPersister* logPersister;
 
 private:
   static unsigned long lastStatisticTimestamp;

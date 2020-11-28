@@ -1,4 +1,5 @@
 #include "util/List.h"
+#include "maintenance/Logger.h"
 
 void List::add(String& data) {
   Node* newNode = new Node;
@@ -59,9 +60,12 @@ MultiValueNode* MultiValueList::pop() {
 }
 
 void MultiValueList::clear(MultiValueNode* node, unsigned int valuesCount) {
+  Logger::debug("mleko1");
   for(int i = 0; i < valuesCount; ++i) {
     delete node->values[i];
   }
+  Logger::debug("mleko2");
   delete node->values;
-  delete node;
+  Logger::debug("mleko3");
+  // delete node;
 }

@@ -70,6 +70,8 @@ DateTime_t Time::getDataTime() {
 
 tm* Time::getTimeInfo() {
   time_t totalSecunds = timeClient.getEpochTime();
+  // Logger::serial.println("pies______________________");
+  // Logger::serial.println(String((long)totalSecunds));
   return localtime(&totalSecunds);
 }
 

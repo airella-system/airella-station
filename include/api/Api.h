@@ -18,7 +18,7 @@ struct RegistrationResult {
 
 class ApiClass {
  public:
-  ApiClass(){};
+  ApiClass();
   ~ApiClass(){};
 
   RegistrationResult registerStation();
