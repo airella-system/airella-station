@@ -5,7 +5,6 @@ GpsSensor::GpsSensor(HardwareSerial* serial) {
   setTextState("GPS|INIT");
   this->serial = serial;
   initialized = true;
-  setTextState("GPS|OK");
   Logger::info("[GpsSensor] GPS is active.");
 }
 
@@ -20,6 +19,7 @@ bool GpsSensor::fetchLocation() {
 
   while ((millis() - startFetchingTime) < FETCH_LOCATION_TIMEOUT) {
     if (fetchHeaderInFetchLocationFlow()) {
+      setTextState("GPS|OK");
       return true;
     }
   }
@@ -97,7 +97,7 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
   int longitudeDecimal_mm;
   char longitudeDirection;
   int quality;
-  int numOfSatelites;
+  int numOfSatelites = 0;
   float horizontalDilution;
   float altitude;
   char altitudeUnits;
@@ -108,7 +108,16 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
   if (sscanf(this->buffer, "$GPGGA,%d.%d,%d.%d,%c,%d.%d,%c,%d,%d,%f,%f,%c,%f,%c,%*[^*]*%d", &utcTime_HHMMSS,
              &utcTimeDecimal_SS, &latitude_DDmm, &latitudeDecimal_mm, &latitideDirection, &longitude_DDDmm,
              &longitudeDecimal_mm, &longitudeDirection, &quality, &numOfSatelites, &horizontalDilution, &altitude,
-             &altitudeUnits, &undulation, &undulationUnits, &checkSum) >= 1) {
+             &altitudeUnits, &undulation, &undulationUnits, &checkSum) >= 10) {
+               // >= 10 because we don't need any parameter after numOfSatelites
+
+    if (numOfSatelites < MINIMUM_SATELITES) {
+      Logger::info(((String("[GpsSensor] Number of required satelites is less than ") + String(MINIMUM_SATELITES)).c_str()));
+      return false;
+    }
+    
+    double wut = ((latitude_DDmm % 100) + getFloatFromDecimalInteger(latitudeDecimal_mm));
+
     this->latitude =
         (latitude_DDmm / 100) + ((latitude_DDmm % 100) + getFloatFromDecimalInteger(latitudeDecimal_mm)) / 60.0;
     this->longitude =
@@ -126,6 +135,8 @@ bool GpsSensor::readMessageInFetchLocationFlow() {
                      .c_str());
 
     return true;
+  } else {
+    Logger::info(String("[GpsSensor] Could not fully parse GPGAA message").c_str());
   }
 
   return false;
