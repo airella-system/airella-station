@@ -20,6 +20,7 @@ bool GpsSensor::fetchLocation() {
 
   while ((millis() - startFetchingTime) < FETCH_LOCATION_TIMEOUT) {
     if (fetchHeaderInFetchLocationFlow()) {
+      setTextState("GPS|OK");
       return true;
     }
   }
