@@ -369,6 +369,7 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
   String body = "";
   serializeJson(doc, body);
   measurementPersister.saveMeasurement(sensor, body);
+  if(noInternetConnectionOptymalization()) return;
 
   if (authCheck && !isAuth()) {
     Logger::debug("[ApiClass::publishMeasurement()] Authorization failed");
@@ -387,6 +388,8 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
 }
 
 bool ApiClass::publishHistoricalMeasurement(String* sensor, String* data, String* date) {
+  if(noInternetConnectionOptymalization()) return;
+  
   if (!isAuth()) {
     Logger::debug("[ApiClass::publishMeasurement()] Authorization failed");
     return false;
@@ -516,6 +519,20 @@ bool ApiClass::logRegistrationFail(const char* message, RegistrationResult* resu
   Logger::debug(&logMessage);
   result->message = message;
   result->ok = false;
+  return false;
+}
+
+bool ApiClass::noInternetConnectionOptymalization() {
+  if(!Internet::isConnected()) {
+    if(tryCount == 5 || abs(millis() - lastTryTime) > 1000 * 30)  {
+      return false;
+    }
+    lastTryTime = millis();
+    tryCount++;
+    return true;
+  } else {
+    tryCount = 0;
+  }
   return false;
 }
 

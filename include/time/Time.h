@@ -35,9 +35,9 @@ struct Time_t {
       : hour(_hour), minute(_minute), second(_second){};
 
   String toString() {
-    String hourStr = hour < 10 ? "0" + hour : String(hour);
-    String minuteStr = minute < 10 ? String("0") + minute : String(minute);
-    String secondStr = second < 10 ? String("0") + second : String(second);
+    String hourStr = hour < 10 ? "0" + hour : String(hour, DEC);
+    String minuteStr = minute < 10 ? String("0") + minute : String(minute, DEC);
+    String secondStr = second < 10 ? String("0") + second : String(second, DEC);
 
     return hourStr + ":" + minuteStr + ":" + secondStr;
   }
@@ -78,8 +78,9 @@ class Time {
  private:
   WiFiUDP ntpUDP;
   NTPClient timeClient;
-  bool initialized;
+  bool initialized = false;
   unsigned long lastRefreshTimestamp;
+  long persistedTime;
   tm *getTimeInfo();
 
   SemaphoreHandle_t semaphore;

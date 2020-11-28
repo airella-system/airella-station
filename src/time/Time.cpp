@@ -69,9 +69,10 @@ DateTime_t Time::getDataTime() {
 }
 
 tm* Time::getTimeInfo() {
-  time_t totalSecunds = timeClient.getEpochTime();
-  // Logger::serial.println("pies______________________");
-  // Logger::serial.println(String((long)totalSecunds));
+  time_t totalSecunds;
+  // if(initialized) totalSecunds = timeClient.getEpochTime();
+  // else totalSecunds = persistedTime;
+  totalSecunds = persistedTime;
   return localtime(&totalSecunds);
 }
 
@@ -81,7 +82,7 @@ void Time::persistTime() {
 }
 
 void Time::loadPersistedTime() {
-  timeClient.setTimeOffset(Config::getPersistedTime());
+  persistedTime = Config::getPersistedTime();
 }
 
 bool Time::shouldBePersist() {
