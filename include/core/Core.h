@@ -40,7 +40,8 @@ public:
   bool isError();
   void reset();
   void doCoreTasks();
-  bool sendMeasurements();
+  void sendMeasurements();
+  void sendGpsLocation();
 
  private:
   WeatherSensor *weatherSensor = NULL;
@@ -51,8 +52,8 @@ public:
   AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;
-  bool error = true;
-  unsigned long lastErrorMillis = 0;
+  bool gpsError = true;
+  bool sensorError = true;
   unsigned long lastPublishMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
