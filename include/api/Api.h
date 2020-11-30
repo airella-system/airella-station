@@ -49,7 +49,7 @@ class ApiClass {
   bool addBtMacValue();
   void logRequest(const char* name, Http::Response& response);
   bool logRegistrationFail(const char* message, RegistrationResult* result);
-  bool noInternetConnectionOptymalization();
+  bool noInternetConnectionOptimalization();
   int tryCount = 0;
   long lastTryTime = 0;
 

@@ -7,7 +7,7 @@
 #include <time.h>
 #include "maintenance/Logger.h"
 
-#define TIMEZONE_HOUR_SHIFT 1
+#define TIMEZONE_HOUR_SHIFT 0
 
 struct Date_t {
   unsigned int year;
