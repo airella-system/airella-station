@@ -131,17 +131,17 @@ void Core::sendMeasurements() {
 
     uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
     if(!Api.publishMeasurement(measurementType.pm1, pmValue)) {
-      storableBuffer.push(measurementType.pm1, String(value));
+      storableBuffer.push(measurementType.pm1, String(pmValue));
       state = -1;
     }
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
     if(!Api.publishMeasurement(measurementType.pm2_5, pmValue)) {
-      storableBuffer.push(measurementType.pm2_5, String(value));
+      storableBuffer.push(measurementType.pm2_5, String(pmValue));
       state = -1;
     }
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
     if(!Api.publishMeasurement(measurementType.pm10, pmValue)) {
-      storableBuffer.push(measurementType.pm10, String(value));
+      storableBuffer.push(measurementType.pm10, String(pmValue));
       state = -1;
     }
 
