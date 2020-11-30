@@ -57,7 +57,8 @@ void Core::main() {
     Statistics.reportBootUp();
   }
 
-  error = false;
+  gpsError = false;
+  sensorError = true;
 
 #ifdef STOP_MAIN_LOOP
   while (true) {
@@ -70,89 +71,89 @@ void Core::main() {
     Guardian::statistics();
     Guardian::check();
 
-    bool notSensorErrorInIteration = sendMeasurements();
-    bool notGPSErrorInIteration = true;
-
-    if (abs(millis() - lastGpsUpdateMillis) > 60000) {
-      Logger::info("[Core]: Start switch to GPS");
-      airAndGpsSensorStrategy->switchToGpsSensor();
-
-      if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
-        notGPSErrorInIteration = Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
-                                                   airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
-      }
-      airAndGpsSensorStrategy->switchToAirSensor();
-
-      lastGpsUpdateMillis = millis();
-      Logger::info("[Core]: End switch to GPS");
-    }
-
-    if(timeProvider.shouldBePersist()) {
+    if (timeProvider.shouldBePersist()) {
       timeProvider.persistTime();
     }
 
-    if (!notSensorErrorInIteration || !notGPSErrorInIteration) {
-      lastErrorMillis = millis();
-      error = true;
-    } 
-    else {
-      error = false;
-    }
+    sendMeasurements();
+    sendGpsLocation();
+
     delay(100);
   }
 }
 
 bool Core::isError() {
-  return this->error;
+  return this->gpsError || this->sensorError;
 }
 
 void Core::reset() {
   isWorking = false;
 }
 
-bool Core::sendMeasurements() {
-  bool notErrorInIteration = true;
+void Core::sendGpsLocation() {
+  if (abs(millis() - lastGpsUpdateMillis) > 60000) {
+    Logger::info("[Core]: Start switch to GPS");
+    airAndGpsSensorStrategy->switchToGpsSensor();
+
+    if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
+      bool success = Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
+                                                  airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
+      this->gpsError = !success;
+    }
+    airAndGpsSensorStrategy->switchToAirSensor();
+    lastGpsUpdateMillis = millis();
+    Logger::info("[Core]: End switch to GPS");
+  }
+}
+
+void Core::sendMeasurements() {
+  int state = 0;
   if (abs(millis() - lastPublishMillis) > 10000) {
     Logger::info("[Core]: Start measurement");
+    state = 1;
 
     float value = Statistics.calcTemperature();
     if(!Api.publishMeasurement(measurementType.temperature, value)) {
       storableBuffer.push(measurementType.temperature, String(value));
-      notErrorInIteration = false;
+      state = -1;
     }
     value = Statistics.calcHumidity();
     if(!Api.publishMeasurement(measurementType.humidity, value)) {
       storableBuffer.push(measurementType.humidity, String(value));
-      notErrorInIteration = false;
+      state = -1;
     }
     value = Statistics.calcPressure();
     if(!Api.publishMeasurement(measurementType.pressure, value)) {
       storableBuffer.push(measurementType.pressure, String(value));
-      notErrorInIteration = false;
+      state = -1;
     }
     airAndGpsSensorStrategy->getAirSensor()->measurement();
 
     uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
     if(!Api.publishMeasurement(measurementType.pm1, pmValue)) {
       storableBuffer.push(measurementType.pm1, String(value));
-      notErrorInIteration = false;
+      state = -1;
     }
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
     if(!Api.publishMeasurement(measurementType.pm2_5, pmValue)) {
       storableBuffer.push(measurementType.pm2_5, String(value));
-      notErrorInIteration = false;
+      state = -1;
     }
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
     if(!Api.publishMeasurement(measurementType.pm10, pmValue)) {
       storableBuffer.push(measurementType.pm10, String(value));
-      notErrorInIteration = false;
+      state = -1;
     }
 
     lastPublishMillis = millis();
     Guardian::tryFlushBuffers();
   }
   storableBuffer.sync();
-  return notErrorInIteration;
+  if (state == -1) {
+    this->sensorError = true;
+  } else if (state == 1) {
+    this->sensorError = false;
+  }
 }
 
 Core core;
