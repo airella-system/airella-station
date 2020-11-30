@@ -71,7 +71,13 @@ DateTime_t Time::getDataTime() {
 tm* Time::getTimeInfo() {
   time_t totalSecunds;
   if(initialized) totalSecunds = timeClient.getEpochTime();
-  else totalSecunds = persistedTime;
+  else {
+    if(lastTimestamp > millis()) {
+      totalSecunds += 4294967;
+    }
+    lastTimestamp = millis();
+    totalSecunds = persistedTime + millis() / 1000;
+  }
   return localtime(&totalSecunds);
 }
 
@@ -85,7 +91,7 @@ void Time::loadPersistedTime() {
 }
 
 bool Time::shouldBePersist() {
-  return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 30;
+  return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 5;
 }
 
 Time timeProvider;

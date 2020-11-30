@@ -1,4 +1,5 @@
 #include "maintenance/Guardian.h"
+#include "core/Core.h"
 
 unsigned long Guardian::lastStatisticTimestamp = 0;
 DataPersister* Guardian::measurePersister = nullptr;
@@ -83,10 +84,15 @@ void Guardian::statistics() {
     Logger::info("[Guardian::statistics]: Sending stats");
 
     Statistics.reportHeartbeat();
+    core.doCoreTasks();
     Statistics.reportConnectionState();
+    core.doCoreTasks();
     Statistics.reportConnectionType();
+    core.doCoreTasks();
     Statistics.reportPower();
+    core.doCoreTasks();
     Statistics.reportHeater();
+    core.doCoreTasks();
 
     lastStatisticTimestamp = millis();
   }

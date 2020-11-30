@@ -81,6 +81,7 @@ class Time {
   bool initialized = false;
   unsigned long lastRefreshTimestamp;
   long persistedTime;
+  unsigned long lastTimestamp = 0;
   tm *getTimeInfo();
 
   SemaphoreHandle_t semaphore;

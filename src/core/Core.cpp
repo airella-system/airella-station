@@ -77,7 +77,6 @@ void Core::main() {
 
     sendMeasurements();
     sendGpsLocation();
-
     delay(100);
   }
 }
@@ -100,9 +99,11 @@ void Core::sendGpsLocation() {
                                                   airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
       this->gpsError = !success;
     }
+    doCoreTasks();
     airAndGpsSensorStrategy->switchToAirSensor();
     lastGpsUpdateMillis = millis();
     Logger::info("[Core]: End switch to GPS");
+    doCoreTasks();
   }
 }
 
@@ -117,34 +118,38 @@ void Core::sendMeasurements() {
       storableBuffer.push(measurementType.temperature, String(value));
       state = -1;
     }
+    doCoreTasks();
     value = Statistics.calcHumidity();
     if(!Api.publishMeasurement(measurementType.humidity, value)) {
       storableBuffer.push(measurementType.humidity, String(value));
       state = -1;
     }
+    doCoreTasks();
     value = Statistics.calcPressure();
     if(!Api.publishMeasurement(measurementType.pressure, value)) {
       storableBuffer.push(measurementType.pressure, String(value));
       state = -1;
     }
+    doCoreTasks();
     airAndGpsSensorStrategy->getAirSensor()->measurement();
-
     uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
     if(!Api.publishMeasurement(measurementType.pm1, pmValue)) {
       storableBuffer.push(measurementType.pm1, String(pmValue));
       state = -1;
     }
+    doCoreTasks();
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
     if(!Api.publishMeasurement(measurementType.pm2_5, pmValue)) {
       storableBuffer.push(measurementType.pm2_5, String(pmValue));
       state = -1;
     }
+    doCoreTasks();
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
     if(!Api.publishMeasurement(measurementType.pm10, pmValue)) {
       storableBuffer.push(measurementType.pm10, String(pmValue));
       state = -1;
     }
-
+    doCoreTasks();
     lastPublishMillis = millis();
     Guardian::tryFlushBuffers();
   }
