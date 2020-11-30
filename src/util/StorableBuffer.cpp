@@ -6,13 +6,8 @@ StorableBuffer::StorableBuffer(String _name) : name(_name) {
     Logger::debug("[StorableBuffer::StorableBuffer()] Storage is not initialized");
     return;
   }
+  createCatalogStructure(_name);
   FS* storage = DeviceContainer.storage->getStorage();
-  if(!storage->exists("/sbuffer")) {
-    storage->mkdir("/sbuffer");
-  }
-  if(!storage->exists("/sbuffer/" + _name)) {
-    storage->mkdir("/sbuffer/" + _name);
-  }
   File bufferDirectory = storage->open("/sbuffer/" + _name);
 
   while (true) {
@@ -29,6 +24,16 @@ StorableBuffer::StorableBuffer(String _name) : name(_name) {
     lastFileNum = atoi((*lastFileName).c_str());
   }
   initialized = true;
+}
+
+void StorableBuffer::createCatalogStructure(String _name) {
+  FS* storage = DeviceContainer.storage->getStorage();
+  if(!storage->exists("/sbuffer")) {
+    storage->mkdir("/sbuffer");
+  }
+  if(!storage->exists("/sbuffer/" + _name)) {
+    storage->mkdir("/sbuffer/" + _name);
+  }
 }
 
 void StorableBuffer::push(const char* type, const String& data) {
@@ -83,7 +88,7 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
   unsigned int lineEndHelper = 0;
   unsigned int typeStart = 0;
   unsigned int typeEnd = 0;
-  Logger::debug(fileContent);
+  
   for(char singleChar : fileContent) {
     lineEnd++;
     if(singleChar == '\n') {
@@ -114,8 +119,9 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
 void StorableBuffer::sync() {
   if(!initialized) return;
   if(!Internet::isOk()) return;
-
+  
   MultiValueList list;
+  MultiValueList backupList;
   while (!isEmpty()) {
     BufferItem item = pop();
     MultiValueNode* node = new MultiValueNode(3);
@@ -124,8 +130,8 @@ void StorableBuffer::sync() {
     node->values[2] = new String(item.type);
     list.add(node);
   }
+  
   loadFromStorege(list);
-
   while(!list.isEmpty()) {
     MultiValueNode* node = list.pop();
 
@@ -133,10 +139,11 @@ void StorableBuffer::sync() {
       MultiValueList::clear(node, 3);
     }
     else {
-      list.add(node);
+      backupList.add(node);
     }
   }
   
+  list = backupList;
   if(!list.isEmpty()) {
     String data; 
     while(!list.isEmpty()) {

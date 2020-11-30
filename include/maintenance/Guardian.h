@@ -16,6 +16,7 @@ public:
   static void statistics();
   static void check();
   static void tryFlushBuffers();
+  static void clearStorage();
   static DataPersister* measurePersister;
   static DataPersister* logPersister;
 

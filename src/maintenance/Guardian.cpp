@@ -100,3 +100,14 @@ void Guardian::tryFlushBuffers() {
   if(measurePersister != nullptr) measurePersister->flushBuffer(DataPersister::BufferType::measurementBuferType);
   if(logPersister != nullptr) logPersister->flushBuffer(DataPersister::BufferType::logBuffer);
 }
+
+void Guardian::clearStorage() {
+  FS* storage = DeviceContainer.storage->getStorage();
+  storage->rmdir("/measurements");
+  storage->rmdir("/logs");
+  storage->rmdir("/sbuffer");
+  StorableBuffer::createCatalogStructure("m");
+  storage->mkdir("/measurements");
+  storage->mkdir("/logs");
+  Logger::info("[Guardian::clearStorage()] Storage is clear.");
+}

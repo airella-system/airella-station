@@ -22,6 +22,7 @@ public:
   bool isEmpty();
   bool needSync();
   void sync();
+  static void createCatalogStructure(String _name);
 private:
   bool initialized = false;
   String name;
