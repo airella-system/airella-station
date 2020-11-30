@@ -14,7 +14,6 @@ StorableBuffer::StorableBuffer(String _name) : name(_name) {
     File entry =  bufferDirectory.openNextFile();
     if(!entry) break;
     String data = entry.name();
-    Logger::debug(data);
     storagedFiles.add(data);
     entry.close();
   }
