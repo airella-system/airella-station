@@ -93,7 +93,7 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
       for(int i = lineStart + 19; i < lineEnd; ++i) {
           if(fileContent[i] == '|') valueEnd = i;
       }
-      node->values[0] = new String(fileContent.substring(lineStart, lineStart + 20));
+      node->values[0] = new String(fileContent.substring(lineStart, valueStart));
       node->values[1] = new String(fileContent.substring(valueStart, valueEnd));
       node->values[2] = new String(fileContent.substring(valueEnd + 1, lineEnd - 1));
 
