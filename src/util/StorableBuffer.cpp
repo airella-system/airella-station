@@ -79,37 +79,26 @@ void StorableBuffer::loadFromStorege(MultiValueList& list) {
   String* fileName = storagedFiles.pop();
   if(fileName == NULL) return;
   String fileContent = DeviceContainer.storage->read((*fileName).c_str());
-  String data;
   
   unsigned int lineStart = 0;
-  unsigned int lineStartHelper = 0;
   unsigned int lineEnd = 0;
-  unsigned int lineEndHelper = 0;
-  unsigned int typeStart = 0;
-  unsigned int typeEnd = 0;
-  
+  unsigned int valueStart = 0;
+  unsigned int valueEnd = 0;
+
   for(char singleChar : fileContent) {
     lineEnd++;
     if(singleChar == '\n') {
       MultiValueNode* node = new MultiValueNode(3);
-      typeStart = lineStart + 20;
+      valueStart = lineStart + 20;
       for(int i = lineStart + 19; i < lineEnd; ++i) {
-        if(fileContent[i] == '|') typeEnd = i;
+          if(fileContent[i] == '|') valueEnd = i;
       }
-      if(lineStart == 0) {
-        lineStartHelper = 0;
-        lineEndHelper = lineStart + 20;
-      }
-      else {
-        lineStartHelper = lineStart - 1;
-        lineEndHelper = lineStart + 19;
-      }
-      node->values[0] = new String(fileContent.substring(lineStartHelper, lineEndHelper));
-      node->values[1] = new String(fileContent.substring(typeStart, typeEnd));
-      node->values[2] = new String(fileContent.substring(typeEnd + 1, lineEnd - 1));
+      node->values[0] = new String(fileContent.substring(lineStart + 20));
+      node->values[1] = new String(fileContent.substring(valueStart, valueEnd));
+      node->values[2] = new String(fileContent.substring(valueEnd + 1, lineEnd - 1));
 
       list.add(node);
-      lineStart = lineEnd + 1;
+      lineStart = lineEnd;
     }
   }
   DeviceContainer.storage->remove((*fileName).c_str());
