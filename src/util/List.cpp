@@ -1,4 +1,5 @@
 #include "util/List.h"
+#include "maintenance/Logger.h"
 
 void List::add(String& data) {
   Node* newNode = new Node;
@@ -53,7 +54,6 @@ bool MultiValueList::isEmpty() {
 
 MultiValueNode* MultiValueList::pop() {
   MultiValueNode* firstItem = list;
-  delete list;
   list = firstItem->next;
   return firstItem;
 }

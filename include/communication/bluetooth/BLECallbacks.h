@@ -219,6 +219,7 @@ class ClearDataCallback : public BluetoothChunkerCallback {
     Logger::debug("[ClearDataCallback::afterReceive()] called");
     Config::reset();
     Bluetooth::reloadValues();
+    Guardian::clearStorage();
     core.reset();
   }
 

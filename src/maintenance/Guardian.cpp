@@ -1,6 +1,9 @@
 #include "maintenance/Guardian.h"
+#include "core/Core.h"
 
 unsigned long Guardian::lastStatisticTimestamp = 0;
+DataPersister* Guardian::measurePersister = nullptr;
+DataPersister* Guardian::logPersister = nullptr;
 
 String Guardian::getDeviceState() {
   String state = "";
@@ -81,10 +84,15 @@ void Guardian::statistics() {
     Logger::info("[Guardian::statistics]: Sending stats");
 
     Statistics.reportHeartbeat();
+    core.doCoreTasks();
     Statistics.reportConnectionState();
+    core.doCoreTasks();
     Statistics.reportConnectionType();
+    core.doCoreTasks();
     Statistics.reportPower();
+    core.doCoreTasks();
     Statistics.reportHeater();
+    core.doCoreTasks();
 
     lastStatisticTimestamp = millis();
   }
@@ -92,4 +100,20 @@ void Guardian::statistics() {
 
 void Guardian::check() {
   
+}
+
+void Guardian::tryFlushBuffers() {
+  if(measurePersister != nullptr) measurePersister->flushBuffer(DataPersister::BufferType::measurementBuferType);
+  if(logPersister != nullptr) logPersister->flushBuffer(DataPersister::BufferType::logBuffer);
+}
+
+void Guardian::clearStorage() {
+  FS* storage = DeviceContainer.storage->getStorage();
+  storage->rmdir("/measurements");
+  storage->rmdir("/logs");
+  storage->rmdir("/sbuffer");
+  StorableBuffer::createCatalogStructure("m");
+  storage->mkdir("/measurements");
+  storage->mkdir("/logs");
+  Logger::info("[Guardian::clearStorage()] Storage is clear.");
 }

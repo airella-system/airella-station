@@ -69,7 +69,15 @@ DateTime_t Time::getDataTime() {
 }
 
 tm* Time::getTimeInfo() {
-  time_t totalSecunds = timeClient.getEpochTime();
+  time_t totalSecunds;
+  if(initialized) totalSecunds = timeClient.getEpochTime();
+  else {
+    if(lastTimestamp > millis()) {
+      totalSecunds += 4294967;
+    }
+    lastTimestamp = millis();
+    totalSecunds = persistedTime + millis() / 1000;
+  }
   return localtime(&totalSecunds);
 }
 
@@ -79,11 +87,11 @@ void Time::persistTime() {
 }
 
 void Time::loadPersistedTime() {
-  timeClient.setTimeOffset(Config::getPersistedTime());
+  persistedTime = Config::getPersistedTime();
 }
 
 bool Time::shouldBePersist() {
-  return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 30;
+  return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 5;
 }
 
 Time timeProvider;

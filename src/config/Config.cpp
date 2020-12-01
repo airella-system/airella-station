@@ -21,7 +21,7 @@ String Config::locationLongitude = String();
 bool Config::locationManual = false;
 String Config::accessToken = String();
 String Config::gsmExtenderUrl = String();
-unsigned long Config::persistedTime = 1604218415;
+long Config::persistedTime = 1606592617;
 String Config::gsmConfig = String();
 
 Config::RegistrationState Config::registrationState = Config::RegistrationState::NO_REGISTRATION;
@@ -55,7 +55,7 @@ void Config::load(bool lock /* = true */) {
   Config::internetConnectionType =
       static_cast<Config::InternetConnectionType>(Config::preferences.getInt("inet-conn", 0));
   Config::accessToken = Config::preferences.getString("access-token", "");
-  Config::persistedTime = Config::preferences.getULong("persistedTime", 1604218415);
+  Config::persistedTime = Config::preferences.getLong("persistedTime", 1606592617);
   Config::gsmExtenderUrl = Config::preferences.getString("gsm-ext-url", "https://gsm-extender.airella.cyfrogen.com/");
   Config::gsmConfig = Config::preferences.getString("gsm-config", "");
   Config::preferences.end();
@@ -83,7 +83,7 @@ void Config::save(bool lock /* = true */) {
   Config::preferences.putInt("reg-state", static_cast<int>(Config::getRegistrationState(false)));
   Config::preferences.putInt("inet-conn", static_cast<int>(Config::getInternetConnectionType(false)));
   Config::preferences.putString("access-token", Config::getAccessToken(false));
-  Config::preferences.putULong("timestamp", Config::getPersistedTime(false));
+  Config::preferences.putLong("timestamp", Config::getPersistedTime(false));
   Config::preferences.putString("gsm-ext-url", Config::getGsmExtenderUrl(false));
   Config::preferences.putString("gsm-config", Config::getGsmConfig(false));
   Config::preferences.end();
@@ -201,7 +201,7 @@ String Config::getGsmExtenderUrl(bool lock /* = true */) {
   return getAtomicString(&Config::gsmExtenderUrl, lock);
 }
 
-unsigned long Config::getPersistedTime(bool lock /* = true */) {
+long Config::getPersistedTime(bool lock /* = true */) {
   if (lock) Config::lock();
   unsigned long value = Config::persistedTime;
   if (lock) Config::unlock();
@@ -306,11 +306,11 @@ void Config::setGsmConfig(String gsmConfig, bool lock /* = true */) {
   syncValueWithFlash(&gsmConfig, &Config::gsmConfig, "gsm-config", lock);
 }
 
-void Config::setPersistedTime(unsigned long persistedTime, bool lock /* = true */) {
+void Config::setPersistedTime(long persistedTime, bool lock /* = true */) {
   if (lock) Config::lock();
   Config::persistedTime = persistedTime;
   Config::preferences.begin("prefs", false);
-  Config::preferences.putULong("persistedTime", persistedTime);
+  Config::preferences.putLong("persistedTime", persistedTime);
   Config::preferences.end();
   if (lock) Config::unlock();
 }

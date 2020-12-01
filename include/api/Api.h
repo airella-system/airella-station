@@ -18,7 +18,7 @@ struct RegistrationResult {
 
 class ApiClass {
  public:
-  ApiClass(){};
+  ApiClass();
   ~ApiClass(){};
 
   RegistrationResult registerStation();
@@ -49,6 +49,9 @@ class ApiClass {
   bool addBtMacValue();
   void logRequest(const char* name, Http::Response& response);
   bool logRegistrationFail(const char* message, RegistrationResult* result);
+  bool noInternetConnectionOptimalization();
+  int tryCount = 0;
+  long lastTryTime = 0;
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;
