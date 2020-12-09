@@ -1,0 +1,35 @@
+// REGISTRATION
+// api/auth/registerStation
+{
+    "stationRegistrationToken": "string",
+    "additionalData": {
+        "add": {
+          "sensors": [{}], // same sensor models as before
+          "statistics": [{}] // same statistic models as before
+        },
+        "set": {
+          "name": "", // same name model as before
+          "address": {}, // same address model as before
+          "location": {} // same location model as before
+        }
+      }
+    }
+  }
+
+// ITERATION
+// api/stations/{stationId}/sendData
+{
+    "add": {
+      "measurements": [{
+          "sensorId": "",
+          "measurement": {} // same measurement model as before, with optional date
+      }],
+      "statisticValues": [{
+          "statisticId": "",
+          "statisticValue": {} // same statistic value model as before, with optional date
+      }]
+    },
+    "set": {
+      "location": {} // same location model as before
+    }
+  }
