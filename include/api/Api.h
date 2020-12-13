@@ -8,6 +8,7 @@
 #include "maintenance/Logger.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "maintenance/Statistics.h"
+#include "api/entity/RegiserModel.h"
 
 #define ACCESS_TOKEN_EXPIRATION_TIME 600000  // 1000ms * 60 * 10 = 10 min
 
@@ -33,22 +34,8 @@ class ApiClass {
 
  private:
   bool updateAccessToken();
-  bool registerSensor(const char* type);
-  bool doRegister(RegistrationResult* result);
-  bool doStationName(RegistrationResult* result);
-  bool doStationAddress(RegistrationResult* result);
-  bool doStationLocation(RegistrationResult* result);
-  bool doTempSensor(RegistrationResult* result);
-  bool doHumiditySensor(RegistrationResult* result);
-  bool doPreasurreSensor(RegistrationResult* result);
-  bool doPM1Sensor(RegistrationResult* result);
-  bool doPM2_5Sensor(RegistrationResult* result);
-  bool doPM10Sensor(RegistrationResult* result);
-  bool addStatistics(RegistrationResult* result);
-  bool doBtMacValue(RegistrationResult* result);
   bool addBtMacValue();
   void logRequest(const char* name, Http::Response& response);
-  bool logRegistrationFail(const char* message, RegistrationResult* result);
   bool noInternetConnectionOptimalization();
   int tryCount = 0;
   long lastTryTime = 0;

@@ -52,7 +52,8 @@ int Internet::resetType(Type type) {
   Internet::type = type;
   if (type == Internet::GSM) {
     return GsmConn::start();
-  } else if (type == Internet::WIFI) {
+  } 
+  else {
     return WiFiConn::start();
   }
 }

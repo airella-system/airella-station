@@ -24,17 +24,30 @@ class StatisticsClass {
   void reportConnectionState();
   void reportPower();
 
-  bool createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode,
-                                     const String& metric, const String& chartType);
-  bool createMultipleEnumsStatistic(const String& id, const String& name, const String& privacyMode,
-                                    StatisticEnumDefinition enumDefinitions[], int enumDefinitionsNum,
-                                    const String& chartType);
-  bool createStringStatistic(const String& id, const String& name, const String& privacyMode);
-  bool createStatistic(DynamicJsonDocument statisticDoc);
-
   bool sendFloatStatistic(const char* statisticId, double value);
   bool sendStringStatistic(const char* statisticId, const char* value);
   bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc);
+
+  JsonObject createMultipleFloatsStatisticObject(
+    const String& id, 
+    const String& name, 
+    const String& privacyMode,
+    const String& metric, 
+    const String& chartType
+  );
+  JsonObject createMultipleEnumsStatisticObject(
+    const String& id, 
+    const String& name, 
+    const String& privacyMode,
+    StatisticEnumDefinition enumDefinitions[], 
+    int enumDefinitionsNum,
+    const String& chartType
+  );
+  JsonObject createStringStatisticObject(
+    const String& id, 
+    const String& name, 
+    const String& privacyMode
+  );
 
   float calcTemperature();
   float calcHumidity();

@@ -43,63 +43,66 @@ void StatisticsClass::reportPower() {
   sendFloatStatistic("shounVoltage", powerInfo.shounVoltage);
 }
 
-bool StatisticsClass::createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode,
-                                                    const String& metric, const String& chartType) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(6) + 1024);
-  statisticDoc["privacyMode"] = privacyMode;
-  statisticDoc["id"] = id;
-  statisticDoc["name"] = name;
-  statisticDoc["type"] = "MULTIPLE_FLOATS";
-  statisticDoc["metric"] = metric;
-  statisticDoc["chartType"] = chartType;
-  return createStatistic(statisticDoc);
+JsonObject StatisticsClass::createMultipleFloatsStatisticObject(
+    const String& id, 
+    const String& name, 
+    const String& privacyMode,
+    const String& metric, 
+    const String& chartType
+  ) {
+  JsonObject object;
+  object["privacyMode"] = privacyMode;
+  object["id"] = id;
+  object["name"] = name;
+  object["type"] = "MULTIPLE_FLOATS";
+  object["metric"] = metric;
+  object["chartType"] = chartType;
+  return object;
 }
 
-bool StatisticsClass::createMultipleEnumsStatistic(const String& id, const String& name, const String& privacyMode,
-                                                   StatisticEnumDefinition enumDefinitions[], int enumDefinitionsNum,
-                                                   const String& chartType) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(5) + enumDefinitionsNum * JSON_OBJECT_SIZE(2) +
-                                   JSON_ARRAY_SIZE(enumDefinitionsNum) + 1024);
-  statisticDoc["privacyMode"] = privacyMode;
-  statisticDoc["id"] = id;
-  statisticDoc["name"] = name;
-  statisticDoc["type"] = "MULTIPLE_ENUMS";
-  statisticDoc["chartType"] = chartType;
+JsonObject StatisticsClass::createMultipleEnumsStatisticObject(
+    const String& id, 
+    const String& name, 
+    const String& privacyMode,
+    StatisticEnumDefinition enumDefinitions[], 
+    int enumDefinitionsNum,
+    const String& chartType
+  ) {
+  JsonObject object;
+  object["privacyMode"] = privacyMode;
+  object["id"] = id;
+  object["name"] = name;
+  object["type"] = "MULTIPLE_ENUMS";
+  object["chartType"] = chartType;
 
-  JsonArray enumDefs = statisticDoc.createNestedArray("enumDefinitions");
+  JsonArray enumDefs = object.createNestedArray("enumDefinitions");
   for (int i = 0; i < enumDefinitionsNum; i++) {
     JsonObject enumDef = enumDefs.createNestedObject();
     enumDef["id"] = enumDefinitions[i].id;
     enumDef["name"] = enumDefinitions[i].name;
   }
-  return createStatistic(statisticDoc);
+  return object;
 }
 
-bool StatisticsClass::createStringStatistic(const String& id, const String& name, const String& privacyMode) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(4) + 1024);
-  statisticDoc["privacyMode"] = privacyMode;
-  statisticDoc["id"] = id;
-  statisticDoc["name"] = name;
-  statisticDoc["type"] = "ONE_STRING";
-  return createStatistic(statisticDoc);
+JsonObject StatisticsClass::createStringStatisticObject(
+  const String& id, 
+  const String& name, 
+  const String& privacyMode
+  ) {
+  JsonObject object;
+  object["privacyMode"] = privacyMode;
+  object["id"] = id;
+  object["name"] = name;
+  object["type"] = "ONE_STRING";
+  return object;
 }
 
-bool StatisticsClass::createStatistic(DynamicJsonDocument statisticDoc) {
-  String body;
-  serializeJson(statisticDoc, body);
-  Http::Response response;
-
-  response = Internet::httpPost(getUrl(), body);
-  if (response.code != 201) {
-    Logger::debug(
-      (String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") 
-      + String(response.code)).c_str()
-    );
-    Logger::debug(response.payload);
-    return false;
-  }
-  Logger::debug(String("[StatisticsClass::createStatistic()] Created new statistic"));
-  return true;
+JsonObject createStringStatisticObject(const String& id, const String& name, const String& privacyMode) {
+  JsonObject object;
+  object["id"] = id;
+  object["name"] = name;
+  object["privacyMode"] = privacyMode;
+  return object;
 }
 
 bool StatisticsClass::sendFloatStatistic(const char* statisticId, double value) {
