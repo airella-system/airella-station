@@ -185,7 +185,7 @@ void Bluetooth::start(BluetoothHandler *bluetoothHandler, TaskHandler<void*, dou
   ble_addr_t peer_id_addrs[MYNEWT_VAL(BLE_STORE_MAX_BONDS)];
   int num_peers;
 
-  int rc = ble_store_util_bonded_peers(&peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
+  ble_store_util_bonded_peers(&peer_id_addrs[0], &num_peers, MYNEWT_VAL(BLE_STORE_MAX_BONDS));
 
   if (num_peers > 0) {
     Logger::debug("[Bluetooth::start()] One device is already bonded");

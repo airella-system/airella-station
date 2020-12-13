@@ -9,6 +9,7 @@
 #include "communication/bluetooth/Bluetooth.h"
 #include "maintenance/Statistics.h"
 #include "api/entity/RegiserModel.h"
+#include "api/entity/DataModel.h"
 
 #define ACCESS_TOKEN_EXPIRATION_TIME 600000  // 1000ms * 60 * 10 = 10 min
 
@@ -29,8 +30,14 @@ class ApiClass {
   bool publishHistoricalMeasurement(String* sensor, String* data, String* date);
   bool publishName(const char *name, bool authCheck = true);
   bool publishLocation(double longitude, double latitude, bool authCheck = true);
-  bool publishAddress(const char* country, const char* city, const char* street, const char* number,
-                      bool authCheck = true);
+  bool publishAddress(
+    const char* country,
+    const char* city, 
+    const char* street, 
+    const char* number,
+    bool authCheck = true
+  );
+  bool publishDataModel(DataModel& data);
 
  private:
   bool updateAccessToken();

@@ -17,41 +17,44 @@ struct StatisticEnumDefinition {
 
 class StatisticsClass {
  public:
-  void reportBootUp();
-  void reportConnectionType();
-  void reportHeater();
-  void reportHeartbeat();
-  void reportConnectionState();
-  void reportPower();
+  const JsonObject getBootUpObject() const;
+  const JsonObject getConnectionTypeObject() const;
+  const JsonObject getHeaterObject() const;
+  const JsonObject getHeartbeatObject() const;
+  const JsonObject getConnectionStateObject() const;
+  const JsonObject getPowerObject() const;
+  const JsonObject getStatisticObject(const char* type, const char* value) const;
+  const JsonObject getStatisticObject(const char* type, const float value) const;
 
-  bool sendFloatStatistic(const char* statisticId, double value);
-  bool sendStringStatistic(const char* statisticId, const char* value);
-  bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc);
-
-  JsonObject createMultipleFloatsStatisticObject(
+  const JsonObject createMultipleFloatsStatisticObject(
     const String& id, 
     const String& name, 
     const String& privacyMode,
     const String& metric, 
     const String& chartType
-  );
-  JsonObject createMultipleEnumsStatisticObject(
+  ) const;
+  const JsonObject createMultipleEnumsStatisticObject(
     const String& id, 
     const String& name, 
     const String& privacyMode,
     StatisticEnumDefinition enumDefinitions[], 
     int enumDefinitionsNum,
     const String& chartType
-  );
-  JsonObject createStringStatisticObject(
+  ) const;
+  const JsonObject createStringStatisticObject(
     const String& id, 
     const String& name, 
     const String& privacyMode
-  );
+  ) const;
 
-  float calcTemperature();
-  float calcHumidity();
-  float calcPressure();
+  float calcTemperature() const;
+  float calcHumidity() const;
+  float calcPressure() const;
+
+  void reportBootUp() const;
+  bool sendFloatStatistic(const char* statisticId, double value) const;
+  bool sendStringStatistic(const char* statisticId, const char* value) const;
+  bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) const;
 
  private:
   const unsigned int dataArraySize = 5;
@@ -60,8 +63,8 @@ class StatisticsClass {
   unsigned char bufferSize = 0;
   bool isEmpty();
   template<typename F>
-  float calc(F &&getData);
-  float abs(float a);
+  float calc(F &&getData) const;
+  float abs(float a) const;
 };
 
 extern StatisticsClass Statistics;

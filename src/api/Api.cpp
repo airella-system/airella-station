@@ -347,4 +347,8 @@ bool ApiClass::noInternetConnectionOptimalization() {
   return false;
 }
 
+bool ApiClass::publishDataModel(DataModel& data) {
+
+}
+
 ApiClass Api;

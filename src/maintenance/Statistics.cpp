@@ -2,54 +2,70 @@
 #include <algorithm>
 #include <functional>
 
-void StatisticsClass::reportBootUp() {
-  sendStringStatistic("boot", "BOOT");
+const JsonObject StatisticsClass::getBootUpObject() const {
+  return getStatisticObject("boot", "BOOT");
 }
 
-void StatisticsClass::reportConnectionType() {
+const JsonObject StatisticsClass::getConnectionTypeObject() const {
   const char* typeName = Config::getInternetConnectionType() == Config::InternetConnectionType::WIFI ? "WIFI" : "GSM";
-  sendStringStatistic("connectionType", typeName);
+  return getStatisticObject("connectionType", typeName);
 }
 
-void StatisticsClass::reportHeater() {
-  Heater* heater = DeviceContainer.heater;
-  if(!heater->isInit()) return;
-  HeaterReport heaterReport = heater->getReport();
-  sendFloatStatistic("heaterTemp", heaterReport.temperature);
-  sendFloatStatistic("heaterHum", heaterReport.humidity);
-  sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
-  sendFloatStatistic("heaterPower", heaterReport.currentPower / 255.0 * 100.0);
-  const char* strValue = heaterReport.isOn ? "ON" : "OFF";
-  sendStringStatistic("heaterState", strValue);
+// void StatisticsClass::reportHeater() const {
+//   Heater* heater = DeviceContainer.heater;
+//   if(!heater->isInit()) return;
+//   HeaterReport heaterReport = heater->getReport();
+//   sendFloatStatistic("heaterTemp", heaterReport.temperature);
+//   sendFloatStatistic("heaterHum", heaterReport.humidity);
+//   sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
+//   sendFloatStatistic("heaterPower", heaterReport.currentPower / 255.0 * 100.0);
+//   const char* strValue = heaterReport.isOn ? "ON" : "OFF";
+//   sendStringStatistic("heaterState", strValue);
+// }
+
+const JsonObject StatisticsClass::getHeartbeatObject() const {
+  return getStatisticObject("heartbeat", "HEARTBEAT");
 }
 
-void StatisticsClass::reportHeartbeat() {
-  sendStringStatistic("heartbeat", "HEARTBEAT");
-}
-
-void StatisticsClass::reportConnectionState() {
+const JsonObject StatisticsClass::getConnectionStateObject() const {
   const char* strValue = Internet::isOk() ? "OK" : "ERROR";
-  sendStringStatistic("connectionState", strValue);
+  return getStatisticObject("connectionState", strValue);
 }
 
-void StatisticsClass::reportPower() {
-  PowerSensor* powerSensor = DeviceContainer.powerSensor;
-  if(!powerSensor->isInit()) return;
-  PowerInfo powerInfo = powerSensor->getPowerInfo();
-  sendFloatStatistic("busVoltage", powerInfo.busVoltage);
-  sendFloatStatistic("current", powerInfo.current);
-  sendFloatStatistic("loadVoltage", powerInfo.loadVoltage);
-  sendFloatStatistic("power", powerInfo.power);
-  sendFloatStatistic("shounVoltage", powerInfo.shounVoltage);
+// void StatisticsClass::reportPower() const {
+//   PowerSensor* powerSensor = DeviceContainer.powerSensor;
+//   if(!powerSensor->isInit()) return;
+//   PowerInfo powerInfo = powerSensor->getPowerInfo();
+//   sendFloatStatistic("busVoltage", powerInfo.busVoltage);
+//   sendFloatStatistic("current", powerInfo.current);
+//   sendFloatStatistic("loadVoltage", powerInfo.loadVoltage);
+//   sendFloatStatistic("power", powerInfo.power);
+//   sendFloatStatistic("shounVoltage", powerInfo.shounVoltage);
+// }
+
+const JsonObject StatisticsClass::getStatisticObject(const char* type, const char* value) const {
+  JsonObject statisticObject;
+  statisticObject["statisticId"] = type;
+  JsonObject statisticValue = statisticObject.createNestedObject("statisticValue");
+  statisticValue["value"] = value;
+  return statisticObject;
 }
 
-JsonObject StatisticsClass::createMultipleFloatsStatisticObject(
+const JsonObject StatisticsClass::getStatisticObject(const char* type, const float value) const {
+  JsonObject statisticObject;
+  statisticObject["statisticId"] = type;
+  JsonObject statisticValue = statisticObject.createNestedObject("statisticValue");
+  statisticValue["value"] = value;
+  return statisticObject;
+}
+
+const JsonObject StatisticsClass::createMultipleFloatsStatisticObject(
     const String& id, 
     const String& name, 
     const String& privacyMode,
     const String& metric, 
     const String& chartType
-  ) {
+  ) const {
   JsonObject object;
   object["privacyMode"] = privacyMode;
   object["id"] = id;
@@ -60,14 +76,14 @@ JsonObject StatisticsClass::createMultipleFloatsStatisticObject(
   return object;
 }
 
-JsonObject StatisticsClass::createMultipleEnumsStatisticObject(
+const JsonObject StatisticsClass::createMultipleEnumsStatisticObject(
     const String& id, 
     const String& name, 
     const String& privacyMode,
     StatisticEnumDefinition enumDefinitions[], 
     int enumDefinitionsNum,
     const String& chartType
-  ) {
+  ) const {
   JsonObject object;
   object["privacyMode"] = privacyMode;
   object["id"] = id;
@@ -84,11 +100,11 @@ JsonObject StatisticsClass::createMultipleEnumsStatisticObject(
   return object;
 }
 
-JsonObject StatisticsClass::createStringStatisticObject(
+const JsonObject StatisticsClass::createStringStatisticObject(
   const String& id, 
   const String& name, 
   const String& privacyMode
-  ) {
+  ) const {
   JsonObject object;
   object["privacyMode"] = privacyMode;
   object["id"] = id;
@@ -97,27 +113,23 @@ JsonObject StatisticsClass::createStringStatisticObject(
   return object;
 }
 
-JsonObject createStringStatisticObject(const String& id, const String& name, const String& privacyMode) {
-  JsonObject object;
-  object["id"] = id;
-  object["name"] = name;
-  object["privacyMode"] = privacyMode;
-  return object;
+void StatisticsClass::reportBootUp() const {
+  sendStringStatistic("boot", "BOOT");
 }
 
-bool StatisticsClass::sendFloatStatistic(const char* statisticId, double value) {
+bool StatisticsClass::sendFloatStatistic(const char* statisticId, double value) const {
   DynamicJsonDocument data(JSON_OBJECT_SIZE(1));
   data["value"] = value;
   return sendStatistic(statisticId, data);
 }
 
-bool StatisticsClass::sendStringStatistic(const char* statisticId, const char* value) {
+bool StatisticsClass::sendStringStatistic(const char* statisticId, const char* value) const {
   DynamicJsonDocument data(JSON_OBJECT_SIZE(1));
   data["value"] = value;
   return sendStatistic(statisticId, data);
 }
 
-bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) {
+bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) const {
   if (!Api.isAuth()) {
     Logger::debug("[Statistics::sendStatistic()] Authorization failed");
     return false;
@@ -159,26 +171,26 @@ bool StatisticsClass::isEmpty() {
   return bufferSize == 0;
 }
 
-float StatisticsClass::calcTemperature() {
+float StatisticsClass::calcTemperature() const {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
   auto getData = [&sensor]() { return sensor->getTemperature(); };
   return calc(getData);
 }
 
-float StatisticsClass::calcHumidity() {
+float StatisticsClass::calcHumidity() const {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
   auto getData = [&sensor]() { return sensor->getHumidity(); };
   return calc(getData);
 }
 
-float StatisticsClass::calcPressure() {
+float StatisticsClass::calcPressure() const {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
   auto getData = [&sensor]() { return sensor->getPressure(); };
   return calc(getData);
 }
 
 template<typename F>
-float StatisticsClass::calc(F &&getData) {
+float StatisticsClass::calc(F &&getData) const {
   float data[dataArraySize];
   for(unsigned int i = 0; i < dataArraySize; i++) {
     data[i] = getData();
@@ -203,7 +215,7 @@ float StatisticsClass::calc(F &&getData) {
   return sum / count;
 }
 
-float StatisticsClass::abs(float a) {
+float StatisticsClass::abs(float a) const {
   if(a < 0) return -1 * a;
   return a;
 }

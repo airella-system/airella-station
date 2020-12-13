@@ -1,5 +1,4 @@
 #include "maintenance/Guardian.h"
-#include "core/Core.h"
 
 unsigned long Guardian::lastStatisticTimestamp = 0;
 DataPersister* Guardian::measurePersister = nullptr;
@@ -34,7 +33,7 @@ String Guardian::getDeviceState() {
   #ifndef IS_MOCK
   state += ",";
   state += "API_CONNECTION|";
-  state += core.isError() ? "ERROR" : "OK";
+  state += "OK"; // temporary
   state += ",";
   state += DeviceContainer.airSensor->getTextState();
   state += ",";
@@ -78,21 +77,16 @@ bool Guardian::reconectWiFi() {
   return false;
 }
 
-void Guardian::statistics() {
-  // if (abs(millis() - lastStatisticTimestamp) > 1000 * 60 * 10) {
-  if (abs(millis() - lastStatisticTimestamp) > 1000 * 60 * 0.5) {  // just for debug
+void Guardian::statistics(DataModel& dataModel) {
+  if (abs(millis() - lastStatisticTimestamp) > 1000 * 60) {  // just for debug
     Logger::info("[Guardian::statistics]: Sending stats");
 
-    Statistics.reportHeartbeat();
-    core.doCoreTasks();
-    Statistics.reportConnectionState();
-    core.doCoreTasks();
-    Statistics.reportConnectionType();
-    core.doCoreTasks();
-    Statistics.reportPower();
-    core.doCoreTasks();
-    Statistics.reportHeater();
-    core.doCoreTasks();
+    dataModel.addStatisticValue(Statistics.getHeartbeatObject());
+    dataModel.addStatisticValue(Statistics.getConnectionStateObject());
+    dataModel.addStatisticValue(Statistics.getConnectionTypeObject());
+    // Statistics.reportConnectionType();
+    // Statistics.reportPower();
+    // Statistics.reportHeater();
 
     lastStatisticTimestamp = millis();
   }
