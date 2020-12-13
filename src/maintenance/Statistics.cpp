@@ -11,18 +11,6 @@ const JsonObject StatisticsClass::getConnectionTypeObject() const {
   return getStatisticObject("connectionType", typeName);
 }
 
-// void StatisticsClass::reportHeater() const {
-//   Heater* heater = DeviceContainer.heater;
-//   if(!heater->isInit()) return;
-//   HeaterReport heaterReport = heater->getReport();
-//   sendFloatStatistic("heaterTemp", heaterReport.temperature);
-//   sendFloatStatistic("heaterHum", heaterReport.humidity);
-//   sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
-//   sendFloatStatistic("heaterPower", heaterReport.currentPower / 255.0 * 100.0);
-//   const char* strValue = heaterReport.isOn ? "ON" : "OFF";
-//   sendStringStatistic("heaterState", strValue);
-// }
-
 const JsonObject StatisticsClass::getHeartbeatObject() const {
   return getStatisticObject("heartbeat", "HEARTBEAT");
 }
@@ -32,16 +20,28 @@ const JsonObject StatisticsClass::getConnectionStateObject() const {
   return getStatisticObject("connectionState", strValue);
 }
 
-// void StatisticsClass::reportPower() const {
-//   PowerSensor* powerSensor = DeviceContainer.powerSensor;
-//   if(!powerSensor->isInit()) return;
-//   PowerInfo powerInfo = powerSensor->getPowerInfo();
-//   sendFloatStatistic("busVoltage", powerInfo.busVoltage);
-//   sendFloatStatistic("current", powerInfo.current);
-//   sendFloatStatistic("loadVoltage", powerInfo.loadVoltage);
-//   sendFloatStatistic("power", powerInfo.power);
-//   sendFloatStatistic("shounVoltage", powerInfo.shounVoltage);
-// }
+void StatisticsClass::setPowerObject(DataModel& model) const {
+  PowerSensor* powerSensor = DeviceContainer.powerSensor;
+  if(!powerSensor->isInit()) return;
+  PowerInfo powerInfo = powerSensor->getPowerInfo();
+  model.addStatisticValue(getStatisticObject("busVoltage", powerInfo.busVoltage));
+  model.addStatisticValue(getStatisticObject("current", powerInfo.current));
+  model.addStatisticValue(getStatisticObject("loadVoltage", powerInfo.loadVoltage));
+  model.addStatisticValue(getStatisticObject("power", powerInfo.power));
+  model.addStatisticValue(getStatisticObject("shounVoltage", powerInfo.shounVoltage));
+}
+
+void StatisticsClass::setHeaterObject(DataModel& model) const {
+  Heater* heater = DeviceContainer.heater;
+  if(!heater->isInit()) return;
+  HeaterReport heaterReport = heater->getReport();
+  const char* strValue = heaterReport.isOn ? "ON" : "OFF";
+  model.addStatisticValue(getStatisticObject("heaterTemp", heaterReport.temperature));
+  model.addStatisticValue(getStatisticObject("heaterHum", heaterReport.humidity));
+  model.addStatisticValue(getStatisticObject("heaterDewPoint", heaterReport.dewPoint));
+  model.addStatisticValue(getStatisticObject("heaterPower", heaterReport.currentPower / 255.0 * 100.0));
+  model.addStatisticValue(getStatisticObject("heaterState", strValue));
+}
 
 const JsonObject StatisticsClass::getStatisticObject(const char* type, const char* value) const {
   JsonObject statisticObject;

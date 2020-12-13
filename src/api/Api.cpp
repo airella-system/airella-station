@@ -347,8 +347,24 @@ bool ApiClass::noInternetConnectionOptimalization() {
   return false;
 }
 
-bool ApiClass::publishDataModel(DataModel& data) {
+bool ApiClass::publishDataModel(const String& body) {
+  // todo
+  // measurementPersister.saveMeasurement(sensor, body); // todo
+  if(noInternetConnectionOptimalization()) return false;
 
+  if (!isAuth()) {
+    Logger::debug("[ApiClass::publishDataModel()] Authorization failed");
+    return false;
+  }
+
+  Http::Response response = Internet::httpPost(
+    Config::getApiUrl() + "/stations/" + Config::getApiStationId() + "/query", 
+    body
+  );
+
+  Logger::debug(String("Add measurement response code: ") + response.code + " payload: " + response.payload);
+
+  return response.code == 200;
 }
 
 ApiClass Api;

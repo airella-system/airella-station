@@ -78,15 +78,14 @@ bool Guardian::reconectWiFi() {
 }
 
 void Guardian::statistics(DataModel& dataModel) {
-  if (abs(millis() - lastStatisticTimestamp) > 1000 * 60) {  // just for debug
+  if (abs(millis() - lastStatisticTimestamp) > 1000 * 60) {
     Logger::info("[Guardian::statistics]: Sending stats");
 
     dataModel.addStatisticValue(Statistics.getHeartbeatObject());
     dataModel.addStatisticValue(Statistics.getConnectionStateObject());
     dataModel.addStatisticValue(Statistics.getConnectionTypeObject());
-    // Statistics.reportConnectionType();
-    // Statistics.reportPower();
-    // Statistics.reportHeater();
+    Statistics.setPowerObject(dataModel);
+    Statistics.setHeaterObject(dataModel);
 
     lastStatisticTimestamp = millis();
   }

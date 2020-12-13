@@ -65,7 +65,6 @@ void Core::main() {
 
   while (isWorking) {
     doCoreTasks();
-    bool isOk = true;
     if (abs(millis() - lastCheckMillis) > 10000) {
       DataModel dataModel;
       Guardian::statistics(dataModel);
@@ -73,11 +72,15 @@ void Core::main() {
       checkGpsLocation(dataModel);
 
       if(dataModel.containsData) {
-        isOk = Api.publishDataModel(dataModel);
+        String body;
+        serializeJson(dataModel.doc, body);
+        if(!Api.publishDataModel(body)) {
+          // storableBuffer.push(); // todo
+        }
       }
 
       Guardian::tryFlushBuffers();
-      storableBuffer.sync();
+      storableBuffer.sync(); // todo
 
       if (timeProvider.shouldBePersist()) timeProvider.persistTime();
       lastCheckMillis = millis();

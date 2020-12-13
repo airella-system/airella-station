@@ -7,6 +7,7 @@
 #include "device/DeviceContainer.h"
 #include "maintenance/Logger.h"
 #include "time/Time.h"
+#include "api/entity/DataModel.h"
 
 #define MAX_BUFFER_SIZE 30
 
@@ -19,12 +20,12 @@ class StatisticsClass {
  public:
   const JsonObject getBootUpObject() const;
   const JsonObject getConnectionTypeObject() const;
-  const JsonObject getHeaterObject() const;
   const JsonObject getHeartbeatObject() const;
   const JsonObject getConnectionStateObject() const;
-  const JsonObject getPowerObject() const;
   const JsonObject getStatisticObject(const char* type, const char* value) const;
   const JsonObject getStatisticObject(const char* type, const float value) const;
+  void setPowerObject(DataModel& model) const;
+  void setHeaterObject(DataModel& model) const;
 
   const JsonObject createMultipleFloatsStatisticObject(
     const String& id, 

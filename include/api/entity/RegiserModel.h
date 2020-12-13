@@ -31,7 +31,7 @@ public:
     sensors.add(sensor);
   }
 
-  void addStatistic(JsonObject statistic) {
+  void addStatistic(const JsonObject& statistic) {
     statistics.add(statistic);
   }
 

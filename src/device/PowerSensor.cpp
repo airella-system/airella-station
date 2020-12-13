@@ -45,7 +45,7 @@ float PowerSensor::getLoadVoltage() {
   return busvoltage + (shuntvoltage / 1000);
 }
 
-PowerInfo PowerSensor::getPowerInfo() {
+const PowerInfo PowerSensor::getPowerInfo() {
   PowerInfo powerInfo;
 
   powerInfo.shounVoltage = inaDevice.getShuntVoltage_mV();

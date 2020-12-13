@@ -17,11 +17,11 @@ class Internet {
   static void stop();
   static bool isConnected();
   static bool isOk();
-  static Http::Response httpGet(const String& url);
-  static Http::Response httpGet(const String& url, String& authorization);
-  static Http::Response httpPost(const String& url, String& body);
-  static Http::Response httpPost(const String& url, String& body, String& authorization);
-  static Http::Response httpPut(const String& url, String& body, String& authorization);
+  static const Http::Response httpGet(const String& url);
+  static const Http::Response httpGet(const String& url, String& authorization);
+  static const Http::Response httpPost(const String& url, String& body);
+  static const Http::Response httpPost(const String& url, String& body, String& authorization);
+  static const Http::Response httpPut(const String& url, String& body, String& authorization);
 
  private:
   static Type type;

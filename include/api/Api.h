@@ -37,7 +37,7 @@ class ApiClass {
     const char* number,
     bool authCheck = true
   );
-  bool publishDataModel(DataModel& data);
+  bool publishDataModel(const String& body);
 
  private:
   bool updateAccessToken();
