@@ -21,6 +21,7 @@ public:
   void addMeasurement(const char* type, float value) {
     if(!measurementIsInit) {
       measurements = add.createNestedArray("measurements");
+      measurementIsInit = true;
     }
     JsonObject measurementObject;
     measurementObject["sensorId"] = type;
@@ -33,6 +34,7 @@ public:
   void addStatisticValue(const JsonObject& statisticObject) {
     if(!statisticIsInit) {
       statisticValues = add.createNestedArray("statisticValues");
+      statisticIsInit = true;
     }
     statisticValues.add(statisticObject);
     containsData = true;
@@ -42,6 +44,7 @@ public:
     if(!locationIsInit) {
       JsonObject set = doc.createNestedObject("add");
       location = set.createNestedObject("location");
+      locationIsInit = true;
     }
     location["latitude"] = latitude;
     location["longitude"] = longitude;

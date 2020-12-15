@@ -18,10 +18,10 @@ class Internet {
   static bool isConnected();
   static bool isOk();
   static const Http::Response httpGet(const String& url);
-  static const Http::Response httpGet(const String& url, String& authorization);
-  static const Http::Response httpPost(const String& url, String& body);
-  static const Http::Response httpPost(const String& url, String& body, String& authorization);
-  static const Http::Response httpPut(const String& url, String& body, String& authorization);
+  static const Http::Response httpGet(const String& url, const String& authorization);
+  static const Http::Response httpPost(const String& url, const String& body);
+  static const Http::Response httpPost(const String& url, const String& body, const String& authorization);
+  static const Http::Response httpPut(const String& url, const String& body, const String& authorization);
 
  private:
   static Type type;

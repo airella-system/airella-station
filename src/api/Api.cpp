@@ -280,31 +280,6 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
   return response.code == 200;
 }
 
-bool ApiClass::publishHistoricalMeasurement(String* sensor, String* data, String* date) {
-  if(noInternetConnectionOptimalization()) return false;
-  
-  if (!isAuth()) {
-    Logger::debug("[ApiClass::publishMeasurement()] Authorization failed");
-    return false;
-  }
-
-  String apiUrlBase = Config::getApiUrl();
-  String url = apiUrlBase + "/stations/" + Config::getApiStationId() + "/sensors/" + *sensor + "/measurements";
-
-  DynamicJsonDocument doc(JSON_OBJECT_SIZE(2) + 100);
-  doc["value"] = (*data);
-  doc["date"] = (*date);
-  String body = "";
-  serializeJson(doc, body);
-  Logger::debug(body);
-  Http::Response response = Internet::httpPost(url, body, String("Bearer ") + accessToken);
-
-  String debugText = String("Add measurement response code: ") + response.code + " payload: " + response.payload;
-  Logger::debug(debugText.c_str());
-
-  return response.code == 200;
-}
-
 bool ApiClass::isAuth() {
   return isRegistered() && updateAccessToken();
 }
@@ -347,10 +322,11 @@ bool ApiClass::noInternetConnectionOptimalization() {
   return false;
 }
 
-bool ApiClass::publishDataModel(const String& body) {
-  // todo
-  // measurementPersister.saveMeasurement(sensor, body); // todo
+bool ApiClass::publishDataModel(const String& body, bool persistData/* = true*/) {
   if(noInternetConnectionOptimalization()) return false;
+  if(persistData) {
+  // measurementPersister.saveMeasurement(sensor, body); // todo
+  }
 
   if (!isAuth()) {
     Logger::debug("[ApiClass::publishDataModel()] Authorization failed");

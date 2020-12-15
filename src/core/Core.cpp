@@ -75,7 +75,7 @@ void Core::main() {
         String body;
         serializeJson(dataModel.doc, body);
         if(!Api.publishDataModel(body)) {
-          // storableBuffer.push(); // todo
+          storableBuffer.push(dataModel);
         }
       }
 

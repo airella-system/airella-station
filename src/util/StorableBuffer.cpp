@@ -1,6 +1,6 @@
 #include "util/StorableBuffer.h"
 
-StorableBuffer::StorableBuffer(String _name) : name(_name) {
+StorableBuffer::StorableBuffer(const String& _name) : name(_name) {
   DeviceContainer.storage->tryToInit();
   if(!DeviceContainer.storage->isInit()) {
     Logger::debug("[StorableBuffer::StorableBuffer()] Storage is not initialized");
@@ -25,7 +25,7 @@ StorableBuffer::StorableBuffer(String _name) : name(_name) {
   initialized = true;
 }
 
-void StorableBuffer::createCatalogStructure(String _name) {
+void StorableBuffer::createCatalogStructure(const String& _name) {
   FS* storage = DeviceContainer.storage->getStorage();
   if(!storage->exists("/sbuffer")) {
     storage->mkdir("/sbuffer");
@@ -35,26 +35,35 @@ void StorableBuffer::createCatalogStructure(String _name) {
   }
 }
 
-void StorableBuffer::push(const char* type, const String& data) {
+void StorableBuffer::push(const DataModel& data) {
   if(!initialized) return;
   if(bufferSize == BUFFER_MAX_SIZE) {
     saveToStorege();
     bufferSize = 0;
   }
-  BufferItem bufferItem;
-  bufferItem.data = data;
-  bufferItem.date = timeProvider.getDataTime().toISOString();
-  bufferItem.type = type;
-  buffer[bufferSize++] = bufferItem;
+  
+  const String date = timeProvider.getDataTime().toISOString();
+  if(data.measurementIsInit) {
+    for(auto item : data.measurements) {
+      item["measurement"]["date"] = date;
+    }
+  }
+  if(data.statisticIsInit) {
+    for(auto item : data.statisticValues) {
+      item["statisticValue"]["date"] = date;
+    }
+  }
+  String body;
+  serializeJson(data.doc, body);
+  buffer[bufferSize++] = body;
 }
 
-BufferItem StorableBuffer::pop() {
-  BufferItem empty;
-  if(bufferSize == 0) return empty;
+const String StorableBuffer::pop() {
+  if(bufferSize == 0) return "";
   return buffer[--bufferSize];
 }
 
-bool StorableBuffer::isEmpty() {
+bool StorableBuffer::isEmpty() const {
   return bufferSize == 0;
 }
 
@@ -63,43 +72,31 @@ bool StorableBuffer::needSync() {
 }
 
 void StorableBuffer::saveToStorege() {
-  String data = "";
-  for(BufferItem item : buffer) {
-    data += item.date + item.data + "|" + item.type + "\n";
+  String data;
+  for(const String item : buffer) {
+    data += item + ";";
   }
   bufferSize = 0;
-
   ++lastFileNum;
-  String newFileName = String("/sbuffer/" + name + "/" + String(lastFileNum, DEC));
+  const String newFileName = String("/sbuffer/" + name + "/" + String(lastFileNum, DEC));
   DeviceContainer.storage->write(data.c_str(), newFileName.c_str());
   storagedFiles.add(newFileName);
 }
 
-void StorableBuffer::loadFromStorege(MultiValueList& list) {
+void StorableBuffer::loadFromStorege(List& list) {
   String* fileName = storagedFiles.pop();
   if(fileName == NULL) return;
   String fileContent = DeviceContainer.storage->read((*fileName).c_str());
   
-  unsigned int lineStart = 0;
-  unsigned int lineEnd = 0;
-  unsigned int valueStart = 0;
-  unsigned int valueEnd = 0;
+  unsigned int checkpoint = 0;
+  unsigned int lastCheckpoint = 0;
 
   for(char singleChar : fileContent) {
-    lineEnd++;
-    if(singleChar == '\n') {
-      MultiValueNode* node = new MultiValueNode(3);
-      valueStart = lineStart + 20;
-      for(int i = lineStart + 19; i < lineEnd; ++i) {
-          if(fileContent[i] == '|') valueEnd = i;
-      }
-      node->values[0] = new String(fileContent.substring(lineStart, valueStart));
-      node->values[1] = new String(fileContent.substring(valueStart, valueEnd));
-      node->values[2] = new String(fileContent.substring(valueEnd + 1, lineEnd - 1));
-
-      list.add(node);
-      lineStart = lineEnd;
+    if(singleChar == ';') {
+      list.add(String(fileContent.substring(lastCheckpoint, checkpoint)));
+      lastCheckpoint = checkpoint + 1;
     }
+    checkpoint++;
   }
   DeviceContainer.storage->remove((*fileName).c_str());
 }
@@ -108,26 +105,16 @@ void StorableBuffer::sync() {
   if(!initialized) return;
   if(!Internet::isOk()) return;
   
-  MultiValueList list;
-  MultiValueList backupList;
-  while (!isEmpty()) {
-    BufferItem item = pop();
-    MultiValueNode* node = new MultiValueNode(3);
-    node->values[0] = new String(item.date);
-    node->values[1] = new String(item.data);
-    node->values[2] = new String(item.type);
-    list.add(node);
-  }
+  List list;
+  List backupList;
+  while (!isEmpty()) list.add(pop());
   
   loadFromStorege(list);
   while(!list.isEmpty()) {
-    MultiValueNode* node = list.pop();
+    String* node = list.pop();
 
-    if(Api.publishHistoricalMeasurement(node->values[2], node->values[1], node->values[0])) {
-      MultiValueList::clear(node, 3);
-    }
-    else {
-      backupList.add(node);
+    if(!Api.publishDataModel(*node, false)) {
+      backupList.add(*node);
     }
   }
   
@@ -135,12 +122,10 @@ void StorableBuffer::sync() {
   if(!list.isEmpty()) {
     String data; 
     while(!list.isEmpty()) {
-      MultiValueNode* node = list.pop();
-      data += *node->values[0] + *node->values[1] + "|" + *node->values[2] + "\n";
-      MultiValueList::clear(node, 3);
+      data += *list.pop() + "@";
     }
     ++lastFileNum;
-    String newFileName = String("/sbuffer/" + name + "/" + String(lastFileNum, DEC));
+    const String newFileName = String("/sbuffer/" + name + "/" + String(lastFileNum, DEC));
     DeviceContainer.storage->write(data.c_str(), newFileName.c_str());
     storagedFiles.add(newFileName);
   }
