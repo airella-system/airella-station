@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include "util/DataPersister.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
@@ -20,8 +19,8 @@ struct RegistrationResult {
 
 class ApiClass {
  public:
-  ApiClass();
-  ~ApiClass(){};
+  ApiClass() {};
+  ~ApiClass() {};
 
   RegistrationResult registerStation();
   bool isRegistered();
@@ -36,7 +35,7 @@ class ApiClass {
     const char* number,
     bool authCheck = true
   );
-  bool publishDataModel(const String& body, bool persistData = true);
+  bool publishDataModel(const String& body);
 
  private:
   bool updateAccessToken();
@@ -48,7 +47,6 @@ class ApiClass {
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;
-  DataPersister measurementPersister;
 };
 
 extern ApiClass Api;

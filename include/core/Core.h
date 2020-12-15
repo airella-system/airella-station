@@ -31,6 +31,7 @@
 #include "util/StorableBuffer.h"
 #include "config/Autocofiguration.h"
 #include "api/entity/DataModel.h"
+#include "util/DataPersister.h"
 
 class Core {
 public:
@@ -60,6 +61,7 @@ public:
   TaskHandler<void*, double, String>* taskHandler;
   StorableBuffer storableBuffer;
   void tryPublishMeasurement();
+  DataPersister measurementPersister;
 };
 
 extern Core core;

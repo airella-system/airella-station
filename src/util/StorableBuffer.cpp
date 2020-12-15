@@ -113,7 +113,7 @@ void StorableBuffer::sync() {
   while(!list.isEmpty()) {
     String* node = list.pop();
 
-    if(!Api.publishDataModel(*node, false)) {
+    if(!Api.publishDataModel(*node)) {
       backupList.add(*node);
     }
   }

@@ -1,10 +1,6 @@
 #include "api/Api.h"
 #include "maintenance/Guardian.h"
 
-ApiClass::ApiClass() {
-  Guardian::measurePersister = &measurementPersister;
-}
-
 RegistrationResult ApiClass::registerStation() {
   RegistrationResult result;
   result.ok = true;
@@ -261,7 +257,6 @@ bool ApiClass::publishMeasurement(String sensor, double value, bool authCheck /*
   doc["value"] = value;
   String body = "";
   serializeJson(doc, body);
-  measurementPersister.saveMeasurement(sensor, body);
   if(noInternetConnectionOptimalization()) return false;
 
   if (authCheck && !isAuth()) {
@@ -322,11 +317,8 @@ bool ApiClass::noInternetConnectionOptimalization() {
   return false;
 }
 
-bool ApiClass::publishDataModel(const String& body, bool persistData/* = true*/) {
+bool ApiClass::publishDataModel(const String& body) {
   if(noInternetConnectionOptimalization()) return false;
-  if(persistData) {
-  // measurementPersister.saveMeasurement(sensor, body); // todo
-  }
 
   if (!isAuth()) {
     Logger::debug("[ApiClass::publishDataModel()] Authorization failed");

@@ -14,7 +14,7 @@ public:
   };
   DataPersister();
   ~DataPersister() {};
-  void saveMeasurement(String& sensor, String data);
+  void saveMeasurement(const char* sensor, float data);
   void saveLog(String& logMessage);
   void flushBuffer(BufferType type);
 

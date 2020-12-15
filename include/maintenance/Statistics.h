@@ -59,10 +59,7 @@ class StatisticsClass {
 
  private:
   const unsigned int dataArraySize = 5;
-  String getUrl() const;
-  const char** buffer;
-  unsigned char bufferSize = 0;
-  bool isEmpty();
+  const String getUrl() const;
   template<typename F>
   float calc(F &&getData) const;
   float abs(float a) const;

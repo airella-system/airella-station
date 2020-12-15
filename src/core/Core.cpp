@@ -8,7 +8,8 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up started");
   taskHandler = new TaskHandler<void*, double, String>(1);
   DeviceContainer.storage->tryToInit();
-
+  Guardian::measurePersister = &measurementPersister;
+  
   powerSensor = new PowerSensor();
   powerSensor->begin();
   DeviceContainer.powerSensor = powerSensor;
@@ -80,7 +81,7 @@ void Core::main() {
       }
 
       Guardian::tryFlushBuffers();
-      storableBuffer.sync(); // todo
+      storableBuffer.sync();
 
       if (timeProvider.shouldBePersist()) timeProvider.persistTime();
       lastCheckMillis = millis();
@@ -120,18 +121,28 @@ void Core::doMeasurements(DataModel& dataModel) {
 
     float value = Statistics.calcTemperature();
     dataModel.addMeasurement(measurementType.temperature, value);
+    measurementPersister.saveMeasurement(measurementType.temperature, value);
+
     value = Statistics.calcHumidity();
     dataModel.addMeasurement(measurementType.humidity, value);
+    measurementPersister.saveMeasurement(measurementType.humidity, value);
+
     value = Statistics.calcPressure();
     dataModel.addMeasurement(measurementType.pressure, value);
+    measurementPersister.saveMeasurement(measurementType.pressure, value);
 
     airAndGpsSensorStrategy->getAirSensor()->measurement();
     uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
     dataModel.addMeasurement(measurementType.pm1, pmValue);
+    measurementPersister.saveMeasurement(measurementType.pm1, pmValue);
+
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
     dataModel.addMeasurement(measurementType.pm2_5, pmValue);
+    measurementPersister.saveMeasurement(measurementType.pm2_5, pmValue);
+
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
     dataModel.addMeasurement(measurementType.pm10, pmValue);
+    measurementPersister.saveMeasurement(measurementType.pm10, pmValue);
 
     lastPublishMillis = millis();
   }

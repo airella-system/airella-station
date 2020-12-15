@@ -160,15 +160,11 @@ bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument
   return true;
 }
 
-String StatisticsClass::getUrl() const {
+const String StatisticsClass::getUrl() const {
   return Config::getApiUrl() 
     + "/stations/" 
     + Config::getApiStationId() 
     + "/statistics";
-}
-
-bool StatisticsClass::isEmpty() {
-  return bufferSize == 0;
 }
 
 float StatisticsClass::calcTemperature() const {
