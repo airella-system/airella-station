@@ -59,60 +59,6 @@ const JsonObject StatisticsClass::getStatisticObject(const char* type, const flo
   return statisticObject;
 }
 
-const JsonObject StatisticsClass::createMultipleFloatsStatisticObject(
-    const String& id, 
-    const String& name, 
-    const String& privacyMode,
-    const String& metric, 
-    const String& chartType
-  ) const {
-  JsonObject object;
-  object["privacyMode"] = privacyMode;
-  object["id"] = id;
-  object["name"] = name;
-  object["type"] = "MULTIPLE_FLOATS";
-  object["metric"] = metric;
-  object["chartType"] = chartType;
-  return object;
-}
-
-const JsonObject StatisticsClass::createMultipleEnumsStatisticObject(
-    const String& id, 
-    const String& name, 
-    const String& privacyMode,
-    StatisticEnumDefinition enumDefinitions[], 
-    int enumDefinitionsNum,
-    const String& chartType
-  ) const {
-  JsonObject object;
-  object["privacyMode"] = privacyMode;
-  object["id"] = id;
-  object["name"] = name;
-  object["type"] = "MULTIPLE_ENUMS";
-  object["chartType"] = chartType;
-
-  JsonArray enumDefs = object.createNestedArray("enumDefinitions");
-  for (int i = 0; i < enumDefinitionsNum; i++) {
-    JsonObject enumDef = enumDefs.createNestedObject();
-    enumDef["id"] = enumDefinitions[i].id;
-    enumDef["name"] = enumDefinitions[i].name;
-  }
-  return object;
-}
-
-const JsonObject StatisticsClass::createStringStatisticObject(
-  const String& id, 
-  const String& name, 
-  const String& privacyMode
-  ) const {
-  JsonObject object;
-  object["privacyMode"] = privacyMode;
-  object["id"] = id;
-  object["name"] = name;
-  object["type"] = "ONE_STRING";
-  return object;
-}
-
 void StatisticsClass::reportBootUp() const {
   sendStringStatistic("boot", "BOOT");
 }

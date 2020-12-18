@@ -49,55 +49,52 @@ RegistrationResult ApiClass::registerStation() {
   registerModel.addSensor("pm2_5");
   registerModel.addSensor("pm10");
 
-  registerModel.addStatistic(
-    Statistics.createStringStatisticObject("btMacAddress", "Bluetooth MAC Address", "PRIVATE")
-  );
   StatisticEnumDefinition bootEnums[] = {{"BOOT", "Boot"}};
   registerModel.addStatistic(
-    Statistics.createMultipleEnumsStatisticObject("boot", "Boot", "PRIVATE", bootEnums, 1, "SCATTER")
+    MultipleEnumsStatistic("boot", "Boot", "PRIVATE", bootEnums, 1, "SCATTER")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("heaterTemp", "Heater temperature", "PRIVATE", "°C", "LINE")
+    MultipleFloatsStatistic("heaterTemp", "Heater temperature", "PRIVATE", "°C", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("heaterHum", "Heater humidity", "PRIVATE", "%", "LINE")
+    MultipleFloatsStatistic("heaterHum", "Heater humidity", "PRIVATE", "%", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("heaterDewPoint", "Heater dew point", "PRIVATE", "°C", "LINE")
+    MultipleFloatsStatistic("heaterDewPoint", "Heater dew point", "PRIVATE", "°C", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("heaterPower", "Heater power", "PRIVATE", "%", "LINE")
+    MultipleFloatsStatistic("heaterPower", "Heater power", "PRIVATE", "%", "LINE")
   );
   StatisticEnumDefinition heaterStateEnums[] = {{"ON", "On"}, {"OFF", "Off"}};
   registerModel.addStatistic(
-    Statistics.createMultipleEnumsStatisticObject("heaterState", "Heater state", "PRIVATE", heaterStateEnums, 2, "LINE")
+    MultipleEnumsStatistic("heaterState", "Heater state", "PRIVATE", heaterStateEnums, 2, "LINE")
   );
   StatisticEnumDefinition heartbeatEnums[] = {{"HEARTBEAT", "Heartbeat"}};
   registerModel.addStatistic(
-    Statistics.createMultipleEnumsStatisticObject("heartbeat", "Heartbeat", "PRIVATE", heartbeatEnums, 1, "SCATTER")
+    MultipleEnumsStatistic("heartbeat", "Heartbeat", "PRIVATE", heartbeatEnums, 1, "SCATTER")
   );
   StatisticEnumDefinition connectionTypeEnums[] = {{"WIFI", "WiFi"}, {"GSM", "GSM"}};
   registerModel.addStatistic(
-    Statistics.createMultipleEnumsStatisticObject("connectionType", "Connection type", "PRIVATE", connectionTypeEnums, 2, "LINE")
+    MultipleEnumsStatistic("connectionType", "Connection type", "PRIVATE", connectionTypeEnums, 2, "LINE")
   );
   StatisticEnumDefinition connectionStateEnums[] = {{"OK", "Connected"}, {"ERROR", "Error"}};
   registerModel.addStatistic(
-    Statistics.createMultipleEnumsStatisticObject("connectionState", "Connection state", "PRIVATE", connectionStateEnums, 2, "LINE")
+    MultipleEnumsStatistic("connectionState", "Connection state", "PRIVATE", connectionStateEnums, 2, "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("busVoltage", "Bus voltage", "PRIVATE", "V", "LINE")
+    MultipleFloatsStatistic("busVoltage", "Bus voltage", "PRIVATE", "V", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("shounVoltage", "Shoun voltage", "PRIVATE", "mV", "LINE")
+    MultipleFloatsStatistic("shounVoltage", "Shoun voltage", "PRIVATE", "mV", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("loadVoltage", "Load voltage", "PRIVATE", "V", "LINE")
+    MultipleFloatsStatistic("loadVoltage", "Load voltage", "PRIVATE", "V", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("current", "Current", "PRIVATE", "mA", "LINE")
+    MultipleFloatsStatistic("current", "Current", "PRIVATE", "mA", "LINE")
   );
   registerModel.addStatistic(
-    Statistics.createMultipleFloatsStatisticObject("power", "Power", "PRIVATE", "mW", "LINE")
+    MultipleFloatsStatistic("power", "Power", "PRIVATE", "mW", "LINE")
   );
 
   registerModel.setBTMAC(Bluetooth::getMAC().c_str());

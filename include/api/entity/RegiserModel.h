@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ArduinoJson.h>
+#include "maintenance/Logger.h"
+#include "maintenance/StatisticTypes.h"
 
 class RegiserModel {
 public:
@@ -10,7 +12,6 @@ public:
     sensors = add.createNestedArray("sensors");
     statistics = add.createNestedArray("statistics");
     statisticValues = add.createNestedArray("statisticValues");
-
     set = additionalData.createNestedObject("set");
     address = set.createNestedObject("address");
     location = set.createNestedObject("location");
@@ -25,14 +26,49 @@ public:
   JsonArray statisticValues;
 
   void addSensor(const char* type) {
-    JsonObject sensor;
+    JsonObject sensor = sensors.createNestedObject();
     sensor["type"] = type;
     sensor["id"] = type;
-    sensors.add(sensor);
   }
 
-  void addStatistic(const JsonObject& statistic) {
-    statistics.add(statistic);
+  void addSensor(const char* type, const char* id) {
+    JsonObject sensor = sensors.createNestedObject();
+    sensor["type"] = type;
+    sensor["id"] = id;
+  }
+
+  void addStatistic(StringStatistic statistic) {
+    JsonObject object = statistics.createNestedObject();
+    object["id"] = statistic.id;
+    object["name"] = statistic.name;
+    object["privacyMode"] = statistic.privacyMode;
+    object["type"] = statistic.type;
+  }
+
+  void addStatistic(MultipleEnumsStatistic statistic) {
+    JsonObject object = statistics.createNestedObject();
+    object["privacyMode"] = statistic.privacyMode;
+    object["id"] = statistic.id;
+    object["name"] = statistic.name;
+    object["type"] = statistic.type;
+    object["chartType"] = statistic.chartType;
+
+    JsonArray enumDefs = object.createNestedArray("enumDefinitions");
+    for (int i = 0; i < statistic.enumDefinitionsNum; i++) {
+      JsonObject enumDef = enumDefs.createNestedObject();
+      enumDef["id"] = statistic.enumDefinitions[i].id;
+      enumDef["name"] = statistic.enumDefinitions[i].name;
+    }
+  }
+
+  void addStatistic(MultipleFloatsStatistic statistic) {
+    JsonObject object = statistics.createNestedObject();
+    object["privacyMode"] = statistic.privacyMode;
+    object["id"] = statistic.id;
+    object["name"] = statistic.name;
+    object["type"] = statistic.type;
+    object["metric"] = statistic.metric;
+    object["chartType"] = statistic.chartType;
   }
 
   void setName(const char* name) {

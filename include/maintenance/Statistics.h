@@ -8,13 +8,9 @@
 #include "maintenance/Logger.h"
 #include "time/Time.h"
 #include "api/entity/DataModel.h"
+#include "maintenance/StatisticTypes.h"
 
 #define MAX_BUFFER_SIZE 30
-
-struct StatisticEnumDefinition {
-  String id;
-  String name;
-};
 
 class StatisticsClass {
  public:
@@ -26,27 +22,6 @@ class StatisticsClass {
   const JsonObject getStatisticObject(const char* type, const float value) const;
   void setPowerObject(DataModel& model) const;
   void setHeaterObject(DataModel& model) const;
-
-  const JsonObject createMultipleFloatsStatisticObject(
-    const String& id, 
-    const String& name, 
-    const String& privacyMode,
-    const String& metric, 
-    const String& chartType
-  ) const;
-  const JsonObject createMultipleEnumsStatisticObject(
-    const String& id, 
-    const String& name, 
-    const String& privacyMode,
-    StatisticEnumDefinition enumDefinitions[], 
-    int enumDefinitionsNum,
-    const String& chartType
-  ) const;
-  const JsonObject createStringStatisticObject(
-    const String& id, 
-    const String& name, 
-    const String& privacyMode
-  ) const;
 
   float calcTemperature() const;
   float calcHumidity() const;
