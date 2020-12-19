@@ -33,7 +33,7 @@ String Guardian::getDeviceState() {
   #ifndef IS_MOCK
   state += ",";
   state += "API_CONNECTION|";
-  state += "OK"; // temporary
+  state += "OK"; // todo
   state += ",";
   state += DeviceContainer.airSensor->getTextState();
   state += ",";

@@ -10,7 +10,7 @@
 #include "api/entity/RegiserModel.h"
 #include "api/entity/DataModel.h"
 
-#define ACCESS_TOKEN_EXPIRATION_TIME 600000  // 1000ms * 60 * 10 = 10 min
+#define ACCESS_TOKEN_EXPIRATION_TIME 1000 * 60 * 60 * 10
 
 struct RegistrationResult {
   bool ok = true;
