@@ -54,10 +54,11 @@ void Core::main() {
       doCoreTasks();
       delay(100);
     }
+    Logger::debug("bobobobo");
   } else {
     Statistics.reportBootUp();
   }
-
+  
 #ifdef STOP_MAIN_LOOP
   while (true) {
     delay(30000);

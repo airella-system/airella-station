@@ -30,12 +30,14 @@ RegistrationResult ApiClass::registerStation() {
   }
 
   RegiserModel registerModel;
-  registerModel.setName(Config::getStationName().c_str());
+  registerModel.setName(Config::getStationName());
+  registerModel.setBTMAC(Bluetooth::getMAC());
+  registerModel.setRegisterToken(Config::getRegistratonToken());
   registerModel.setAddress(
-    Config::getAddressCountry().c_str(),
-    Config::getAddressCity().c_str(),
-    Config::getAddressStreet().c_str(),
-    Config::getAddressNumber().c_str()
+    Config::getAddressCountry(),
+    Config::getAddressCity(),
+    Config::getAddressStreet(),
+    Config::getAddressNumber()
   );
   registerModel.setLocation(
     Config::getLocationLatitude().toDouble(), 
@@ -96,9 +98,9 @@ RegistrationResult ApiClass::registerStation() {
   registerModel.addStatistic(
     MultipleFloatsStatistic("power", "Power", "PRIVATE", "mW", "LINE")
   );
-
-  registerModel.setBTMAC(Bluetooth::getMAC().c_str());
-  registerModel.setRegisterToken(Config::getRegistratonToken().c_str());
+  registerModel.addStatistic(
+    StringStatistic("PRIVATE", "btMacAddress", "Bluetooth MAC Address")
+  );
   
   String url = Config::getApiUrl() + "/auth/register-station";
 
@@ -112,30 +114,26 @@ RegistrationResult ApiClass::registerStation() {
     + " payload: " 
     + response.payload
   );
-
-  if (response.code != 200) {
+  
+  if (response.code != 201) {
     Logger::debug(String("[ApiClass::registerStation()] Registration fail - internet error: " + response.code).c_str());
     Config::setRegistrationState(Config::RegistrationState::REGISTRATION_ERROR);
     result.ok = false;
     result.message = "Unable to register";
     return result;
   }
-
-  DynamicJsonDocument doc(2 * JSON_OBJECT_SIZE(2) + 120);
+  
+  DynamicJsonDocument doc(1500);
   deserializeJson(doc, response.payload);
   const char* id = doc["data"]["id"];
   const char* refreshToken = doc["data"]["refreshToken"];
+  const char* accessToken = doc["data"]["accessToken"]["token"];
   Config::setApiStationId(String(id));
   Config::setRefreshToken(String(refreshToken));
+  Config::setAccessToken(String(accessToken));
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
-
-  if (!updateAccessToken()) {
-    Logger::info("[ApiClass::registerStation()] Unable to get auth token.");
-  }
-
   Logger::info("[ApiClass::registerStation()] Registered successfull");
   Config::setRegistrationState(Config::RegistrationState::REGISTERED);
-
   return result;
 }
 

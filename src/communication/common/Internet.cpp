@@ -25,8 +25,7 @@ const Http::Response Internet::httpGet(const String& url, const String& authoriz
 }
 
 const Http::Response Internet::httpPost(const String& url, const String& body) {
-  String authorization = String("Bearer ") + Config::getAccessToken();
-  return Internet::httpPost(url, body, authorization);
+  return Internet::httpPost(url, body, String("Bearer ") + Config::getAccessToken());
 }
 
 const Http::Response Internet::httpPost(const String& url, const String& body, const String& authorization) {

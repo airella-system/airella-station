@@ -6,13 +6,13 @@
 
 class RegiserModel {
 public:
-  RegiserModel() : doc(2048) {
-    JsonObject additionalData = doc.createNestedObject("additionalData");
-    JsonObject add = additionalData.createNestedObject("add");
+  RegiserModel() : doc(5000) {
+    JsonObject additionalQuery = doc.createNestedObject("additionalQuery");
+    JsonObject add = additionalQuery.createNestedObject("add");
     sensors = add.createNestedArray("sensors");
     statistics = add.createNestedArray("statistics");
     statisticValues = add.createNestedArray("statisticValues");
-    set = additionalData.createNestedObject("set");
+    set = additionalQuery.createNestedObject("set");
     address = set.createNestedObject("address");
     location = set.createNestedObject("location");
   }
@@ -71,11 +71,11 @@ public:
     object["chartType"] = statistic.chartType;
   }
 
-  void setName(const char* name) {
+  void setName(const String& name) {
     set["name"] = name;
   }
 
-  void setAddress(const char* country, const char* city, const char* street, const char* number) {
+  void setAddress(const String& country, const String& city, const String& street, const String& number) {
     address["country"] = country;
     address["city"] = city;
     address["street"] = street;
@@ -87,15 +87,15 @@ public:
     location["longitude"] = longitude;
   }
 
-  void setBTMAC(const char* mac) {
-    JsonObject statistic;
-    statistic["statisticId"] = "mac";
-    JsonObject statisticValue = statistic.createNestedObject("statisticValue");
-    statisticValue["value"] = mac;
-    statisticValues.add(statisticValue);
+  void setBTMAC(const String& mac) {
+    JsonObject statisticObject = statisticValues.createNestedObject();
+    statisticObject["statisticId"] = "btMacAddress";
+    JsonObject statisticVelue = statisticObject.createNestedObject("statisticValue");
+    statisticVelue["value"] = mac;
   }
 
-  void setRegisterToken(const char* token) {
+  void setRegisterToken(const String& token) {
+    Logger::debug(token);
     doc["stationRegistrationToken"] = token;
   }
 

@@ -124,14 +124,14 @@ void BluetoothRefreshHandler::deviceRefreshRequest(String& actionName) {
     Bluetooth::getTaskHandler()->startBlockingTask(
         [](TaskRequestorHandle<void*, double, String> task, void* data) {
           RegistrationResult result = Api.registerStation();
-          return result.ok ? String("OK") : String(result.message);
+          return result.ok ? String("ok") : String("error");
         },
         [](double progress) {},
         [](String result) {
-          if (result.equals("OK")) {
+          if (result.equals("ok")) {
             Bluetooth::setLastOperationStatus("register|ok");
           } else {
-            Bluetooth::setLastOperationStatus(String("register|") + result);
+            Bluetooth::setLastOperationStatus(String("register|") + result.c_str());
           }
         });
   }

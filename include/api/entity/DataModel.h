@@ -25,11 +25,10 @@ public:
       measurementIsInit = true;
       containsData = true;
     }
-    JsonObject measurementObject;
+    JsonObject measurementObject = measurements.createNestedObject();
     measurementObject["sensorId"] = type;
     JsonObject measurement = measurementObject.createNestedObject("measurement");
     measurement["value"] = value;
-    measurements.add(measurement);
   }
 
   void initStatistics() {
@@ -43,15 +42,17 @@ public:
   void addStatisticValue(const StatisticValueString& statisticObject) {
     initStatistics();
     JsonObject object = statisticValues.createNestedObject();
+    JsonObject statisticValue = object.createNestedObject("statisticValue");
     object["statisticId"] = statisticObject.type;
-    object["value"] = statisticObject.value;
+    statisticValue["value"] = statisticObject.value;
   }
 
   void addStatisticValue(const StatisticValueFloat& statisticObject) {
     initStatistics();
     JsonObject object = statisticValues.createNestedObject();
+    JsonObject statisticValue = object.createNestedObject("statisticValue");
     object["statisticId"] = statisticObject.type;
-    object["value"] = statisticObject.value;
+    statisticValue["value"] = statisticObject.value;
   }
 
   void setLocation(const double latitude, const double longitude) {
