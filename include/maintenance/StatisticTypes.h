@@ -76,3 +76,21 @@ struct MultipleFloatsStatistic {
   chartType(_chartType)
   {}
 };
+
+struct StatisticValueString {
+
+  const char* type;
+  const char* value;
+
+  StatisticValueString(const char* _type, const char* _value)
+  : type(_type), value(_value) {}
+};
+
+struct StatisticValueFloat {
+
+  const char* type;
+  float value;
+
+  StatisticValueFloat(const char* _type, float _value)
+  : type(_type), value(_value) {}
+};

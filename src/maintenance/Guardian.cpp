@@ -81,9 +81,9 @@ void Guardian::statistics(DataModel& dataModel) {
   if (abs(millis() - lastStatisticTimestamp) > 1000 * 60) {
     Logger::info("[Guardian::statistics]: Sending stats");
 
-    dataModel.addStatisticValue(Statistics.getHeartbeatObject());
-    dataModel.addStatisticValue(Statistics.getConnectionStateObject());
-    dataModel.addStatisticValue(Statistics.getConnectionTypeObject());
+    Statistics.setHeartbeatObject(dataModel);
+    Statistics.setConnectionTypeObject(dataModel);
+    Statistics.setConnectionStateObject(dataModel);
     Statistics.setPowerObject(dataModel);
     Statistics.setHeaterObject(dataModel);
 

@@ -2,33 +2,29 @@
 #include <algorithm>
 #include <functional>
 
-const JsonObject StatisticsClass::getBootUpObject() const {
-  return getStatisticObject("boot", "BOOT");
-}
-
-const JsonObject StatisticsClass::getConnectionTypeObject() const {
+void StatisticsClass::setConnectionTypeObject(DataModel& dataModel) const {
   const char* typeName = Config::getInternetConnectionType() == Config::InternetConnectionType::WIFI ? "WIFI" : "GSM";
-  return getStatisticObject("connectionType", typeName);
+  dataModel.addStatisticValue(StatisticValueString("connectionType", typeName));
 }
 
-const JsonObject StatisticsClass::getHeartbeatObject() const {
-  return getStatisticObject("heartbeat", "HEARTBEAT");
+void StatisticsClass::setHeartbeatObject(DataModel& dataModel) const {
+  dataModel.addStatisticValue(StatisticValueString("heartbeat", "HEARTBEAT"));
 }
 
-const JsonObject StatisticsClass::getConnectionStateObject() const {
+void StatisticsClass::setConnectionStateObject(DataModel& dataModel) const {
   const char* strValue = Internet::isOk() ? "OK" : "ERROR";
-  return getStatisticObject("connectionState", strValue);
+  dataModel.addStatisticValue(StatisticValueString("connectionState", strValue));
 }
 
 void StatisticsClass::setPowerObject(DataModel& model) const {
   PowerSensor* powerSensor = DeviceContainer.powerSensor;
   if(!powerSensor->isInit()) return;
   PowerInfo powerInfo = powerSensor->getPowerInfo();
-  model.addStatisticValue(getStatisticObject("busVoltage", powerInfo.busVoltage));
-  model.addStatisticValue(getStatisticObject("current", powerInfo.current));
-  model.addStatisticValue(getStatisticObject("loadVoltage", powerInfo.loadVoltage));
-  model.addStatisticValue(getStatisticObject("power", powerInfo.power));
-  model.addStatisticValue(getStatisticObject("shounVoltage", powerInfo.shounVoltage));
+  model.addStatisticValue(StatisticValueFloat("busVoltage", powerInfo.busVoltage));
+  model.addStatisticValue(StatisticValueFloat("current", powerInfo.current));
+  model.addStatisticValue(StatisticValueFloat("loadVoltage", powerInfo.loadVoltage));
+  model.addStatisticValue(StatisticValueFloat("power", powerInfo.power));
+  model.addStatisticValue(StatisticValueFloat("shounVoltage", powerInfo.shounVoltage));
 }
 
 void StatisticsClass::setHeaterObject(DataModel& model) const {
@@ -36,27 +32,11 @@ void StatisticsClass::setHeaterObject(DataModel& model) const {
   if(!heater->isInit()) return;
   HeaterReport heaterReport = heater->getReport();
   const char* strValue = heaterReport.isOn ? "ON" : "OFF";
-  model.addStatisticValue(getStatisticObject("heaterTemp", heaterReport.temperature));
-  model.addStatisticValue(getStatisticObject("heaterHum", heaterReport.humidity));
-  model.addStatisticValue(getStatisticObject("heaterDewPoint", heaterReport.dewPoint));
-  model.addStatisticValue(getStatisticObject("heaterPower", heaterReport.currentPower / 255.0 * 100.0));
-  model.addStatisticValue(getStatisticObject("heaterState", strValue));
-}
-
-const JsonObject StatisticsClass::getStatisticObject(const char* type, const char* value) const {
-  JsonObject statisticObject;
-  statisticObject["statisticId"] = type;
-  JsonObject statisticValue = statisticObject.createNestedObject("statisticValue");
-  statisticValue["value"] = value;
-  return statisticObject;
-}
-
-const JsonObject StatisticsClass::getStatisticObject(const char* type, const float value) const {
-  JsonObject statisticObject;
-  statisticObject["statisticId"] = type;
-  JsonObject statisticValue = statisticObject.createNestedObject("statisticValue");
-  statisticValue["value"] = value;
-  return statisticObject;
+  model.addStatisticValue(StatisticValueFloat("heaterTemp", heaterReport.temperature));
+  model.addStatisticValue(StatisticValueFloat("heaterHum", heaterReport.humidity));
+  model.addStatisticValue(StatisticValueFloat("heaterDewPoint", heaterReport.dewPoint));
+  model.addStatisticValue(StatisticValueFloat("heaterPower", heaterReport.currentPower / 255.0 * 100.0));
+  model.addStatisticValue(StatisticValueString("heaterState", strValue));
 }
 
 void StatisticsClass::reportBootUp() const {

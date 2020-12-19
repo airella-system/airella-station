@@ -8,6 +8,7 @@
 #include "device/DeviceContainer.h"
 #include "maintenance/Logger.h"
 #include "api/entity/DataModel.h"
+#include "maintenance/StatisticTypes.h"
 
 class Guardian {
 public:

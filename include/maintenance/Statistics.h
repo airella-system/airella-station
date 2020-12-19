@@ -14,12 +14,9 @@
 
 class StatisticsClass {
  public:
-  const JsonObject getBootUpObject() const;
-  const JsonObject getConnectionTypeObject() const;
-  const JsonObject getHeartbeatObject() const;
-  const JsonObject getConnectionStateObject() const;
-  const JsonObject getStatisticObject(const char* type, const char* value) const;
-  const JsonObject getStatisticObject(const char* type, const float value) const;
+  void setConnectionTypeObject(DataModel& dataModel) const;
+  void setHeartbeatObject(DataModel& dataModel) const;
+  void setConnectionStateObject(DataModel& dataModel) const;
   void setPowerObject(DataModel& model) const;
   void setHeaterObject(DataModel& model) const;
 

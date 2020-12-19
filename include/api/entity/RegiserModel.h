@@ -37,7 +37,7 @@ public:
     sensor["id"] = id;
   }
 
-  void addStatistic(StringStatistic statistic) {
+  void addStatistic(const StringStatistic& statistic) {
     JsonObject object = statistics.createNestedObject();
     object["id"] = statistic.id;
     object["name"] = statistic.name;
@@ -45,7 +45,7 @@ public:
     object["type"] = statistic.type;
   }
 
-  void addStatistic(MultipleEnumsStatistic statistic) {
+  void addStatistic(const MultipleEnumsStatistic& statistic) {
     JsonObject object = statistics.createNestedObject();
     object["privacyMode"] = statistic.privacyMode;
     object["id"] = statistic.id;
@@ -61,7 +61,7 @@ public:
     }
   }
 
-  void addStatistic(MultipleFloatsStatistic statistic) {
+  void addStatistic(const MultipleFloatsStatistic& statistic) {
     JsonObject object = statistics.createNestedObject();
     object["privacyMode"] = statistic.privacyMode;
     object["id"] = statistic.id;
