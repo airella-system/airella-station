@@ -5,7 +5,7 @@
 
 class DataModel {
 public:
-  DataModel() : doc(2048) {
+  DataModel() : doc(4096) {
     add = doc.createNestedObject("add");
   }
 
@@ -42,8 +42,8 @@ public:
   void addStatisticValue(const StatisticValueString& statisticObject) {
     initStatistics();
     JsonObject object = statisticValues.createNestedObject();
-    JsonObject statisticValue = object.createNestedObject("statisticValue");
     object["statisticId"] = statisticObject.type;
+    JsonObject statisticValue = object.createNestedObject("statisticValue");
     statisticValue["value"] = statisticObject.value;
   }
 

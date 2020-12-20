@@ -7,7 +7,7 @@
 #include <ArduinoJson.h>
 #include "api/entity/DataModel.h"
 
-#define BUFFER_MAX_SIZE 5
+#define BUFFER_MAX_SIZE 2
 
 class StorableBuffer {
 public:
