@@ -57,7 +57,7 @@ public:
 
   void setLocation(const double latitude, const double longitude) {
     if(!locationIsInit) {
-      JsonObject set = doc.createNestedObject("add");
+      JsonObject set = doc.createNestedObject("set");
       location = set.createNestedObject("location");
       locationIsInit = true;
       containsData = true;
