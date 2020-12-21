@@ -84,19 +84,19 @@ RegistrationResult ApiClass::registerStation() {
     MultipleEnumsStatistic("connectionState", "Connection state", "PRIVATE", connectionStateEnums, 2, "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("busVoltage", "Bus voltage", "PRIVATE", "V", "LINE")
+    MultipleFloatsStatistic("busVoltage", "Bus voltage on air sensor", "PRIVATE", "V", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("shounVoltage", "Shoun voltage", "PRIVATE", "mV", "LINE")
+    MultipleFloatsStatistic("shounVoltage", "Shoun voltage on air sensor", "PRIVATE", "mV", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("loadVoltage", "Load voltage", "PRIVATE", "V", "LINE")
+    MultipleFloatsStatistic("loadVoltage", "Load voltage on air sensor", "PRIVATE", "V", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("current", "Current", "PRIVATE", "mA", "LINE")
+    MultipleFloatsStatistic("current", "Current on air sensor", "PRIVATE", "mA", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("power", "Power", "PRIVATE", "mW", "LINE")
+    MultipleFloatsStatistic("power", "Power on air sensor", "PRIVATE", "mW", "LINE")
   );
   registerModel.addStatistic(
     StringStatistic("PRIVATE", "btMacAddress", "Bluetooth MAC Address")
