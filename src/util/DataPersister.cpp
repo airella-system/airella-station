@@ -25,7 +25,7 @@ void DataPersister::flushBuffer(BufferType type) {
   }
 }
 
-void DataPersister::saveMeasurement(String& sensor, String data) {
+void DataPersister::saveMeasurement(const char* sensor, float data) {
   if(!initialized) return;
   Logger::debug("[DataPersister::saveMeasurement()] Save new measurement data.");
   
@@ -34,7 +34,7 @@ void DataPersister::saveMeasurement(String& sensor, String data) {
   }
   buffer[bufferCount++] = 
     timeProvider.getDataTime().toString() 
-    + ": [" + sensor + "]" + data + "\n";
+    + ": [" + sensor + "]" + String(data, DEC) + "\n";
 }
 
 void DataPersister::saveLog(String& logMessage) {

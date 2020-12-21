@@ -4,32 +4,28 @@
 #include "device/DeviceContainer.h"
 #include "util/List.h"
 #include "time/Time.h"
+#include <ArduinoJson.h>
+#include "api/entity/DataModel.h"
 
 #define BUFFER_MAX_SIZE 5
 
-struct BufferItem {
-  String date;
-  String data;
-  String type;
-};
-
 class StorableBuffer {
 public:
-  StorableBuffer(String _name);
+  StorableBuffer(const String& _name);
   ~StorableBuffer() {};
-  void push(const char* type, const String& data);
-  BufferItem pop();
-  bool isEmpty();
+  void push(const DataModel& data);
+  const String pop();
+  bool isEmpty() const;
   bool needSync();
   void sync();
-  static void createCatalogStructure(String _name);
+  static void createCatalogStructure(const String& _name);
 private:
   bool initialized = false;
   String name;
   int lastFileNum;
   List storagedFiles;
   unsigned int bufferSize = 0;
-  BufferItem buffer[BUFFER_MAX_SIZE];
+  String buffer[BUFFER_MAX_SIZE];
   void saveToStorege();
-  void loadFromStorege(MultiValueList& list);
+  void loadFromStorege(List& list);
 };

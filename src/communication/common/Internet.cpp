@@ -14,27 +14,26 @@ void Internet::stop() {
   Internet::type == Internet::WIFI ? WiFiConn::stop() : GsmConn::stop();
 }
 
-Http::Response Internet::httpGet(const String& url) {
+const Http::Response Internet::httpGet(const String& url) {
   String authorization = String("Bearer ") + Config::getAccessToken();
   return Internet::httpGet(url, authorization);
 }
 
-Http::Response Internet::httpGet(const String& url, String& authorization) {
+const Http::Response Internet::httpGet(const String& url, const String& authorization) {
   return Internet::type == Internet::WIFI ? WiFiConn::httpGet(url, authorization)
                                           : GsmConn::httpGet(url, authorization);
 }
 
-Http::Response Internet::httpPost(const String& url, String& body) {
-  String authorization = String("Bearer ") + Config::getAccessToken();
-  return Internet::httpPost(url, body, authorization);
+const Http::Response Internet::httpPost(const String& url, const String& body) {
+  return Internet::httpPost(url, body, String("Bearer ") + Config::getAccessToken());
 }
 
-Http::Response Internet::httpPost(const String& url, String& body, String& authorization) {
+const Http::Response Internet::httpPost(const String& url, const String& body, const String& authorization) {
   return Internet::type == Internet::WIFI ? WiFiConn::httpPost(url, body, authorization)
                                           : GsmConn::httpPost(url, body, authorization);
 }
 
-Http::Response Internet::httpPut(const String& url, String& body, String& authorization) {
+const Http::Response Internet::httpPut(const String& url, const String& body, const String& authorization) {
   return Internet::type == Internet::WIFI ? WiFiConn::httpPut(url, body, authorization)
                                           : GsmConn::httpPut(url, body, authorization);
 }
@@ -52,7 +51,8 @@ int Internet::resetType(Type type) {
   Internet::type = type;
   if (type == Internet::GSM) {
     return GsmConn::start();
-  } else if (type == Internet::WIFI) {
+  } 
+  else {
     return WiFiConn::start();
   }
 }

@@ -9,9 +9,9 @@ class WiFiConn {
   static void stop();
   static bool isConnected();
   static bool isOk();
-  static Http::Response httpGet(const String& url, String& authorization);
-  static Http::Response httpPost(const String& url, String& body, String& authorization);
-  static Http::Response httpPut(const String& url, String& json, String& authorization);
+  static Http::Response httpGet(const String& url, const String& authorization);
+  static Http::Response httpPost(const String& url, const String& body, const String& authorization);
+  static Http::Response httpPut(const String& url, const String& json, const String& authorization);
 
  private:
   static bool connected;

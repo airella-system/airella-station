@@ -30,6 +30,8 @@
 #include "config/HardwareConfig.h"
 #include "util/StorableBuffer.h"
 #include "config/Autocofiguration.h"
+#include "api/entity/DataModel.h"
+#include "util/DataPersister.h"
 
 class Core {
 public:
@@ -40,8 +42,8 @@ public:
   bool isError();
   void reset();
   void doCoreTasks();
-  void sendMeasurements();
-  void sendGpsLocation();
+  void doMeasurements(DataModel& dataModel);
+  void checkGpsLocation(DataModel& dataModel);
 
  private:
   WeatherSensor *weatherSensor = NULL;
@@ -52,14 +54,14 @@ public:
   AirAndGpsSensorStrategy *airAndGpsSensorStrategy = NULL;
 
   MeasurementType measurementType;
-  bool gpsError = true;
-  bool sensorError = true;
   unsigned long lastPublishMillis = 0;
+  unsigned long lastCheckMillis = 0;
   unsigned long lastGpsUpdateMillis = 0;
   bool isWorking = true;
   TaskHandler<void*, double, String>* taskHandler;
   StorableBuffer storableBuffer;
   void tryPublishMeasurement();
+  DataPersister measurementPersister;
 };
 
 extern Core core;

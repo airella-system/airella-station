@@ -2,119 +2,60 @@
 #include <algorithm>
 #include <functional>
 
-void StatisticsClass::reportBootUp() {
-  sendStringStatistic("boot", "BOOT");
-}
-
-void StatisticsClass::reportConnectionType() {
+void StatisticsClass::setConnectionTypeObject(DataModel& dataModel) const {
   const char* typeName = Config::getInternetConnectionType() == Config::InternetConnectionType::WIFI ? "WIFI" : "GSM";
-  sendStringStatistic("connectionType", typeName);
+  dataModel.addStatisticValue(StatisticValueString("connectionType", typeName));
 }
 
-void StatisticsClass::reportHeater() {
-  Heater* heater = DeviceContainer.heater;
-  if(!heater->isInit()) return;
-  HeaterReport heaterReport = heater->getReport();
-  sendFloatStatistic("heaterTemp", heaterReport.temperature);
-  sendFloatStatistic("heaterHum", heaterReport.humidity);
-  sendFloatStatistic("heaterDewPoint", heaterReport.dewPoint);
-  sendFloatStatistic("heaterPower", heaterReport.currentPower / 255.0 * 100.0);
-  const char* strValue = heaterReport.isOn ? "ON" : "OFF";
-  sendStringStatistic("heaterState", strValue);
+void StatisticsClass::setHeartbeatObject(DataModel& dataModel) const {
+  dataModel.addStatisticValue(StatisticValueString("heartbeat", "HEARTBEAT"));
 }
 
-void StatisticsClass::reportHeartbeat() {
-  sendStringStatistic("heartbeat", "HEARTBEAT");
-}
-
-void StatisticsClass::reportConnectionState() {
+void StatisticsClass::setConnectionStateObject(DataModel& dataModel) const {
   const char* strValue = Internet::isOk() ? "OK" : "ERROR";
-  sendStringStatistic("connectionState", strValue);
+  dataModel.addStatisticValue(StatisticValueString("connectionState", strValue));
 }
 
-void StatisticsClass::reportPower() {
+void StatisticsClass::setPowerObject(DataModel& model) const {
   PowerSensor* powerSensor = DeviceContainer.powerSensor;
   if(!powerSensor->isInit()) return;
   PowerInfo powerInfo = powerSensor->getPowerInfo();
-  sendFloatStatistic("busVoltage", powerInfo.busVoltage);
-  sendFloatStatistic("current", powerInfo.current);
-  sendFloatStatistic("loadVoltage", powerInfo.loadVoltage);
-  sendFloatStatistic("power", powerInfo.power);
-  sendFloatStatistic("shounVoltage", powerInfo.shounVoltage);
+  model.addStatisticValue(StatisticValueFloat("busVoltage", powerInfo.busVoltage));
+  model.addStatisticValue(StatisticValueFloat("current", powerInfo.current));
+  model.addStatisticValue(StatisticValueFloat("loadVoltage", powerInfo.loadVoltage));
+  model.addStatisticValue(StatisticValueFloat("power", powerInfo.power));
+  model.addStatisticValue(StatisticValueFloat("shounVoltage", powerInfo.shounVoltage));
 }
 
-bool StatisticsClass::createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode,
-                                                    const String& metric, const String& chartType) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(6) + 1024);
-  statisticDoc["privacyMode"] = privacyMode;
-  statisticDoc["id"] = id;
-  statisticDoc["name"] = name;
-  statisticDoc["type"] = "MULTIPLE_FLOATS";
-  statisticDoc["metric"] = metric;
-  statisticDoc["chartType"] = chartType;
-  return createStatistic(statisticDoc);
+void StatisticsClass::setHeaterObject(DataModel& model) const {
+  Heater* heater = DeviceContainer.heater;
+  if(!heater->isInit()) return;
+  HeaterReport heaterReport = heater->getReport();
+  const char* strValue = heaterReport.isOn ? "ON" : "OFF";
+  model.addStatisticValue(StatisticValueFloat("heaterTemp", heaterReport.temperature));
+  model.addStatisticValue(StatisticValueFloat("heaterHum", heaterReport.humidity));
+  model.addStatisticValue(StatisticValueFloat("heaterDewPoint", heaterReport.dewPoint));
+  model.addStatisticValue(StatisticValueFloat("heaterPower", heaterReport.currentPower / 255.0 * 100.0));
+  model.addStatisticValue(StatisticValueString("heaterState", strValue));
 }
 
-bool StatisticsClass::createMultipleEnumsStatistic(const String& id, const String& name, const String& privacyMode,
-                                                   StatisticEnumDefinition enumDefinitions[], int enumDefinitionsNum,
-                                                   const String& chartType) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(5) + enumDefinitionsNum * JSON_OBJECT_SIZE(2) +
-                                   JSON_ARRAY_SIZE(enumDefinitionsNum) + 1024);
-  statisticDoc["privacyMode"] = privacyMode;
-  statisticDoc["id"] = id;
-  statisticDoc["name"] = name;
-  statisticDoc["type"] = "MULTIPLE_ENUMS";
-  statisticDoc["chartType"] = chartType;
-
-  JsonArray enumDefs = statisticDoc.createNestedArray("enumDefinitions");
-  for (int i = 0; i < enumDefinitionsNum; i++) {
-    JsonObject enumDef = enumDefs.createNestedObject();
-    enumDef["id"] = enumDefinitions[i].id;
-    enumDef["name"] = enumDefinitions[i].name;
-  }
-  return createStatistic(statisticDoc);
+void StatisticsClass::reportBootUp() const {
+  sendStringStatistic("boot", "BOOT");
 }
 
-bool StatisticsClass::createStringStatistic(const String& id, const String& name, const String& privacyMode) {
-  DynamicJsonDocument statisticDoc(JSON_OBJECT_SIZE(4) + 1024);
-  statisticDoc["privacyMode"] = privacyMode;
-  statisticDoc["id"] = id;
-  statisticDoc["name"] = name;
-  statisticDoc["type"] = "ONE_STRING";
-  return createStatistic(statisticDoc);
-}
-
-bool StatisticsClass::createStatistic(DynamicJsonDocument statisticDoc) {
-  String body;
-  serializeJson(statisticDoc, body);
-  Http::Response response;
-
-  response = Internet::httpPost(getUrl(), body);
-  if (response.code != 201) {
-    Logger::debug(
-      (String("[StatisticsClass::createStatistic()] Create statistic fail - error: ") 
-      + String(response.code)).c_str()
-    );
-    Logger::debug(response.payload);
-    return false;
-  }
-  Logger::debug(String("[StatisticsClass::createStatistic()] Created new statistic"));
-  return true;
-}
-
-bool StatisticsClass::sendFloatStatistic(const char* statisticId, double value) {
+bool StatisticsClass::sendFloatStatistic(const char* statisticId, double value) const {
   DynamicJsonDocument data(JSON_OBJECT_SIZE(1));
   data["value"] = value;
   return sendStatistic(statisticId, data);
 }
 
-bool StatisticsClass::sendStringStatistic(const char* statisticId, const char* value) {
+bool StatisticsClass::sendStringStatistic(const char* statisticId, const char* value) const {
   DynamicJsonDocument data(JSON_OBJECT_SIZE(1));
   data["value"] = value;
   return sendStatistic(statisticId, data);
 }
 
-bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) {
+bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) const {
   if (!Api.isAuth()) {
     Logger::debug("[Statistics::sendStatistic()] Authorization failed");
     return false;
@@ -145,37 +86,33 @@ bool StatisticsClass::sendStatistic(const char* statisticId, DynamicJsonDocument
   return true;
 }
 
-String StatisticsClass::getUrl() const {
+const String StatisticsClass::getUrl() const {
   return Config::getApiUrl() 
     + "/stations/" 
     + Config::getApiStationId() 
     + "/statistics";
 }
 
-bool StatisticsClass::isEmpty() {
-  return bufferSize == 0;
-}
-
-float StatisticsClass::calcTemperature() {
+float StatisticsClass::calcTemperature() const {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
   auto getData = [&sensor]() { return sensor->getTemperature(); };
   return calc(getData);
 }
 
-float StatisticsClass::calcHumidity() {
+float StatisticsClass::calcHumidity() const {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
   auto getData = [&sensor]() { return sensor->getHumidity(); };
   return calc(getData);
 }
 
-float StatisticsClass::calcPressure() {
+float StatisticsClass::calcPressure() const {
   WeatherSensor* sensor = DeviceContainer.weatherSensor;
   auto getData = [&sensor]() { return sensor->getPressure(); };
   return calc(getData);
 }
 
 template<typename F>
-float StatisticsClass::calc(F &&getData) {
+float StatisticsClass::calc(F &&getData) const {
   float data[dataArraySize];
   for(unsigned int i = 0; i < dataArraySize; i++) {
     data[i] = getData();
@@ -200,7 +137,7 @@ float StatisticsClass::calc(F &&getData) {
   return sum / count;
 }
 
-float StatisticsClass::abs(float a) {
+float StatisticsClass::abs(float a) const {
   if(a < 0) return -1 * a;
   return a;
 }

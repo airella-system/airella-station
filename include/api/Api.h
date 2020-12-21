@@ -2,14 +2,15 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include "util/DataPersister.h"
 #include "communication/common/Internet.h"
 #include "config/Config.h"
 #include "maintenance/Logger.h"
 #include "communication/bluetooth/Bluetooth.h"
 #include "maintenance/Statistics.h"
+#include "api/entity/RegiserModel.h"
+#include "api/entity/DataModel.h"
 
-#define ACCESS_TOKEN_EXPIRATION_TIME 600000  // 1000ms * 60 * 10 = 10 min
+#define ACCESS_TOKEN_EXPIRATION_TIME 1000 * 60 * 60 * 10
 
 struct RegistrationResult {
   bool ok = true;
@@ -18,44 +19,34 @@ struct RegistrationResult {
 
 class ApiClass {
  public:
-  ApiClass();
-  ~ApiClass(){};
+  ApiClass() {};
+  ~ApiClass() {};
 
   RegistrationResult registerStation();
   bool isRegistered();
   bool isAuth();
   bool publishMeasurement(String sensor, double value, bool authCheck = true);
-  bool publishHistoricalMeasurement(String* sensor, String* data, String* date);
   bool publishName(const char *name, bool authCheck = true);
   bool publishLocation(double longitude, double latitude, bool authCheck = true);
-  bool publishAddress(const char* country, const char* city, const char* street, const char* number,
-                      bool authCheck = true);
+  bool publishAddress(
+    const char* country,
+    const char* city, 
+    const char* street, 
+    const char* number,
+    bool authCheck = true
+  );
+  bool publishDataModel(const String& body);
 
  private:
   bool updateAccessToken();
-  bool registerSensor(const char* type);
-  bool doRegister(RegistrationResult* result);
-  bool doStationName(RegistrationResult* result);
-  bool doStationAddress(RegistrationResult* result);
-  bool doStationLocation(RegistrationResult* result);
-  bool doTempSensor(RegistrationResult* result);
-  bool doHumiditySensor(RegistrationResult* result);
-  bool doPreasurreSensor(RegistrationResult* result);
-  bool doPM1Sensor(RegistrationResult* result);
-  bool doPM2_5Sensor(RegistrationResult* result);
-  bool doPM10Sensor(RegistrationResult* result);
-  bool addStatistics(RegistrationResult* result);
-  bool doBtMacValue(RegistrationResult* result);
   bool addBtMacValue();
   void logRequest(const char* name, Http::Response& response);
-  bool logRegistrationFail(const char* message, RegistrationResult* result);
   bool noInternetConnectionOptimalization();
   int tryCount = 0;
   long lastTryTime = 0;
 
   String accessToken = String("");
   unsigned long accessTokenMillis = 0;
-  DataPersister measurementPersister;
 };
 
 extern ApiClass Api;

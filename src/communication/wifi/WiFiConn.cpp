@@ -58,7 +58,7 @@ bool WiFiConn::isOk() {
   return Ping.ping("www.google.com");
 }
 
-Http::Response WiFiConn::httpGet(const String& url, String& authorization) {
+Http::Response WiFiConn::httpGet(const String& url, const String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("GET Request to url: " + url).c_str());
 
@@ -74,7 +74,7 @@ Http::Response WiFiConn::httpGet(const String& url, String& authorization) {
   return response;
 }
 
-Http::Response WiFiConn::httpPost(const String& url, String& body, String& authorization) {
+Http::Response WiFiConn::httpPost(const String& url, const String& body, const String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("POST Request to url: " + url + " with body: " + body).c_str());
   http.begin(url);
@@ -91,7 +91,7 @@ Http::Response WiFiConn::httpPost(const String& url, String& body, String& autho
   return response;
 }
 
-Http::Response WiFiConn::httpPut(const String& url, String& json, String& authorization) {
+Http::Response WiFiConn::httpPut(const String& url, const String& json, const String& authorization) {
   Guardian::checkWiFiConnection();
   Logger::debug(("PUT Request to url: " + url + " with body: " + json).c_str());
 

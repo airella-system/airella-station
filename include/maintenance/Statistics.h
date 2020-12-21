@@ -7,48 +7,34 @@
 #include "device/DeviceContainer.h"
 #include "maintenance/Logger.h"
 #include "time/Time.h"
+#include "api/entity/DataModel.h"
+#include "maintenance/StatisticTypes.h"
 
 #define MAX_BUFFER_SIZE 30
 
-struct StatisticEnumDefinition {
-  String id;
-  String name;
-};
-
 class StatisticsClass {
  public:
-  void reportBootUp();
-  void reportConnectionType();
-  void reportHeater();
-  void reportHeartbeat();
-  void reportConnectionState();
-  void reportPower();
+  void setConnectionTypeObject(DataModel& dataModel) const;
+  void setHeartbeatObject(DataModel& dataModel) const;
+  void setConnectionStateObject(DataModel& dataModel) const;
+  void setPowerObject(DataModel& model) const;
+  void setHeaterObject(DataModel& model) const;
 
-  bool createMultipleFloatsStatistic(const String& id, const String& name, const String& privacyMode,
-                                     const String& metric, const String& chartType);
-  bool createMultipleEnumsStatistic(const String& id, const String& name, const String& privacyMode,
-                                    StatisticEnumDefinition enumDefinitions[], int enumDefinitionsNum,
-                                    const String& chartType);
-  bool createStringStatistic(const String& id, const String& name, const String& privacyMode);
-  bool createStatistic(DynamicJsonDocument statisticDoc);
+  float calcTemperature() const;
+  float calcHumidity() const;
+  float calcPressure() const;
 
-  bool sendFloatStatistic(const char* statisticId, double value);
-  bool sendStringStatistic(const char* statisticId, const char* value);
-  bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc);
-
-  float calcTemperature();
-  float calcHumidity();
-  float calcPressure();
+  void reportBootUp() const;
+  bool sendFloatStatistic(const char* statisticId, double value) const;
+  bool sendStringStatistic(const char* statisticId, const char* value) const;
+  bool sendStatistic(const char* statisticId, DynamicJsonDocument statisticDoc) const;
 
  private:
   const unsigned int dataArraySize = 5;
-  String getUrl() const;
-  const char** buffer;
-  unsigned char bufferSize = 0;
-  bool isEmpty();
+  const String getUrl() const;
   template<typename F>
-  float calc(F &&getData);
-  float abs(float a);
+  float calc(F &&getData) const;
+  float abs(float a) const;
 };
 
 extern StatisticsClass Statistics;

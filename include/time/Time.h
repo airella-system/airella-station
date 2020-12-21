@@ -17,7 +17,7 @@ struct Date_t {
   Date_t(){};
   Date_t(unsigned int _year, unsigned int _month, unsigned int _day) : year(_year), month(_month), day(_day){};
 
-  String toString() {
+  const String toString() {
     String monthStr = month < 10 ? String("0") + month : String(month);
     String dayStr = day < 10 ? String("0") + day : String(day);
 
@@ -34,7 +34,7 @@ struct Time_t {
   Time_t(unsigned int _hour, unsigned int _minute, unsigned int _second)
       : hour(_hour), minute(_minute), second(_second){};
 
-  String toString() {
+  const String toString() {
     String hourStr = hour < 10 ? "0" + hour : String(hour, DEC);
     String minuteStr = minute < 10 ? String("0") + minute : String(minute, DEC);
     String secondStr = second < 10 ? String("0") + second : String(second, DEC);
@@ -50,11 +50,11 @@ struct DateTime_t {
   DateTime_t(){};
   DateTime_t(Date_t &_date, Time_t &_time) : date(_date), time(_time){};
 
-  String toString() {
+  const String toString() {
     return date.toString() + " " + time.toString();
   }
 
-  String toISOString() {
+  const String toISOString() {
     return date.toString() + "T" + time.toString() + "Z";
   }
 };
@@ -73,7 +73,7 @@ class Time {
   unsigned long lastTimeOfPersist = 0;
   void persistTime();
   void loadPersistedTime();
-  bool shouldBePersist();
+  bool shouldBePersist() const;
 
  private:
   WiFiUDP ntpUDP;

@@ -8,7 +8,8 @@ void Core::setUp() {
   Logger::info("[Core]: Setting up started");
   taskHandler = new TaskHandler<void*, double, String>(1);
   DeviceContainer.storage->tryToInit();
-
+  Guardian::measurePersister = &measurementPersister;
+  
   powerSensor = new PowerSensor();
   powerSensor->begin();
   DeviceContainer.powerSensor = powerSensor;
@@ -53,13 +54,11 @@ void Core::main() {
       doCoreTasks();
       delay(100);
     }
+    Logger::debug("bobobobo");
   } else {
     Statistics.reportBootUp();
   }
-
-  gpsError = false;
-  sensorError = true;
-
+  
 #ifdef STOP_MAIN_LOOP
   while (true) {
     delay(30000);
@@ -68,36 +67,46 @@ void Core::main() {
 
   while (isWorking) {
     doCoreTasks();
-    Guardian::statistics();
-    Guardian::check();
+    if (abs(millis() - lastCheckMillis) > 10000) {
+      DataModel dataModel;
+      Guardian::statistics(dataModel);
+      doMeasurements(dataModel);
+      checkGpsLocation(dataModel);
 
-    if (timeProvider.shouldBePersist()) {
-      timeProvider.persistTime();
+      if(dataModel.containsData) {
+        String body;
+        serializeJson(dataModel.doc, body);
+        if(!Api.publishDataModel(body)) {
+          storableBuffer.push(dataModel);
+        }
+      }
+
+      Guardian::tryFlushBuffers();
+      storableBuffer.sync();
+
+      if (timeProvider.shouldBePersist()) timeProvider.persistTime();
+      lastCheckMillis = millis();
     }
-
-    sendMeasurements();
-    sendGpsLocation();
+    
+    Guardian::check();
     delay(100);
   }
-}
-
-bool Core::isError() {
-  return this->gpsError || this->sensorError;
 }
 
 void Core::reset() {
   isWorking = false;
 }
 
-void Core::sendGpsLocation() {
-  if (abs(millis() - lastGpsUpdateMillis) > 60000) {
+void Core::checkGpsLocation(DataModel& dataModel) {
+  if (abs(millis() - lastGpsUpdateMillis) > 1000 * 60) {
     Logger::info("[Core]: Start switch to GPS");
     airAndGpsSensorStrategy->switchToGpsSensor();
-
+    doCoreTasks();
     if (airAndGpsSensorStrategy->getGpsSensor()->fetchLocation()) {
-      bool success = Api.publishLocation(airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
-                                                  airAndGpsSensorStrategy->getGpsSensor()->getLongitude());
-      this->gpsError = !success;
+      dataModel.setLocation(
+        airAndGpsSensorStrategy->getGpsSensor()->getLatitude(),
+        airAndGpsSensorStrategy->getGpsSensor()->getLongitude()
+      );
     }
     doCoreTasks();
     airAndGpsSensorStrategy->switchToAirSensor();
@@ -107,57 +116,36 @@ void Core::sendGpsLocation() {
   }
 }
 
-void Core::sendMeasurements() {
-  int state = 0;
+void Core::doMeasurements(DataModel& dataModel) {
   if (abs(millis() - lastPublishMillis) > 10000) {
     Logger::info("[Core]: Start measurement");
-    state = 1;
 
     float value = Statistics.calcTemperature();
-    if(!Api.publishMeasurement(measurementType.temperature, value)) {
-      storableBuffer.push(measurementType.temperature, String(value));
-      state = -1;
-    }
-    doCoreTasks();
+    dataModel.addMeasurement(measurementType.temperature, value);
+    measurementPersister.saveMeasurement(measurementType.temperature, value);
+
     value = Statistics.calcHumidity();
-    if(!Api.publishMeasurement(measurementType.humidity, value)) {
-      storableBuffer.push(measurementType.humidity, String(value));
-      state = -1;
-    }
-    doCoreTasks();
+    dataModel.addMeasurement(measurementType.humidity, value);
+    measurementPersister.saveMeasurement(measurementType.humidity, value);
+
     value = Statistics.calcPressure();
-    if(!Api.publishMeasurement(measurementType.pressure, value)) {
-      storableBuffer.push(measurementType.pressure, String(value));
-      state = -1;
-    }
-    doCoreTasks();
+    dataModel.addMeasurement(measurementType.pressure, value);
+    measurementPersister.saveMeasurement(measurementType.pressure, value);
+
     airAndGpsSensorStrategy->getAirSensor()->measurement();
     uint16_t pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM1();
-    if(!Api.publishMeasurement(measurementType.pm1, pmValue)) {
-      storableBuffer.push(measurementType.pm1, String(pmValue));
-      state = -1;
-    }
-    doCoreTasks();
+    dataModel.addMeasurement(measurementType.pm1, pmValue);
+    measurementPersister.saveMeasurement(measurementType.pm1, pmValue);
+
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM2_5();
-    if(!Api.publishMeasurement(measurementType.pm2_5, pmValue)) {
-      storableBuffer.push(measurementType.pm2_5, String(pmValue));
-      state = -1;
-    }
-    doCoreTasks();
+    dataModel.addMeasurement(measurementType.pm2_5, pmValue);
+    measurementPersister.saveMeasurement(measurementType.pm2_5, pmValue);
+
     pmValue = airAndGpsSensorStrategy->getAirSensor()->getPM10();
-    if(!Api.publishMeasurement(measurementType.pm10, pmValue)) {
-      storableBuffer.push(measurementType.pm10, String(pmValue));
-      state = -1;
-    }
-    doCoreTasks();
+    dataModel.addMeasurement(measurementType.pm10, pmValue);
+    measurementPersister.saveMeasurement(measurementType.pm10, pmValue);
+
     lastPublishMillis = millis();
-    Guardian::tryFlushBuffers();
-  }
-  storableBuffer.sync();
-  if (state == -1) {
-    this->sensorError = true;
-  } else if (state == 1) {
-    this->sensorError = false;
   }
 }
 

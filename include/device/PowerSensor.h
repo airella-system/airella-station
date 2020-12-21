@@ -20,7 +20,7 @@ class PowerSensor : public Sensor {
   float getCurrent();
   float getPower();
   float getLoadVoltage();
-  PowerInfo getPowerInfo();
+  const PowerInfo getPowerInfo();
 
  private:
   PowerSensorConfig config;

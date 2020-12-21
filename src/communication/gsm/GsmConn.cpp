@@ -19,21 +19,25 @@ bool GsmConn::isOk() {
   return gsm.isOk();
 }
 
-Http::Response GsmConn::httpGet(const String& url, String& authorization) {
+Http::Response GsmConn::httpGet(const String& url, const String& authorization) {
   return buildRequest(url, Http::Method::GET, authorization);
 }
 
-Http::Response GsmConn::httpPost(const String& url, String body, String& authorization) {
+Http::Response GsmConn::httpPost(const String& url, const String body, const String& authorization) {
   return buildRequest(url, Http::Method::POST, authorization, &body);
 }
 
-Http::Response GsmConn::httpPut(const String& url, String body, String& authorization) {
+Http::Response GsmConn::httpPut(const String& url, const String body, const String& authorization) {
   return buildRequest(url, Http::Method::PUT, authorization, &body);
 }
 
-Http::Response GsmConn::buildRequest(const String& url, Http::Method method, String& authorization,
-                                     String* body /* = NULL */) {
-  DynamicJsonDocument doc(2 * JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + 1024);
+Http::Response GsmConn::buildRequest(
+  const String& url, 
+  Http::Method method, 
+  const String& authorization,
+  const String* body /* = NULL */
+  ) {
+  DynamicJsonDocument doc(2 * JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + 2048);
   switch (method) {
     case Http::Method::GET: {
       doc["method"] = "get";

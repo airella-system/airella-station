@@ -90,7 +90,7 @@ void Time::loadPersistedTime() {
   persistedTime = Config::getPersistedTime();
 }
 
-bool Time::shouldBePersist() {
+bool Time::shouldBePersist() const {
   return abs(millis() - lastTimeOfPersist) > 1000 * 60 * 5;
 }
 

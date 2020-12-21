@@ -14,21 +14,8 @@ class Config {
 
   enum RegistrationState {
     NO_REGISTRATION = 0,
-    REGISTERING = 1,
     REGISTRATION_ERROR = 2,
-    REGISTERED = 3,
-    STATION_NAME = 4,
-    STATION_ADDRESS = 5,
-    STATION_LOCATION = 6,
-    TEMP_SENSOR = 7,
-    HUMIDITY_SENSOR = 8,
-    PREASSURE_SENSOR = 9,
-    PM1_SENSOR = 10,
-    PM2_5_SENSOR = 11,
-    PM10_SENSOR = 12,
-    STATISTICS = 13,
-    MAC_VALUE = 14,
-    REGISTERED_OK = 16
+    REGISTERED = 3
   };
 
   static void load(bool lock = true);

@@ -10,14 +10,18 @@ class GsmConn {
  public:
   static int start();
   static void stop();
-  static Http::Response httpGet(const String& url, String& authorization);
-  static Http::Response httpPost(const String& url, String body, String& authorization);
-  static Http::Response httpPut(const String& url, String body, String& authorization);
+  static Http::Response httpGet(const String& url, const String& authorization);
+  static Http::Response httpPost(const String& url, const String body, const String& authorization);
+  static Http::Response httpPut(const String& url, const String body, const String& authorization);
   static bool isConnected();
   static bool isOk();
   static GSM gsm;
 
  private:
-  static Http::Response buildRequest(const String& url, Http::Method method, String& authorization,
-                                     String* body = NULL);
+  static Http::Response buildRequest(
+    const String& url, 
+    Http::Method method, 
+    const String& authorization,
+    const String* body = NULL
+  );
 };
