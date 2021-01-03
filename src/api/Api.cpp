@@ -56,16 +56,16 @@ RegistrationResult ApiClass::registerStation() {
     MultipleEnumsStatistic("boot", "Boot", "PRIVATE", bootEnums, 1, "SCATTER")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("heaterTemp", "Heater temperature", "PRIVATE", "°C", "LINE")
+    MultipleFloatsStatistic("heaterTemp", "Heater temperature [°C]", "PRIVATE", "°C", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("heaterHum", "Relative humidity", "PRIVATE", "%", "LINE")
+    MultipleFloatsStatistic("heaterHum", "Relative humidity [% RH]", "PRIVATE", "%", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("heaterDewPoint", "Dew point temperature", "PRIVATE", "°C", "LINE")
+    MultipleFloatsStatistic("heaterDewPoint", "Dew point temperature [°C]", "PRIVATE", "°C", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("heaterPower", "Heater power", "PRIVATE", "%", "LINE")
+    MultipleFloatsStatistic("heaterPower", "Applied PWM duty cycle to heater [%]", "PRIVATE", "%", "LINE")
   );
   StatisticEnumDefinition heaterStateEnums[] = {{"ON", "On"}, {"OFF", "Off"}};
   registerModel.addStatistic(
