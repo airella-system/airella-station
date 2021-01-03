@@ -51,7 +51,7 @@ RegistrationResult ApiClass::registerStation() {
   registerModel.addSensor("pm2_5");
   registerModel.addSensor("pm10");
 
-  StatisticEnumDefinition bootEnums[] = {{"BOOT", "Boot"}};
+  StatisticEnumDefinition bootEnums[] = {{"BOOT", "Station boot"}};
   registerModel.addStatistic(
     MultipleEnumsStatistic("boot", "Boot", "PRIVATE", bootEnums, 1, "SCATTER")
   );
@@ -59,17 +59,17 @@ RegistrationResult ApiClass::registerStation() {
     MultipleFloatsStatistic("heaterTemp", "Heater temperature", "PRIVATE", "°C", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("heaterHum", "Heater humidity", "PRIVATE", "%", "LINE")
+    MultipleFloatsStatistic("heaterHum", "Relative humidity", "PRIVATE", "%", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("heaterDewPoint", "Heater dew point", "PRIVATE", "°C", "LINE")
+    MultipleFloatsStatistic("heaterDewPoint", "Dew point temperature", "PRIVATE", "°C", "LINE")
   );
   registerModel.addStatistic(
     MultipleFloatsStatistic("heaterPower", "Heater power", "PRIVATE", "%", "LINE")
   );
   StatisticEnumDefinition heaterStateEnums[] = {{"ON", "On"}, {"OFF", "Off"}};
   registerModel.addStatistic(
-    MultipleEnumsStatistic("heaterState", "Heater state", "PRIVATE", heaterStateEnums, 2, "LINE")
+    MultipleEnumsStatistic("heaterState", "Heater status (On / Off)", "PRIVATE", heaterStateEnums, 2, "LINE")
   );
   StatisticEnumDefinition heartbeatEnums[] = {{"HEARTBEAT", "Heartbeat"}};
   registerModel.addStatistic(
@@ -84,24 +84,24 @@ RegistrationResult ApiClass::registerStation() {
     MultipleEnumsStatistic("connectionState", "Connection state", "PRIVATE", connectionStateEnums, 2, "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("busVoltage", "Bus voltage on air sensor", "PRIVATE", "V", "LINE")
+    MultipleFloatsStatistic("busVoltage", "Air quality sensor bus voltage [V]", "PRIVATE", "V", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("shounVoltage", "Shoun voltage on air sensor", "PRIVATE", "mV", "LINE")
+    MultipleFloatsStatistic("shounVoltage", "Air quality sensor shunt voltage [mV]", "PRIVATE", "mV", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("loadVoltage", "Load voltage on air sensor", "PRIVATE", "V", "LINE")
+    MultipleFloatsStatistic("loadVoltage", "Air quality sensor load voltage [V]", "PRIVATE", "V", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("current", "Current on air sensor", "PRIVATE", "mA", "LINE")
+    MultipleFloatsStatistic("current", "Air quality sensor current draw [mA]", "PRIVATE", "mA", "LINE")
   );
   registerModel.addStatistic(
-    MultipleFloatsStatistic("power", "Power on air sensor", "PRIVATE", "mW", "LINE")
+    MultipleFloatsStatistic("power", "Air quality sensor power [mW]", "PRIVATE", "mW", "LINE")
   );
   registerModel.addStatistic(
     StringStatistic("PRIVATE", "btMacAddress", "Bluetooth MAC Address")
   );
-  
+
   String url = Config::getApiUrl() + "/auth/register-station";
 
   String body;
